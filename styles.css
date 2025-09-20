@@ -445,6 +445,41 @@ body {
     line-height: 1.4;
 }
 
+/* Enhanced date input styling */
+input[type="date"] {
+    position: relative;
+    cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    border-radius: 4px;
+    margin-right: 2px;
+    opacity: 0.8;
+    filter: invert(0.2) sepia(1) saturate(5) hue-rotate(175deg);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+    background: rgba(13, 183, 187, 0.1);
+}
+
+/* Temporary message styling */
+.temp-message {
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Notification Section */
 .notification-section {
     margin: 2.5rem 0;

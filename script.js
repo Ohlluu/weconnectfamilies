@@ -509,15 +509,23 @@ function enhanceFormExperience() {
         tomorrow.setDate(tomorrow.getDate() + 1);
         visitDateInput.min = tomorrow.toISOString().split('T')[0];
         
-        // Restrict to weekends only and exclude federal holidays
-        visitDateInput.addEventListener('input', function() {
-            const selectedDate = new Date(this.value);
+        // Create a custom date picker that only allows weekends
+        setupWeekendOnlyDatePicker(visitDateInput);
+    }
+    
+    // Function to set up weekend-only date picker
+    function setupWeekendOnlyDatePicker(input) {
+        // Use input event to validate and potentially block invalid selections
+        input.addEventListener('input', function() {
+            const selectedDate = new Date(this.value + 'T00:00:00');
             const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
             
             if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                this.value = ''; // Clear invalid selection
                 this.setCustomValidity('We only provide transportation services on weekends (Saturday and Sunday).');
                 showFieldError('visit-date', 'Please select a weekend date (Saturday or Sunday)');
             } else if (isFederalHoliday(selectedDate)) {
+                this.value = ''; // Clear invalid selection
                 this.setCustomValidity('We do not provide services on federal holidays.');
                 showFieldError('visit-date', 'Service not available on federal holidays. Please choose another weekend.');
             } else {
@@ -530,6 +538,49 @@ function enhanceFormExperience() {
                 this.style.borderColor = 'rgba(129, 212, 217, 0.3)';
             }
         });
+        
+        // Add change event as backup
+        input.addEventListener('change', function() {
+            this.dispatchEvent(new Event('input'));
+        });
+        
+        // Add click event to show helpful message
+        input.addEventListener('focus', function() {
+            if (!this.value) {
+                showTemporaryMessage(this, 'Select any weekend date. Weekdays and holidays will be automatically filtered out.');
+            }
+        });
+    }
+    
+    // Show temporary helper message
+    function showTemporaryMessage(input, message) {
+        // Remove existing message
+        const existingMessage = input.parentNode.querySelector('.temp-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'temp-message';
+        messageDiv.style.cssText = `
+            color: #0DB7BB;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(13, 183, 187, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #0DB7BB;
+        `;
+        messageDiv.textContent = message;
+        
+        input.parentNode.appendChild(messageDiv);
+        
+        // Remove after 4 seconds
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.remove();
+            }
+        }, 4000);
     }
     
     // Clear errors on input
