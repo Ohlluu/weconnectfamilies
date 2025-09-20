@@ -518,9 +518,15 @@ function enhanceFormExperience() {
         // Use input event to validate and potentially block invalid selections
         input.addEventListener('input', function() {
             const selectedDate = new Date(this.value + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
             const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
             
-            if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            if (selectedDate < today) {
+                this.value = ''; // Clear invalid selection
+                this.setCustomValidity('Visit date cannot be in the past.');
+                showFieldError('visit-date', 'Please select a future date');
+            } else if (dayOfWeek !== 0 && dayOfWeek !== 6) {
                 this.value = ''; // Clear invalid selection
                 this.setCustomValidity('We only provide transportation services on weekends (Saturday and Sunday).');
                 showFieldError('visit-date', 'Please select a weekend date (Saturday or Sunday)');
