@@ -1,97 +1,120 @@
-// Mobile Menu Toggle
-const mobileMenu = document.querySelector('.mobile-menu');
-const navLinks = document.querySelector('.nav-links');
+// Mobile Navigation Toggle
+const navToggle = document.getElementById('nav-toggle');
+const navMenu = document.getElementById('nav-menu');
 
-if (mobileMenu && navLinks) {
-    mobileMenu.addEventListener('click', () => {
-        navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
-        mobileMenu.classList.toggle('active');
+navToggle.addEventListener('click', () => {
+    navMenu.classList.toggle('active');
+    navToggle.classList.toggle('active');
+});
+
+// Close mobile menu when clicking on links
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+        navMenu.classList.remove('active');
+        navToggle.classList.remove('active');
     });
-}
+});
 
-// Smooth Scrolling for Navigation Links
+// Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
+            const navHeight = document.querySelector('.navbar').offsetHeight;
+            const targetPosition = target.offsetTop - navHeight;
+            
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
             });
         }
     });
 });
 
-// Booking Form Handler
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+    const navbar = document.querySelector('.navbar');
+    if (window.scrollY > 100) {
+        navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+        navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+    } else {
+        navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+        navbar.style.boxShadow = 'none';
+    }
+});
+
+// Form handling
 const bookingForm = document.getElementById('booking-form');
+const checkinForm = document.getElementById('checkin-form');
+
+// Booking form submission
 if (bookingForm) {
-    bookingForm.addEventListener('submit', function(e) {
+    bookingForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // Get form data
         const formData = new FormData(this);
         const bookingData = Object.fromEntries(formData);
         
-        // Validate required fields
-        const requiredFields = ['name', 'email', 'phone', 'facility', 'visit-date', 'visitor-count'];
-        let isValid = true;
-        
-        requiredFields.forEach(field => {
-            const input = document.querySelector(`[name="${field}"]`);
-            if (!input || !input.value.trim()) {
-                isValid = false;
-                if (input) {
-                    input.style.borderColor = '#ff6b6b';
-                    setTimeout(() => {
-                        input.style.borderColor = '#e1e5e9';
-                    }, 3000);
-                }
-            }
-        });
-        
-        if (!isValid) {
-            showNotification('Please fill in all required fields', 'error');
+        // Validate form
+        if (!validateBookingForm(bookingData)) {
             return;
         }
         
-        // Simulate booking submission
-        showNotification('Processing your booking...', 'info');
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span>Processing...</span>';
+        submitBtn.disabled = true;
         
-        setTimeout(() => {
-            // Simulate successful booking
-            const bookingId = 'WCF-' + Date.now().toString().slice(-6);
-            bookingData.id = bookingId;
-            bookingData.status = 'confirmed';
-            bookingData.timestamp = new Date().toISOString();
+        try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 2000));
             
-            // Store booking (in real app, this would go to backend)
-            storeBooking(bookingData);
+            // Generate booking ID
+            const bookingId = 'WCF-' + Date.now().toString().slice(-6);
+            
+            // Store booking data
+            const booking = {
+                id: bookingId,
+                ...bookingData,
+                timestamp: new Date().toISOString(),
+                status: 'confirmed'
+            };
+            
+            storeBooking(booking);
             
             // Send owner notification
-            sendOwnerNotification(bookingData);
+            sendOwnerNotification(booking);
             
             // Show success message
             showNotification(
-                `Booking confirmed! Your booking ID is ${bookingId}. You will receive confirmation details shortly.`, 
+                `Booking confirmed! Your booking ID is ${bookingId}. You will receive confirmation details shortly.`,
                 'success'
             );
             
             // Reset form
-            bookingForm.reset();
+            this.reset();
             
             // Scroll to check-in section
-            document.querySelector('#check-in').scrollIntoView({
-                behavior: 'smooth'
-            });
-        }, 2000);
+            setTimeout(() => {
+                document.querySelector('.checkin-box').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }, 1000);
+            
+        } catch (error) {
+            showNotification('Booking failed. Please try again or call (646) 226-2433.', 'error');
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
     });
 }
 
-// Check-in Form Handler
-const checkinForm = document.getElementById('checkin-form');
+// Check-in form submission
 if (checkinForm) {
-    checkinForm.addEventListener('submit', function(e) {
+    checkinForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const bookingId = document.getElementById('booking-id').value.trim();
@@ -101,70 +124,124 @@ if (checkinForm) {
             return;
         }
         
-        // Simulate check-in process
-        showNotification('Checking in...', 'info');
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Checking In...';
+        submitBtn.disabled = true;
         
-        setTimeout(() => {
-            // Simulate successful check-in
+        try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
             const booking = getBooking(bookingId);
             
             if (booking) {
-                updateBookingStatus(bookingId, 'completed');
-                showNotification(
-                    `Check-in successful! Welcome, ${booking.name}. Have a meaningful visit.`, 
-                    'success'
-                );
+                // Update booking status
+                updateBookingStatus(bookingId, 'checked-in');
                 
-                // Send owner notification
+                // Send notification
                 sendOwnerNotification({
                     ...booking,
                     action: 'checked_in',
                     checkinTime: new Date().toISOString()
                 });
+                
+                showNotification(
+                    `Check-in successful! Welcome, ${booking.name}. Have a meaningful visit.`,
+                    'success'
+                );
+                
+                // Clear form
+                document.getElementById('booking-id').value = '';
             } else {
                 showNotification('Booking ID not found. Please check and try again.', 'error');
             }
             
-            // Clear form
-            document.getElementById('booking-id').value = '';
-        }, 1500);
-    });
-}
-
-// Admin Dashboard
-const adminBtn = document.querySelector('.admin-btn');
-const adminModal = document.getElementById('admin-modal');
-const closeModal = document.querySelector('.close');
-
-if (adminBtn && adminModal) {
-    adminBtn.addEventListener('click', () => {
-        updateAdminDashboard();
-        adminModal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-    });
-}
-
-if (closeModal && adminModal) {
-    closeModal.addEventListener('click', () => {
-        adminModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    });
-}
-
-// Close modal when clicking outside
-if (adminModal) {
-    adminModal.addEventListener('click', (e) => {
-        if (e.target === adminModal) {
-            adminModal.style.display = 'none';
-            document.body.style.overflow = 'auto';
+        } catch (error) {
+            showNotification('Check-in failed. Please try again or contact us.', 'error');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
         }
     });
 }
 
-// Booking Management Functions
-function storeBooking(bookingData) {
+// Form validation
+function validateBookingForm(data) {
+    const requiredFields = ['name', 'phone', 'email', 'visitors', 'facility', 'visit-date'];
+    let isValid = true;
+    
+    // Clear previous errors
+    document.querySelectorAll('.error-message').forEach(el => el.remove());
+    document.querySelectorAll('.form-group input, .form-group select').forEach(el => {
+        el.style.borderColor = '#e5e7eb';
+    });
+    
+    requiredFields.forEach(field => {
+        if (!data[field] || data[field].trim() === '') {
+            isValid = false;
+            showFieldError(field, 'This field is required');
+        }
+    });
+    
+    // Email validation
+    if (data.email && !isValidEmail(data.email)) {
+        isValid = false;
+        showFieldError('email', 'Please enter a valid email address');
+    }
+    
+    // Phone validation
+    if (data.phone && !isValidPhone(data.phone)) {
+        isValid = false;
+        showFieldError('phone', 'Please enter a valid phone number');
+    }
+    
+    // Date validation
+    if (data['visit-date']) {
+        const visitDate = new Date(data['visit-date']);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (visitDate < today) {
+            isValid = false;
+            showFieldError('visit-date', 'Visit date cannot be in the past');
+        }
+    }
+    
+    return isValid;
+}
+
+function showFieldError(fieldName, message) {
+    const field = document.getElementById(fieldName) || document.querySelector(`[name="${fieldName}"]`);
+    if (!field) return;
+    
+    field.style.borderColor = '#ef4444';
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.style.cssText = `
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        font-weight: 500;
+    `;
+    errorDiv.textContent = message;
+    
+    field.parentNode.appendChild(errorDiv);
+}
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidPhone(phone) {
+    return /^[\+]?[1-9][\d]{0,15}$/.test(phone.replace(/[\s\-\(\)]/g, ''));
+}
+
+// Booking storage and management
+function storeBooking(booking) {
     let bookings = JSON.parse(localStorage.getItem('wcf-bookings') || '[]');
-    bookings.push(bookingData);
+    bookings.push(booking);
     localStorage.setItem('wcf-bookings', JSON.stringify(bookings));
 }
 
@@ -187,90 +264,101 @@ function getAllBookings() {
     return JSON.parse(localStorage.getItem('wcf-bookings') || '[]');
 }
 
-// Owner Notification System
-function sendOwnerNotification(bookingData) {
-    // In a real application, this would send actual notifications
-    // For demo purposes, we'll simulate different notification types
-    
-    const notificationType = bookingData.notifications || 'email';
-    const message = formatOwnerNotification(bookingData);
-    
-    if (notificationType === 'sms') {
-        simulateSMSNotification(message);
-    } else {
-        simulateEmailNotification(message);
-    }
+// Owner notification system
+function sendOwnerNotification(booking) {
+    const notificationType = booking.notifications || 'email';
+    const message = formatOwnerNotification(booking);
     
     // Store notification for admin dashboard
     storeNotification({
         type: notificationType,
         message: message,
-        booking: bookingData,
+        booking: booking,
         timestamp: new Date().toISOString()
     });
-}
-
-function formatOwnerNotification(bookingData) {
-    const action = bookingData.action || 'booked';
-    const actionText = action === 'checked_in' ? 'checked in for' : 'booked';
     
-    return `New activity: ${bookingData.name} has ${actionText} transportation to ${bookingData.facility} on ${bookingData['visit-date']}. Contact: ${bookingData.phone}`;
+    // In production, send actual SMS/email here
+    console.log(`${notificationType.toUpperCase()} Notification:`, message);
 }
 
-function simulateSMSNotification(message) {
-    console.log('📱 SMS Notification Sent:', message);
-    // In production, integrate with Twilio or similar SMS service
-}
-
-function simulateEmailNotification(message) {
-    console.log('📧 Email Notification Sent:', message);
-    // In production, integrate with email service like SendGrid or Mailgun
+function formatOwnerNotification(booking) {
+    if (booking.action === 'checked_in') {
+        return `✅ ${booking.name} has checked in for their visit to ${booking.facility}. Contact: ${booking.phone}`;
+    } else {
+        return `📅 New booking: ${booking.name} scheduled for ${booking.facility} on ${booking['visit-date']}. Visitors: ${booking.visitors}. Contact: ${booking.phone}. Notifications: ${booking.notifications === 'sms' ? 'SMS' : 'Email'}`;
+    }
 }
 
 function storeNotification(notification) {
     let notifications = JSON.parse(localStorage.getItem('wcf-notifications') || '[]');
-    notifications.unshift(notification); // Add to beginning
-    // Keep only last 50 notifications
-    if (notifications.length > 50) {
-        notifications = notifications.slice(0, 50);
+    notifications.unshift(notification);
+    
+    // Keep only last 100 notifications
+    if (notifications.length > 100) {
+        notifications = notifications.slice(0, 100);
     }
+    
     localStorage.setItem('wcf-notifications', JSON.stringify(notifications));
 }
 
-// Admin Dashboard Functions
+// Admin dashboard
+const adminBtn = document.getElementById('admin-btn');
+const adminModal = document.getElementById('admin-modal');
+const modalClose = document.getElementById('modal-close');
+
+if (adminBtn && adminModal) {
+    adminBtn.addEventListener('click', () => {
+        updateAdminDashboard();
+        adminModal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    });
+}
+
+if (modalClose && adminModal) {
+    modalClose.addEventListener('click', () => {
+        adminModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    });
+}
+
+// Close modal when clicking outside
+if (adminModal) {
+    adminModal.addEventListener('click', (e) => {
+        if (e.target === adminModal) {
+            adminModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
 function updateAdminDashboard() {
     const bookings = getAllBookings();
-    const notifications = JSON.parse(localStorage.getItem('wcf-notifications') || '[]');
     
-    // Update statistics
+    // Calculate statistics
     const totalBookings = bookings.length;
-    const todayBookings = bookings.filter(booking => {
-        const bookingDate = new Date(booking.timestamp);
-        const today = new Date();
-        return bookingDate.toDateString() === today.toDateString();
-    }).length;
+    const today = new Date().toDateString();
+    const todayBookings = bookings.filter(b => 
+        new Date(b.timestamp).toDateString() === today
+    ).length;
+    const smsSubscribers = bookings.filter(b => b.notifications === 'sms').length;
     
-    const confirmedBookings = bookings.filter(booking => booking.status === 'confirmed').length;
-    const completedVisits = bookings.filter(booking => booking.status === 'completed').length;
-    
-    // Update dashboard cards
-    document.querySelector('#total-bookings .number').textContent = totalBookings;
-    document.querySelector('#today-bookings .number').textContent = todayBookings;
-    document.querySelector('#confirmed-bookings .number').textContent = confirmedBookings;
-    document.querySelector('#completed-visits .number').textContent = completedVisits;
+    // Update dashboard stats
+    document.getElementById('total-bookings').textContent = totalBookings;
+    document.getElementById('today-bookings').textContent = todayBookings;
+    document.getElementById('sms-subscribers').textContent = smsSubscribers;
     
     // Update recent bookings list
     updateRecentBookingsList(bookings.slice(0, 10));
 }
 
 function updateRecentBookingsList(recentBookings) {
-    const bookingsList = document.getElementById('recent-bookings');
+    const bookingsList = document.getElementById('bookings-list');
     if (!bookingsList) return;
     
     bookingsList.innerHTML = '';
     
     if (recentBookings.length === 0) {
-        bookingsList.innerHTML = '<p>No bookings yet.</p>';
+        bookingsList.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No bookings yet.</p>';
         return;
     }
     
@@ -278,59 +366,83 @@ function updateRecentBookingsList(recentBookings) {
         const bookingItem = document.createElement('div');
         bookingItem.className = 'booking-item';
         
-        const notificationType = booking.notifications === 'sms' ? 'SMS 📱' : 'Email 📧';
+        const statusColor = {
+            'confirmed': '#059669',
+            'checked-in': '#3b82f6',
+            'completed': '#6b7280'
+        };
         
         bookingItem.innerHTML = `
             <h5>${booking.name}</h5>
             <p><strong>Facility:</strong> ${booking.facility}</p>
             <p><strong>Visit Date:</strong> ${booking['visit-date']}</p>
-            <p><strong>Visitors:</strong> ${booking['visitor-count']}</p>
+            <p><strong>Visitors:</strong> ${booking.visitors}</p>
             <p><strong>Contact:</strong> ${booking.phone}</p>
-            <p><strong>Notifications:</strong> ${notificationType}</p>
+            <p><strong>Notifications:</strong> ${booking.notifications === 'sms' ? 'SMS 📱' : 'Email 📧'}</p>
             <p><strong>Booking ID:</strong> ${booking.id}</p>
-            <span class="status ${booking.status}">${booking.status}</span>
+            <p style="margin-top: 0.5rem;">
+                <span style="
+                    background: ${statusColor[booking.status] || '#6b7280'}; 
+                    color: white; 
+                    padding: 0.25rem 0.75rem; 
+                    border-radius: 20px; 
+                    font-size: 0.8rem; 
+                    font-weight: 600; 
+                    text-transform: uppercase;
+                ">${booking.status}</span>
+            </p>
         `;
         
         bookingsList.appendChild(bookingItem);
     });
 }
 
-// Notification System
+// Notification system
 function showNotification(message, type = 'info') {
     // Remove existing notifications
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notification => notification.remove());
+    document.querySelectorAll('.notification').forEach(el => el.remove());
     
-    // Create notification element
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.style.cssText = `
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        color: white;
-        font-weight: 600;
-        z-index: 3000;
-        max-width: 400px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-    `;
+    notification.className = 'notification';
     
-    // Set background color based on type
     const colors = {
-        success: '#22c55e',
+        success: '#059669',
         error: '#ef4444',
         info: '#3b82f6',
         warning: '#f59e0b'
     };
     
-    notification.style.background = colors[type] || colors.info;
-    notification.textContent = message;
+    const icons = {
+        success: '✅',
+        error: '❌',
+        info: 'ℹ️',
+        warning: '⚠️'
+    };
     
-    // Add to page
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: ${colors[type] || colors.info};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        z-index: 3000;
+        max-width: 400px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+    
+    notification.innerHTML = `
+        <span style="font-size: 1.2rem;">${icons[type] || icons.info}</span>
+        <span>${message}</span>
+    `;
+    
     document.body.appendChild(notification);
     
     // Animate in
@@ -338,78 +450,18 @@ function showNotification(message, type = 'info') {
         notification.style.transform = 'translateX(0)';
     }, 100);
     
-    // Auto remove after 5 seconds
+    // Auto remove after 6 seconds
     setTimeout(() => {
         notification.style.transform = 'translateX(100%)';
         setTimeout(() => {
             notification.remove();
         }, 300);
-    }, 5000);
+    }, 6000);
 }
 
-// Form Validation Enhancement
-function enhanceFormValidation() {
-    const inputs = document.querySelectorAll('input[required], select[required], textarea[required]');
-    
-    inputs.forEach(input => {
-        input.addEventListener('blur', validateField);
-        input.addEventListener('input', clearFieldError);
-    });
-}
-
-function validateField(e) {
-    const field = e.target;
-    const value = field.value.trim();
-    
-    if (!value) {
-        showFieldError(field, 'This field is required');
-    } else if (field.type === 'email' && !isValidEmail(value)) {
-        showFieldError(field, 'Please enter a valid email address');
-    } else if (field.type === 'tel' && !isValidPhone(value)) {
-        showFieldError(field, 'Please enter a valid phone number');
-    }
-}
-
-function showFieldError(field, message) {
-    clearFieldError({ target: field });
-    
-    field.style.borderColor = '#ef4444';
-    
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'field-error';
-    errorDiv.style.cssText = `
-        color: #ef4444;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-    `;
-    errorDiv.textContent = message;
-    
-    field.parentNode.appendChild(errorDiv);
-}
-
-function clearFieldError(e) {
-    const field = e.target;
-    field.style.borderColor = '#e1e5e9';
-    
-    const errorDiv = field.parentNode.querySelector('.field-error');
-    if (errorDiv) {
-        errorDiv.remove();
-    }
-}
-
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-function isValidPhone(phone) {
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
-}
-
-// Animation on Scroll
+// Animation on scroll
 function animateOnScroll() {
-    const elements = document.querySelectorAll('.booking, .facility-card, .about-content');
+    const elements = document.querySelectorAll('.booking-form, .checkin-box, .facility-card, .about-content');
     
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -427,97 +479,44 @@ function animateOnScroll() {
     });
 }
 
-// PWA-like features for mobile
-function initMobileFeatures() {
-    // Add to home screen prompt for mobile
-    let deferredPrompt;
-    
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        
-        // Show custom install prompt after user interaction
-        setTimeout(() => {
-            showInstallPrompt();
-        }, 30000); // Show after 30 seconds
-    });
-    
-    // Offline support indication
-    window.addEventListener('online', () => {
-        showNotification('You are back online!', 'success');
-    });
-    
-    window.addEventListener('offline', () => {
-        showNotification('You are currently offline. Some features may not work.', 'warning');
-    });
-}
-
-function showInstallPrompt() {
-    if (deferredPrompt) {
-        const installBanner = document.createElement('div');
-        installBanner.style.cssText = `
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            z-index: 1000;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-        `;
-        
-        installBanner.innerHTML = `
-            <p style="margin: 0 0 1rem 0;">Add We Connect Families to your home screen for quick access!</p>
-            <button onclick="installApp()" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; margin-right: 1rem;">Install</button>
-            <button onclick="dismissInstallPrompt()" style="background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3); padding: 0.5rem 1rem; border-radius: 8px;">Not now</button>
-        `;
-        
-        document.body.appendChild(installBanner);
-        
-        setTimeout(() => {
-            installBanner.style.transform = 'translateY(0)';
-        }, 100);
-        
-        // Auto dismiss after 10 seconds
-        setTimeout(() => {
-            dismissInstallPrompt();
-        }, 10000);
-    }
-}
-
-function installApp() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((result) => {
-            if (result.outcome === 'accepted') {
-                showNotification('App installed successfully!', 'success');
+// Enhanced form interactions
+function enhanceFormExperience() {
+    // Auto-format phone number
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 6) {
+                value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+            } else if (value.length >= 3) {
+                value = value.replace(/(\d{3})(\d{0,3})/, '($1) $2');
             }
-            deferredPrompt = null;
+            e.target.value = value;
         });
     }
-    dismissInstallPrompt();
-}
-
-function dismissInstallPrompt() {
-    const installBanner = document.querySelector('div[style*="translateY(0)"]');
-    if (installBanner) {
-        installBanner.style.transform = 'translateY(100%)';
-        setTimeout(() => {
-            installBanner.remove();
-        }, 300);
-    }
-}
-
-// Initialize everything when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    enhanceFormValidation();
-    animateOnScroll();
-    initMobileFeatures();
     
-    // Add some demo data for testing
+    // Set minimum date for visit date
+    const visitDateInput = document.getElementById('visit-date');
+    if (visitDateInput) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        visitDateInput.min = tomorrow.toISOString().split('T')[0];
+    }
+    
+    // Clear errors on input
+    document.querySelectorAll('input, select, textarea').forEach(input => {
+        input.addEventListener('input', () => {
+            input.style.borderColor = '#e5e7eb';
+            const errorMessage = input.parentNode.querySelector('.error-message');
+            if (errorMessage) {
+                errorMessage.remove();
+            }
+        });
+    });
+}
+
+// Initialize demo data
+function initializeDemoData() {
     if (localStorage.getItem('wcf-bookings') === null) {
         const demoBookings = [
             {
@@ -525,60 +524,115 @@ document.addEventListener('DOMContentLoaded', function() {
                 name: 'Sarah Johnson',
                 email: 'sarah.j@email.com',
                 phone: '(555) 123-4567',
-                facility: 'Sing Sing Correctional Facility',
+                facility: 'Clinton Correctional Facility',
                 'visit-date': '2025-09-25',
-                'visitor-count': '2',
+                visitors: '2',
                 notifications: 'sms',
                 status: 'confirmed',
                 timestamp: new Date(Date.now() - 86400000).toISOString() // Yesterday
             },
             {
                 id: 'WCF-001235',
-                name: 'Michael Torres',
-                email: 'mik.torres@email.com',
+                name: 'Michael Rodriguez',
+                email: 'mrod@email.com',
                 phone: '(555) 987-6543',
-                facility: 'Attica Correctional Facility',
+                facility: 'Washington Correctional Facility',
                 'visit-date': '2025-09-22',
-                'visitor-count': '1',
+                visitors: '1',
                 notifications: 'email',
-                status: 'completed',
+                status: 'checked-in',
                 timestamp: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+            },
+            {
+                id: 'WCF-001236',
+                name: 'Jennifer Chen',
+                email: 'jchen@email.com',
+                phone: '(555) 456-7890',
+                facility: 'Coxsackie Correctional Facility',
+                'visit-date': '2025-09-28',
+                visitors: '3',
+                notifications: 'sms',
+                status: 'confirmed',
+                timestamp: new Date().toISOString() // Today
             }
         ];
         
         localStorage.setItem('wcf-bookings', JSON.stringify(demoBookings));
     }
-});
+}
 
-// Error handling for the entire application
-window.addEventListener('error', function(e) {
-    console.error('Application error:', e);
-    showNotification('An error occurred. Please refresh the page if problems persist.', 'error');
-});
-
-// Smooth performance optimizations
-function optimizePerformance() {
-    // Lazy load images
-    const images = document.querySelectorAll('img[data-src]');
-    const imageObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                img.removeAttribute('data-src');
-                imageObserver.unobserve(img);
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    initializeDemoData();
+    enhanceFormExperience();
+    animateOnScroll();
+    
+    // Add loading states to buttons
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if (this.type === 'submit') {
+                // Let form handler deal with loading state
+                return;
             }
         });
     });
+});
+
+// Handle page visibility for real-time updates
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && adminModal && adminModal.style.display === 'block') {
+        updateAdminDashboard();
+    }
+});
+
+// Keyboard shortcuts for admin
+document.addEventListener('keydown', (e) => {
+    // Alt + A to open admin panel
+    if (e.altKey && e.key === 'a') {
+        e.preventDefault();
+        if (adminBtn) {
+            adminBtn.click();
+        }
+    }
     
-    images.forEach(img => imageObserver.observe(img));
+    // Escape to close modal
+    if (e.key === 'Escape' && adminModal && adminModal.style.display === 'block') {
+        modalClose.click();
+    }
+});
+
+// Performance optimization
+function optimizePerformance() {
+    // Lazy load images if any are added later
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        imageObserver.unobserve(img);
+                    }
+                }
+            });
+        });
+        
+        document.querySelectorAll('img[data-src]').forEach(img => {
+            imageObserver.observe(img);
+        });
+    }
     
     // Debounce scroll events
     let scrollTimer;
+    const originalScrollHandler = window.onscroll;
     window.addEventListener('scroll', () => {
         clearTimeout(scrollTimer);
         scrollTimer = setTimeout(() => {
-            // Handle scroll events here if needed
-        }, 100);
+            if (originalScrollHandler) originalScrollHandler();
+        }, 10);
     });
 }
+
+// Initialize performance optimizations
+optimizePerformance();
