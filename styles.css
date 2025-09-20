@@ -426,6 +426,25 @@ body {
     min-height: 100px;
 }
 
+.weekend-only {
+    font-size: 0.8rem;
+    color: #0DB7BB;
+    font-weight: 500;
+    background: rgba(13, 183, 187, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    margin-left: 0.5rem;
+}
+
+.date-helper {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #718096;
+    font-style: italic;
+    line-height: 1.4;
+}
+
 /* Notification Section */
 .notification-section {
     margin: 2.5rem 0;

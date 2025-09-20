@@ -201,10 +201,17 @@ function validateBookingForm(data) {
         const visitDate = new Date(data['visit-date']);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+        const dayOfWeek = visitDate.getDay(); // 0 = Sunday, 6 = Saturday
         
         if (visitDate < today) {
             isValid = false;
             showFieldError('visit-date', 'Visit date cannot be in the past');
+        } else if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            isValid = false;
+            showFieldError('visit-date', 'We only provide transportation on weekends (Saturday and Sunday)');
+        } else if (isFederalHoliday(visitDate)) {
+            isValid = false;
+            showFieldError('visit-date', 'Service not available on federal holidays. Please choose another weekend.');
         }
     }
     
@@ -495,12 +502,34 @@ function enhanceFormExperience() {
         });
     }
     
-    // Set minimum date for visit date
+    // Set minimum date for visit date and restrict to weekends only
     const visitDateInput = document.getElementById('visit-date');
     if (visitDateInput) {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         visitDateInput.min = tomorrow.toISOString().split('T')[0];
+        
+        // Restrict to weekends only and exclude federal holidays
+        visitDateInput.addEventListener('input', function() {
+            const selectedDate = new Date(this.value);
+            const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
+            
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                this.setCustomValidity('We only provide transportation services on weekends (Saturday and Sunday).');
+                showFieldError('visit-date', 'Please select a weekend date (Saturday or Sunday)');
+            } else if (isFederalHoliday(selectedDate)) {
+                this.setCustomValidity('We do not provide services on federal holidays.');
+                showFieldError('visit-date', 'Service not available on federal holidays. Please choose another weekend.');
+            } else {
+                this.setCustomValidity('');
+                // Clear any existing error
+                const errorMessage = this.parentNode.querySelector('.error-message');
+                if (errorMessage) {
+                    errorMessage.remove();
+                }
+                this.style.borderColor = 'rgba(129, 212, 217, 0.3)';
+            }
+        });
     }
     
     // Clear errors on input
@@ -632,6 +661,88 @@ function optimizePerformance() {
             if (originalScrollHandler) originalScrollHandler();
         }, 10);
     });
+}
+
+// Federal Holiday Checker
+function isFederalHoliday(date) {
+    const year = date.getFullYear();
+    const month = date.getMonth(); // 0-11
+    const day = date.getDate();
+    
+    // List of federal holidays that don't change dates
+    const fixedHolidays = [
+        { month: 0, day: 1 },   // New Year's Day
+        { month: 6, day: 4 },   // Independence Day
+        { month: 10, day: 11 }, // Veterans Day
+        { month: 11, day: 25 }  // Christmas Day
+    ];
+    
+    // Check fixed holidays
+    for (const holiday of fixedHolidays) {
+        if (month === holiday.month && day === holiday.day) {
+            return true;
+        }
+    }
+    
+    // Martin Luther King Jr. Day (3rd Monday in January)
+    if (month === 0 && isNthWeekdayOfMonth(date, 1, 3)) {
+        return true;
+    }
+    
+    // Presidents Day (3rd Monday in February)
+    if (month === 1 && isNthWeekdayOfMonth(date, 1, 3)) {
+        return true;
+    }
+    
+    // Memorial Day (Last Monday in May)
+    if (month === 4 && isLastWeekdayOfMonth(date, 1)) {
+        return true;
+    }
+    
+    // Labor Day (1st Monday in September)
+    if (month === 8 && isNthWeekdayOfMonth(date, 1, 1)) {
+        return true;
+    }
+    
+    // Columbus Day (2nd Monday in October)
+    if (month === 9 && isNthWeekdayOfMonth(date, 1, 2)) {
+        return true;
+    }
+    
+    // Thanksgiving (4th Thursday in November)
+    if (month === 10 && isNthWeekdayOfMonth(date, 4, 4)) {
+        return true;
+    }
+    
+    return false;
+}
+
+// Helper function to check if date is nth weekday of month
+function isNthWeekdayOfMonth(date, weekday, nth) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const firstWeekday = firstDay.getDay();
+    
+    let daysToAdd = weekday - firstWeekday;
+    if (daysToAdd < 0) daysToAdd += 7;
+    
+    const nthWeekdayDate = 1 + daysToAdd + (nth - 1) * 7;
+    return date.getDate() === nthWeekdayDate;
+}
+
+// Helper function to check if date is last weekday of month
+function isLastWeekdayOfMonth(date, weekday) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const lastDay = new Date(year, month + 1, 0);
+    const lastWeekday = lastDay.getDay();
+    
+    let daysToSubtract = lastWeekday - weekday;
+    if (daysToSubtract < 0) daysToSubtract += 7;
+    
+    const lastWeekdayDate = lastDay.getDate() - daysToSubtract;
+    return date.getDate() === lastWeekdayDate;
 }
 
 // Initialize performance optimizations
