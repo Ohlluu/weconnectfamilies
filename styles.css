@@ -933,23 +933,38 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
 /* Facility Details Button */
 .facility-details-btn {
+    display: inline-block;
+    width: 100%;
     background: linear-gradient(135deg, #0DB7BB, #4ECDC4);
     color: white;
     border: none;
-    padding: 0.6rem 1.2rem;
+    padding: 0.8rem 1.5rem;
     border-radius: 25px;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     cursor: pointer;
-    margin-top: 0.8rem;
+    margin-top: 1rem;
+    text-align: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 15px rgba(13, 183, 187, 0.3);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
 }
 
-.facility-details-btn:hover {
+.facility-details-btn:hover,
+.facility-details-btn:focus,
+.facility-details-btn:active {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(13, 183, 187, 0.4);
     background: linear-gradient(135deg, #4ECDC4, #81D4D9);
+    outline: none;
+}
+
+/* Touch devices */
+.facility-details-btn:active {
+    transform: translateY(0);
+    transition-duration: 0.1s;
 }
 
 /* Modal */
@@ -1370,8 +1385,44 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     }
     
     .modal-content {
-        margin: 10% auto;
+        margin: 5% auto;
         padding: 1.5rem;
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .facility-modal-content {
+        margin: 2% auto;
+        padding: 1rem;
+        width: 98%;
+        max-height: 95vh;
+    }
+    
+    .facility-details-content {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    .facility-alert h2 {
+        font-size: 1.3rem;
+    }
+    
+    .facility-header-info h3 {
+        font-size: 1.1rem;
+    }
+    
+    .location-header strong {
+        font-size: 1rem;
+    }
+    
+    .location-icon {
+        font-size: 1.3rem;
+    }
+    
+    .facility-details-btn {
+        padding: 1rem 1.2rem;
+        font-size: 0.9rem;
+        margin-top: 0.8rem;
     }
     
     .admin-btn {
