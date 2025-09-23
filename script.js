@@ -350,6 +350,10 @@ const northernFacilityModalClose = document.getElementById('northern-facility-mo
 const centralFacilityModal = document.getElementById('central-facility-modal');
 const centralFacilityModalClose = document.getElementById('central-facility-modal-close');
 
+// Western Facilities Modal
+const westernFacilityModal = document.getElementById('western-facility-modal');
+const westernFacilityModalClose = document.getElementById('western-facility-modal-close');
+
 const facilityDetailsButtons = document.querySelectorAll('.facility-details-btn');
 
 // Add click event listeners to all facility detail buttons
@@ -372,6 +376,11 @@ facilityDetailsButtons.forEach(button => {
         // Show central facilities modal
         else if (facility === 'mohawk' || facility === 'midstate' || facility === 'marcy') {
             centralFacilityModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+        // Show western facilities modal
+        else if (facility === 'collins' || facility === 'lakeview') {
+            westernFacilityModal.style.display = 'block';
             document.body.style.overflow = 'hidden'; // Prevent background scroll
         }
     });
@@ -401,6 +410,14 @@ if (centralFacilityModalClose) {
     });
 }
 
+// Close western facility modal when clicking X button
+if (westernFacilityModalClose) {
+    westernFacilityModalClose.addEventListener('click', () => {
+        westernFacilityModal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scroll
+    });
+}
+
 // Close southern facility modal when clicking outside of it
 if (facilityModal) {
     facilityModal.addEventListener('click', (e) => {
@@ -426,6 +443,16 @@ if (centralFacilityModal) {
     centralFacilityModal.addEventListener('click', (e) => {
         if (e.target === centralFacilityModal) {
             centralFacilityModal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scroll
+        }
+    });
+}
+
+// Close western facility modal when clicking outside of it
+if (westernFacilityModal) {
+    westernFacilityModal.addEventListener('click', (e) => {
+        if (e.target === westernFacilityModal) {
+            westernFacilityModal.style.display = 'none';
             document.body.style.overflow = 'auto'; // Restore scroll
         }
     });
@@ -786,6 +813,10 @@ document.addEventListener('keydown', (e) => {
         }
         if (centralFacilityModal && centralFacilityModal.style.display === 'block') {
             centralFacilityModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        if (westernFacilityModal && westernFacilityModal.style.display === 'block') {
+            westernFacilityModal.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
         if (adminModal && adminModal.style.display === 'block') {
