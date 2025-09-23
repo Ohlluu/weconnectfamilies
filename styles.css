@@ -842,6 +842,18 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     color: #6b7280;
 }
 
+.spanish-support {
+    background: linear-gradient(135deg, #FFE5B4, #FFD700);
+    color: #8B4513;
+    font-size: 1.1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    border: 2px solid #FFD700;
+    margin-bottom: 2rem !important;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
+
 /* Footer */
 .footer {
     background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
