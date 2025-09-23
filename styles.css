@@ -1053,9 +1053,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     text-align: center;
     margin-bottom: 2rem;
     padding: 1.5rem;
-    background: linear-gradient(135deg, rgba(13, 183, 187, 0.1), rgba(129, 212, 217, 0.05));
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;
-    border: 1px solid rgba(129, 212, 217, 0.2);
+    border: 1px solid rgba(129, 212, 217, 0.3);
+    box-shadow: 0 4px 15px rgba(13, 183, 187, 0.1);
 }
 
 .facility-header-info h3 {
@@ -1077,6 +1078,15 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     font-style: italic;
 }
 
+.meeting-locations {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(129, 212, 217, 0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(13, 183, 187, 0.1);
+}
+
 .meeting-locations h4 {
     color: #0DB7BB;
     font-size: 1.2rem;
@@ -1086,7 +1096,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .location-item {
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(129, 212, 217, 0.3);
     border-radius: 15px;
     padding: 1.5rem;
@@ -1132,14 +1142,20 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
 .important-notes {
     margin: 2rem 0;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(129, 212, 217, 0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(13, 183, 187, 0.1);
 }
 
 .final-boarding, .return-info, .parking-info {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(129, 212, 217, 0.3);
     border-radius: 15px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(13, 183, 187, 0.1);
 }
 
 .final-boarding h4, .return-info h4, .parking-info h4 {
@@ -1150,20 +1166,22 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .reservation-note {
-    background: rgba(78, 205, 196, 0.1);
-    border: 1px solid rgba(78, 205, 196, 0.3);
-    border-radius: 10px;
-    padding: 1.2rem;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(129, 212, 217, 0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
     margin: 1.5rem 0;
+    box-shadow: 0 4px 15px rgba(13, 183, 187, 0.1);
 }
 
 .parking-highlight {
-    background: linear-gradient(135deg, rgba(13, 183, 187, 0.2), rgba(129, 212, 217, 0.1));
+    background: rgba(255, 255, 255, 0.95);
     border: 2px solid #4ECDC4;
-    border-radius: 10px;
-    padding: 1rem;
+    border-radius: 15px;
+    padding: 1.5rem;
     margin-top: 1rem;
     text-align: center;
+    box-shadow: 0 4px 15px rgba(13, 183, 187, 0.1);
 }
 
 .parking-highlight p {
