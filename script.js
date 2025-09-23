@@ -338,9 +338,14 @@ if (adminModal) {
     });
 }
 
-// Facility Details Modal
+// Facility Details Modal (Southern facilities)
 const facilityModal = document.getElementById('facility-modal');
 const facilityModalClose = document.getElementById('facility-modal-close');
+
+// Northern Facilities Modal
+const northernFacilityModal = document.getElementById('northern-facility-modal');
+const northernFacilityModalClose = document.getElementById('northern-facility-modal-close');
+
 const facilityDetailsButtons = document.querySelectorAll('.facility-details-btn');
 
 // Add click event listeners to all facility detail buttons
@@ -349,15 +354,21 @@ facilityDetailsButtons.forEach(button => {
         e.preventDefault();
         const facility = button.getAttribute('data-facility');
         
-        // Only show modal for Coxsackie, Greene, and Washington
+        // Show southern facilities modal
         if (facility === 'coxsackie' || facility === 'greene' || facility === 'washington') {
             facilityModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+        // Show northern facilities modal
+        else if (facility === 'clinton' || facility === 'altona' || facility === 'franklin' || 
+                 facility === 'barehill' || facility === 'upstate') {
+            northernFacilityModal.style.display = 'block';
             document.body.style.overflow = 'hidden'; // Prevent background scroll
         }
     });
 });
 
-// Close facility modal when clicking X button
+// Close southern facility modal when clicking X button
 if (facilityModalClose) {
     facilityModalClose.addEventListener('click', () => {
         facilityModal.style.display = 'none';
@@ -365,11 +376,29 @@ if (facilityModalClose) {
     });
 }
 
-// Close facility modal when clicking outside of it
+// Close northern facility modal when clicking X button
+if (northernFacilityModalClose) {
+    northernFacilityModalClose.addEventListener('click', () => {
+        northernFacilityModal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scroll
+    });
+}
+
+// Close southern facility modal when clicking outside of it
 if (facilityModal) {
     facilityModal.addEventListener('click', (e) => {
         if (e.target === facilityModal) {
             facilityModal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scroll
+        }
+    });
+}
+
+// Close northern facility modal when clicking outside of it
+if (northernFacilityModal) {
+    northernFacilityModal.addEventListener('click', (e) => {
+        if (e.target === northernFacilityModal) {
+            northernFacilityModal.style.display = 'none';
             document.body.style.overflow = 'auto'; // Restore scroll
         }
     });
@@ -722,6 +751,10 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if (facilityModal && facilityModal.style.display === 'block') {
             facilityModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        if (northernFacilityModal && northernFacilityModal.style.display === 'block') {
+            northernFacilityModal.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
         if (adminModal && adminModal.style.display === 'block') {

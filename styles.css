@@ -1233,6 +1233,14 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     margin-bottom: 0.5rem;
 }
 
+.special-note {
+    color: #ff4757;
+    font-weight: 600;
+    font-style: italic;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
 .modal-content h2 {
     font-size: 1.875rem;
     font-weight: 800;
