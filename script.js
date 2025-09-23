@@ -338,6 +338,43 @@ if (adminModal) {
     });
 }
 
+// Facility Details Modal
+const facilityModal = document.getElementById('facility-modal');
+const facilityModalClose = document.getElementById('facility-modal-close');
+const facilityDetailsButtons = document.querySelectorAll('.facility-details-btn');
+
+// Add click event listeners to all facility detail buttons
+facilityDetailsButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const facility = button.getAttribute('data-facility');
+        
+        // Only show modal for Coxsackie, Greene, and Washington
+        if (facility === 'coxsackie' || facility === 'greene' || facility === 'washington') {
+            facilityModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+    });
+});
+
+// Close facility modal when clicking X button
+if (facilityModalClose) {
+    facilityModalClose.addEventListener('click', () => {
+        facilityModal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scroll
+    });
+}
+
+// Close facility modal when clicking outside of it
+if (facilityModal) {
+    facilityModal.addEventListener('click', (e) => {
+        if (e.target === facilityModal) {
+            facilityModal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scroll
+        }
+    });
+}
+
 function updateAdminDashboard() {
     const bookings = getAllBookings();
     
@@ -681,9 +718,15 @@ document.addEventListener('keydown', (e) => {
         }
     }
     
-    // Escape to close modal
-    if (e.key === 'Escape' && adminModal && adminModal.style.display === 'block') {
-        modalClose.click();
+    // Escape to close modals
+    if (e.key === 'Escape') {
+        if (facilityModal && facilityModal.style.display === 'block') {
+            facilityModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        if (adminModal && adminModal.style.display === 'block') {
+            modalClose.click();
+        }
     }
 });
 

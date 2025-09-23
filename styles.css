@@ -931,6 +931,27 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     background: linear-gradient(135deg, #0CA5A9, #47C4C7);
 }
 
+/* Facility Details Button */
+.facility-details-btn {
+    background: linear-gradient(135deg, #0DB7BB, #4ECDC4);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 0.8rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(13, 183, 187, 0.3);
+}
+
+.facility-details-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 183, 187, 0.4);
+    background: linear-gradient(135deg, #4ECDC4, #81D4D9);
+}
+
 /* Modal */
 .modal {
     display: none;
@@ -969,6 +990,200 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
 .modal-close:hover {
     color: #374151;
+}
+
+/* Facility Details Modal Styles */
+.facility-modal-content {
+    max-width: 900px;
+    max-height: 90vh;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(129, 212, 217, 0.03));
+}
+
+.facility-details-content {
+    padding: 1rem 0;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.facility-alert h2 {
+    text-align: center;
+    color: #ff4757;
+    font-weight: 800;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.facility-header-info {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(13, 183, 187, 0.1), rgba(129, 212, 217, 0.05));
+    border-radius: 15px;
+    border: 1px solid rgba(129, 212, 217, 0.2);
+}
+
+.facility-header-info h3 {
+    color: #0DB7BB;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.travel-days {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.thank-you {
+    color: #4ECDC4;
+    font-weight: 500;
+    font-style: italic;
+}
+
+.meeting-locations h4 {
+    color: #0DB7BB;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.location-item {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(129, 212, 217, 0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(13, 183, 187, 0.1);
+}
+
+.location-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+
+.location-icon {
+    font-size: 1.5rem;
+    margin-right: 0.8rem;
+}
+
+.location-header strong {
+    color: #0DB7BB;
+    font-size: 1.1rem;
+}
+
+.address {
+    color: #4ECDC4;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.warning-box {
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), rgba(255, 107, 53, 0.05));
+    border: 2px solid rgba(255, 71, 87, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.warning-box p {
+    color: #ff4757;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.important-notes {
+    margin: 2rem 0;
+}
+
+.final-boarding, .return-info, .parking-info {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(129, 212, 217, 0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.final-boarding h4, .return-info h4, .parking-info h4 {
+    color: #ff4757;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.reservation-note {
+    background: rgba(78, 205, 196, 0.1);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin: 1.5rem 0;
+}
+
+.parking-highlight {
+    background: linear-gradient(135deg, rgba(13, 183, 187, 0.2), rgba(129, 212, 217, 0.1));
+    border: 2px solid #4ECDC4;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.parking-highlight p {
+    color: #0DB7BB;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.reservation-completion {
+    background: linear-gradient(135deg, rgba(13, 183, 187, 0.1), rgba(129, 212, 217, 0.05));
+    border: 1px solid rgba(129, 212, 217, 0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+}
+
+.reservation-completion h4 {
+    color: #0DB7BB;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.reservation-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.reservation-list li {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(129, 212, 217, 0.2);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.contact-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid rgba(129, 212, 217, 0.3);
+}
+
+.contact-footer p {
+    color: #4ECDC4;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
 }
 
 .modal-content h2 {
