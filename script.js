@@ -695,27 +695,22 @@ const pickupLocationData = {
     // Northern Facilities (12am-12:30am)
     'Clinton Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Queens: Jamaica Station LIRR', time: '12:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
         { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     'Altona Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Queens: Jamaica Station LIRR', time: '12:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
         { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     'Franklin Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Queens: Jamaica Station LIRR', time: '12:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
         { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     'Barehill Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Queens: Jamaica Station LIRR', time: '12:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
         { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     'Upstate Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Queens: Jamaica Station LIRR', time: '12:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
         { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     
