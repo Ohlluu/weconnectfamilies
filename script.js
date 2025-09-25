@@ -325,6 +325,10 @@ const centralFacilityModalClose = document.getElementById('central-facility-moda
 const westernFacilityModal = document.getElementById('western-facility-modal');
 const westernFacilityModalClose = document.getElementById('western-facility-modal-close');
 
+// Sunday-only Facilities Modal
+const sundayOnlyModal = document.getElementById('sunday-only-modal');
+const sundayOnlyModalClose = document.getElementById('sunday-only-modal-close');
+
 const facilityDetailsButtons = document.querySelectorAll('.facility-details-btn');
 
 // Add click event listeners to all facility detail buttons
@@ -352,6 +356,11 @@ facilityDetailsButtons.forEach(button => {
         // Show western facilities modal
         else if (facility === 'collins' || facility === 'lakeview') {
             westernFacilityModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+        // Show Sunday-only facilities modal
+        else if (facility === 'gouverneur' || facility === 'riverview' || facility === 'capevincent') {
+            sundayOnlyModal.style.display = 'block';
             document.body.style.overflow = 'hidden'; // Prevent background scroll
         }
     });
@@ -385,6 +394,14 @@ if (centralFacilityModalClose) {
 if (westernFacilityModalClose) {
     westernFacilityModalClose.addEventListener('click', () => {
         westernFacilityModal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scroll
+    });
+}
+
+// Close Sunday-only facility modal when clicking X button
+if (sundayOnlyModalClose) {
+    sundayOnlyModalClose.addEventListener('click', () => {
+        sundayOnlyModal.style.display = 'none';
         document.body.style.overflow = 'auto'; // Restore scroll
     });
 }
@@ -424,6 +441,16 @@ if (westernFacilityModal) {
     westernFacilityModal.addEventListener('click', (e) => {
         if (e.target === westernFacilityModal) {
             westernFacilityModal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scroll
+        }
+    });
+}
+
+// Close Sunday-only facility modal when clicking outside of it
+if (sundayOnlyModal) {
+    sundayOnlyModal.addEventListener('click', (e) => {
+        if (e.target === sundayOnlyModal) {
+            sundayOnlyModal.style.display = 'none';
             document.body.style.overflow = 'auto'; // Restore scroll
         }
     });
@@ -749,15 +776,18 @@ const pickupLocationData = {
         { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' }
     ],
     
-    // Default for other facilities
+    // Sunday Only Facilities (12am-12:30am Sunday Only)
     'Riverview Correctional Facility': [
-        { name: 'Contact us for pickup information', time: 'TBD', address: 'Call (646) 226-2433', value: 'contact-us' }
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm', note: 'Sunday Only' },
+        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' }
     ],
     'Gouverneur Correctional Facility': [
-        { name: 'Contact us for pickup information', time: 'TBD', address: 'Call (646) 226-2433', value: 'contact-us' }
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm', note: 'Sunday Only' },
+        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' }
     ],
     'Cape Vincent Correctional Facility': [
-        { name: 'Contact us for pickup information', time: 'TBD', address: 'Call (646) 226-2433', value: 'contact-us' }
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm', note: 'Sunday Only' },
+        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' }
     ]
 };
 
