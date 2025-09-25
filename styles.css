@@ -1570,6 +1570,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
         grid-template-columns: 1fr;
     }
     
+    .hero {
+        padding-top: 100px;
+    }
+    
     .hero-stats {
         gap: 2rem;
     }
@@ -1598,6 +1602,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     
     .nav-container {
         padding: 1rem;
+    }
+    
+    .hero {
+        padding-top: 120px;
     }
     
     .hero-title {
