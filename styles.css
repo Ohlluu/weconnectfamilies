@@ -151,7 +151,7 @@ body {
     font-family: 'Playfair Display', serif;
     font-size: clamp(2.8rem, 5vw, 4.5rem);
     font-weight: 600;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     line-height: 1.2;
     text-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
@@ -161,6 +161,26 @@ body {
     font-family: 'Dancing Script', cursive;
     font-weight: 700;
     text-shadow: 0 2px 10px rgba(255, 229, 180, 0.3);
+}
+
+.hero-spanish-notice {
+    background: linear-gradient(135deg, #FFE5B4, #FFD700);
+    color: #8B4513;
+    font-size: 1.1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    border: 2px solid #FFD700;
+    margin: 0 auto 1.5rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+    text-align: center;
+    max-width: fit-content;
+    animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes subtle-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
 }
 
 .hero-description {
@@ -469,10 +489,11 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem;
-    background: white;
-    border: 1px solid rgba(129, 212, 217, 0.2);
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     margin-bottom: 0.5rem;
+    cursor: default;
 }
 
 .pickup-location-name {
@@ -1081,30 +1102,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     color: #9ca3af;
 }
 
-/* Admin Button */
-.admin-btn {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    width: 65px;
-    height: 65px;
-    background: linear-gradient(135deg, #0DB7BB, #4ECDC4);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 1.5rem;
-    cursor: pointer;
-    box-shadow: 0 8px 25px rgba(13, 183, 187, 0.3);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-}
-
-.admin-btn:hover {
-    transform: scale(1.15);
-    box-shadow: 0 12px 35px rgba(13, 183, 187, 0.4);
-    background: linear-gradient(135deg, #0CA5A9, #47C4C7);
-}
 
 /* Facility Details Button */
 .facility-details-btn {

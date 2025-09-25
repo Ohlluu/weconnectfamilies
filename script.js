@@ -276,7 +276,7 @@ function sendOwnerNotification(booking) {
     const notificationType = booking.notifications || 'email';
     const message = formatOwnerNotification(booking);
     
-    // Store notification for admin dashboard
+    // Store notification
     storeNotification({
         type: notificationType,
         message: message,
@@ -308,35 +308,6 @@ function storeNotification(notification) {
     localStorage.setItem('wcf-notifications', JSON.stringify(notifications));
 }
 
-// Admin dashboard
-const adminBtn = document.getElementById('admin-btn');
-const adminModal = document.getElementById('admin-modal');
-const modalClose = document.getElementById('modal-close');
-
-if (adminBtn && adminModal) {
-    adminBtn.addEventListener('click', () => {
-        updateAdminDashboard();
-        adminModal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-    });
-}
-
-if (modalClose && adminModal) {
-    modalClose.addEventListener('click', () => {
-        adminModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    });
-}
-
-// Close modal when clicking outside
-if (adminModal) {
-    adminModal.addEventListener('click', (e) => {
-        if (e.target === adminModal) {
-            adminModal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-    });
-}
 
 // Facility Details Modal (Southern facilities)
 const facilityModal = document.getElementById('facility-modal');
@@ -458,71 +429,6 @@ if (westernFacilityModal) {
     });
 }
 
-function updateAdminDashboard() {
-    const bookings = getAllBookings();
-    
-    // Calculate statistics
-    const totalBookings = bookings.length;
-    const today = new Date().toDateString();
-    const todayBookings = bookings.filter(b => 
-        new Date(b.timestamp).toDateString() === today
-    ).length;
-    const smsSubscribers = bookings.filter(b => b.notifications === 'sms').length;
-    
-    // Update dashboard stats
-    document.getElementById('total-bookings').textContent = totalBookings;
-    document.getElementById('today-bookings').textContent = todayBookings;
-    document.getElementById('sms-subscribers').textContent = smsSubscribers;
-    
-    // Update recent bookings list
-    updateRecentBookingsList(bookings.slice(0, 10));
-}
-
-function updateRecentBookingsList(recentBookings) {
-    const bookingsList = document.getElementById('bookings-list');
-    if (!bookingsList) return;
-    
-    bookingsList.innerHTML = '';
-    
-    if (recentBookings.length === 0) {
-        bookingsList.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No bookings yet.</p>';
-        return;
-    }
-    
-    recentBookings.forEach(booking => {
-        const bookingItem = document.createElement('div');
-        bookingItem.className = 'booking-item';
-        
-        const statusColor = {
-            'confirmed': '#059669',
-            'checked-in': '#3b82f6',
-            'completed': '#6b7280'
-        };
-        
-        bookingItem.innerHTML = `
-            <h5>${booking.name}</h5>
-            <p><strong>Facility:</strong> ${booking.facility}</p>
-            <p><strong>Visit Date:</strong> ${booking['visit-date']}</p>
-            <p><strong>Visitors:</strong> ${booking.visitors}</p>
-            <p><strong>Contact:</strong> ${booking.phone}</p>
-            <p><strong>Notifications:</strong> ${booking.notifications === 'sms' ? 'SMS 📱' : 'Email 📧'}</p>
-            <p><strong>Booking ID:</strong> ${booking.id}</p>
-            <p style="margin-top: 0.5rem;">
-                <span style="
-                    background: ${statusColor[booking.status] || '#6b7280'}; 
-                    color: white; 
-                    padding: 0.25rem 0.75rem; 
-                    border-radius: 20px; 
-                    font-size: 0.8rem; 
-                    font-weight: 600; 
-                    text-transform: uppercase;
-                ">${booking.status}</span>
-            </p>
-        `;
-        
-        bookingsList.appendChild(bookingItem);
-    });
-}
 
 // Notification system
 function showNotification(message, type = 'info') {
@@ -886,7 +792,8 @@ function updatePickupLocations() {
     // Update the time info display
     if (locations.length > 0) {
         let infoHTML = '<div class="pickup-locations-list">';
-        infoHTML += '<h4 style="margin: 0 0 1rem 0; color: #1f2937; font-size: 1rem;">Available Pickup Locations & Times:</h4>';
+        infoHTML += '<h4 style="margin: 0 0 0.5rem 0; color: #1f2937; font-size: 1rem;">Available Pickup Locations & Times:</h4>';
+        infoHTML += '<p style="margin: 0 0 1rem 0; color: #6b7280; font-size: 0.9rem; font-style: italic;">ℹ️ For reference only - select your pickup location using the dropdown above</p>';
         
         locations.forEach(location => {
             infoHTML += `
@@ -931,23 +838,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Handle page visibility for real-time updates
-document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && adminModal && adminModal.style.display === 'block') {
-        updateAdminDashboard();
-    }
-});
-
-// Keyboard shortcuts for admin
+// Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-    // Alt + A to open admin panel
-    if (e.altKey && e.key === 'a') {
-        e.preventDefault();
-        if (adminBtn) {
-            adminBtn.click();
-        }
-    }
-    
     // Escape to close modals
     if (e.key === 'Escape') {
         if (facilityModal && facilityModal.style.display === 'block') {
@@ -965,9 +857,6 @@ document.addEventListener('keydown', (e) => {
         if (westernFacilityModal && westernFacilityModal.style.display === 'block') {
             westernFacilityModal.style.display = 'none';
             document.body.style.overflow = 'auto';
-        }
-        if (adminModal && adminModal.style.display === 'block') {
-            modalClose.click();
         }
     }
 });
