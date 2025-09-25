@@ -767,11 +767,158 @@ function initializeDemoData() {
     }
 }
 
+// Pickup locations data based on facilities
+const pickupLocationData = {
+    // Southern Facilities (4am-5am)
+    'Coxsackie Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '4:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '4:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '5:00 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    'Greene Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '4:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '4:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '5:00 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    'Washington Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '4:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '4:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '5:00 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    
+    // Northern Facilities (12am-12:30am)
+    'Clinton Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '12:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    'Altona Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '12:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    'Franklin Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '12:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    'Barehill Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '12:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    'Upstate Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '12:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    
+    // Central Facilities (2am-3am)
+    'Mohawk Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '2:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '2:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '3:00 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    'Mid-State Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '2:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '2:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '3:00 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    'Marcy Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '2:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '2:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '3:00 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    
+    // Western Facilities (12am-12:30am Sunday Only)
+    'Collins Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm', note: 'Sunday Only' },
+        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' }
+    ],
+    'Lakeview Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm', note: 'Sunday Only' },
+        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' }
+    ],
+    
+    // Default for other facilities
+    'Riverview Correctional Facility': [
+        { name: 'Contact us for pickup information', time: 'TBD', address: 'Call (646) 226-2433', value: 'contact-us' }
+    ],
+    'Gouverneur Correctional Facility': [
+        { name: 'Contact us for pickup information', time: 'TBD', address: 'Call (646) 226-2433', value: 'contact-us' }
+    ],
+    'Cape Vincent Correctional Facility': [
+        { name: 'Contact us for pickup information', time: 'TBD', address: 'Call (646) 226-2433', value: 'contact-us' }
+    ]
+};
+
+// Function to update pickup locations based on selected facility
+function updatePickupLocations() {
+    const facilitySelect = document.getElementById('facility');
+    const pickupLocationSelect = document.getElementById('pickup-location');
+    const pickupTimeInfo = document.getElementById('pickup-time-info');
+    
+    if (!facilitySelect || !pickupLocationSelect || !pickupTimeInfo) return;
+    
+    const selectedFacility = facilitySelect.value;
+    
+    if (!selectedFacility) {
+        pickupLocationSelect.disabled = true;
+        pickupLocationSelect.innerHTML = '<option value="">First select a facility above...</option>';
+        pickupTimeInfo.innerHTML = '<p class="pickup-time-text">Select a facility to see available pickup locations and times</p>';
+        return;
+    }
+    
+    const locations = pickupLocationData[selectedFacility] || [];
+    
+    // Clear and populate pickup location dropdown
+    pickupLocationSelect.innerHTML = '<option value="">Choose pickup location...</option>';
+    locations.forEach(location => {
+        const option = document.createElement('option');
+        option.value = location.value;
+        option.textContent = `${location.name} - ${location.time}`;
+        pickupLocationSelect.appendChild(option);
+    });
+    
+    // Enable the dropdown
+    pickupLocationSelect.disabled = false;
+    
+    // Update the time info display
+    if (locations.length > 0) {
+        let infoHTML = '<div class="pickup-locations-list">';
+        infoHTML += '<h4 style="margin: 0 0 1rem 0; color: #1f2937; font-size: 1rem;">Available Pickup Locations & Times:</h4>';
+        
+        locations.forEach(location => {
+            infoHTML += `
+                <div class="pickup-location-item">
+                    <div>
+                        <div class="pickup-location-name">${location.name}</div>
+                        <div class="pickup-location-address">📍 ${location.address}</div>
+                        ${location.note ? `<div style="color: #f59e0b; font-weight: 600; font-size: 0.8rem; margin-top: 0.25rem;">⚠️ ${location.note}</div>` : ''}
+                    </div>
+                    <div class="pickup-location-time">${location.time}</div>
+                </div>
+            `;
+        });
+        
+        infoHTML += '</div>';
+        pickupTimeInfo.innerHTML = infoHTML;
+    } else {
+        pickupTimeInfo.innerHTML = '<p class="pickup-time-text">No pickup locations available for this facility. Please contact us.</p>';
+    }
+}
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     initializeDemoData();
     enhanceFormExperience();
     animateOnScroll();
+    
+    // Set up facility change listener for pickup locations
+    const facilitySelect = document.getElementById('facility');
+    if (facilitySelect) {
+        facilitySelect.addEventListener('change', updatePickupLocations);
+    }
     
     // Add loading states to buttons
     document.querySelectorAll('.btn').forEach(btn => {

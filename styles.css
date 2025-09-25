@@ -436,6 +436,72 @@ body {
     margin-left: 0.5rem;
 }
 
+.pickup-location-group {
+    position: relative;
+}
+
+.pickup-time-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(129, 212, 217, 0.1);
+    border: 1px solid rgba(129, 212, 217, 0.3);
+    border-radius: 12px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.pickup-time-text {
+    margin: 0;
+    color: #0DB7BB;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.pickup-locations-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.pickup-location-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid rgba(129, 212, 217, 0.2);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.pickup-location-name {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 0.9rem;
+}
+
+.pickup-location-time {
+    background: linear-gradient(135deg, #0DB7BB, #4ECDC4);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.pickup-location-address {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+#pickup-location:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
 .date-helper {
     display: block;
     margin-top: 0.5rem;
@@ -852,6 +918,103 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     margin-bottom: 2rem !important;
     font-weight: 600;
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
+
+/* Donation Section */
+.donation-section {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 5rem 0;
+    border-top: 1px solid rgba(129, 212, 217, 0.2);
+}
+
+.donation-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.donation-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.badge-icon {
+    font-size: 1.2rem;
+}
+
+.donation-content h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+}
+
+.donation-content > p {
+    font-size: 1.2rem;
+    color: #6b7280;
+    margin-bottom: 3rem;
+    line-height: 1.6;
+}
+
+.donation-benefits {
+    display: grid;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    text-align: left;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(129, 212, 217, 0.2);
+}
+
+.benefit-icon {
+    font-size: 1.8rem;
+    margin-top: 0.25rem;
+}
+
+.benefit-item strong {
+    display: block;
+    color: #1f2937;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.benefit-item p {
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.donation-cta {
+    text-align: center;
+}
+
+.donation-note {
+    margin-top: 1rem;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+@media (min-width: 768px) {
+    .donation-benefits {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 /* Footer */

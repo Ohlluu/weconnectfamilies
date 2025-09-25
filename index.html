@@ -62,6 +62,49 @@
         </div>
     </section>
 
+    <!-- Nonprofit Donation Section -->
+    <section class="donation-section">
+        <div class="container">
+            <div class="donation-content">
+                <div class="donation-badge">
+                    <span class="badge-icon">🏛️</span>
+                    <span class="badge-text">501(c)(3) Approved Nonprofit</span>
+                </div>
+                <h2>Support Our Mission</h2>
+                <p>We Connect Families is an IRS-approved 501(c)(3) tax-exempt nonprofit organization. Your donations help us continue connecting families with their loved ones.</p>
+                
+                <div class="donation-benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">💰</span>
+                        <div>
+                            <strong>Tax Deductible</strong>
+                            <p>All donations are tax-deductible under IRC Section 170</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">📋</span>
+                        <div>
+                            <strong>Official Documentation</strong>
+                            <p>Receive proper receipts for tax filing purposes</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">❤️</span>
+                        <div>
+                            <strong>Direct Impact</strong>
+                            <p>100% of donations support transportation services for families</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="donation-cta">
+                    <a href="tel:6462262433" class="btn btn-primary">Contact Us to Donate</a>
+                    <p class="donation-note">Call us at (646) 226-2433 to make a tax-deductible donation</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Booking Section -->
     <section id="book" class="booking-section">
         <div class="container">
@@ -128,6 +171,18 @@
                             <label for="visit-date">Visit Date <span class="weekend-only">📅 Weekends Only</span></label>
                             <input type="date" id="visit-date" name="visit-date" required>
                             <small class="date-helper">⚠️ Important: We provide transportation services on Saturdays and Sundays only (excluding federal holidays). Invalid dates will be automatically cleared.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group pickup-location-group">
+                            <label for="pickup-location">Select Pickup Location</label>
+                            <select id="pickup-location" name="pickup-location" required disabled>
+                                <option value="">First select a facility above...</option>
+                            </select>
+                            <div id="pickup-time-info" class="pickup-time-info">
+                                <p class="pickup-time-text">Select a facility to see available pickup locations and times</p>
+                            </div>
                         </div>
                     </div>
                     
