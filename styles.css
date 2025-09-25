@@ -1413,7 +1413,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     text-align: center;
 }
 
-.sunday-only {
+.sunday-only-status {
     background: linear-gradient(135deg, #ff6b35, #ff8c42);
     color: white;
     padding: 0.3rem 0.8rem;

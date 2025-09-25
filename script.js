@@ -326,8 +326,8 @@ const westernFacilityModal = document.getElementById('western-facility-modal');
 const westernFacilityModalClose = document.getElementById('western-facility-modal-close');
 
 // Sunday-only Facilities Modal
-const sundayOnlyModal = document.getElementById('sunday-only-modal');
-const sundayOnlyModalClose = document.getElementById('sunday-only-modal-close');
+const sundayOnlyModal = document.getElementById('sunday-only-facility-modal');
+const sundayOnlyModalClose = document.getElementById('sunday-only-facility-modal-close');
 
 const facilityDetailsButtons = document.querySelectorAll('.facility-details-btn');
 
