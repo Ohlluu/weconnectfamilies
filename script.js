@@ -340,7 +340,7 @@ facilityDetailsButtons.forEach(button => {
         }
         // Show northern facilities modal
         else if (facility === 'clinton' || facility === 'altona' || facility === 'franklin' || 
-                 facility === 'barehill' || facility === 'upstate') {
+                 facility === 'barehill' || facility === 'upstate' || facility === 'adirondack' || facility === 'raybrook') {
             northernFacilityModal.style.display = 'block';
             document.body.style.overflow = 'hidden'; // Prevent background scroll
         }
@@ -710,6 +710,14 @@ const pickupLocationData = {
         { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     'Upstate Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    'Adirondack Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    'Raybrook Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
         { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
