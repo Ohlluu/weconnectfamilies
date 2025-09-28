@@ -206,12 +206,9 @@ function validateBookingForm(data) {
         if (visitDate < today) {
             isValid = false;
             showFieldError('visit-date', 'Visit date cannot be in the past');
-        } else if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        } else if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isFederalHoliday(visitDate)) {
             isValid = false;
-            showFieldError('visit-date', 'We only provide transportation on weekends (Saturday and Sunday)');
-        } else if (isFederalHoliday(visitDate)) {
-            isValid = false;
-            showFieldError('visit-date', 'Service not available on federal holidays. Please choose another weekend.');
+            showFieldError('visit-date', 'We only provide transportation on weekends (Saturday and Sunday) and federal holidays');
         }
     }
     
@@ -579,14 +576,10 @@ function enhanceFormExperience() {
                 this.value = ''; // Clear invalid selection
                 this.setCustomValidity('Visit date cannot be in the past.');
                 showFieldError('visit-date', 'Please select a future date');
-            } else if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            } else if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isFederalHoliday(selectedDate)) {
                 this.value = ''; // Clear invalid selection
-                this.setCustomValidity('We only provide transportation services on weekends (Saturday and Sunday).');
-                showFieldError('visit-date', 'Please select a weekend date (Saturday or Sunday)');
-            } else if (isFederalHoliday(selectedDate)) {
-                this.value = ''; // Clear invalid selection
-                this.setCustomValidity('We do not provide services on federal holidays.');
-                showFieldError('visit-date', 'Service not available on federal holidays. Please choose another weekend.');
+                this.setCustomValidity('We only provide transportation services on weekends (Saturday and Sunday) and federal holidays.');
+                showFieldError('visit-date', 'Please select a weekend date (Saturday or Sunday) or federal holiday');
             } else {
                 this.setCustomValidity('');
                 // Clear any existing error
@@ -606,7 +599,7 @@ function enhanceFormExperience() {
         // Add click event to show helpful message
         input.addEventListener('focus', function() {
             if (!this.value) {
-                showTemporaryMessage(this, 'Select any weekend date. Weekdays and holidays will be automatically filtered out.');
+                showTemporaryMessage(this, 'Select any weekend date or federal holiday. Regular weekdays will be automatically filtered out.');
             }
         });
     }
