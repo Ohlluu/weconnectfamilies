@@ -11,8 +11,8 @@ const app = express();
 
 // Rate limiting for admin login
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
+  windowMs: 5 * 60 * 1000, // 5 minutes (reduced from 15)
+  max: 10, // 10 attempts (increased from 5)
   message: 'Too many login attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
