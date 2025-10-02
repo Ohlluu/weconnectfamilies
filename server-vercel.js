@@ -14,8 +14,23 @@ async function initializeMongoDB() {
   try {
     if (process.env.MONGODB_URI) {
       console.log('🍃 Connecting to MongoDB Atlas...');
-      mongoClient = new MongoClient(process.env.MONGODB_URI);
+      
+      // Add connection options with shorter timeout for Vercel
+      const options = {
+        serverSelectionTimeoutMS: 10000, // 10 seconds
+        connectTimeoutMS: 10000,
+        socketTimeoutMS: 10000,
+        maxPoolSize: 1, // Minimize connections for serverless
+        retryWrites: true,
+        retryReads: true
+      };
+      
+      mongoClient = new MongoClient(process.env.MONGODB_URI, options);
       await mongoClient.connect();
+      
+      // Test the connection
+      await mongoClient.db('weconnectfamilies').admin().ping();
+      
       db = mongoClient.db('weconnectfamilies');
       console.log('✅ MongoDB connected successfully');
       return true;
@@ -24,7 +39,8 @@ async function initializeMongoDB() {
       return false;
     }
   } catch (error) {
-    console.error('❌ MongoDB connection failed:', error);
+    console.error('❌ MongoDB connection failed:', error.message);
+    db = null; // Ensure db is null on failure
     return false;
   }
 }
@@ -59,16 +75,30 @@ let fallbackData = { bookings: [], nextId: 1 };
 
 // Data storage functions
 async function loadBookings() {
+  console.log('🔍 loadBookings called');
+  
   try {
     // Ensure MongoDB connection is established
     if (!db && process.env.MONGODB_URI) {
-      await initializeMongoDB();
+      console.log('🔌 No existing connection, initializing MongoDB...');
+      const connected = await initializeMongoDB();
+      if (!connected) {
+        console.log('⚠️ MongoDB initialization failed, using fallback');
+        return { ...fallbackData };
+      }
     }
     
     if (db) {
-      // Use MongoDB
+      console.log('📡 Querying MongoDB for bookings...');
+      
+      // Use MongoDB with timeout
       const collection = db.collection('bookings');
-      const bookings = await collection.find({}).toArray();
+      const bookings = await Promise.race([
+        collection.find({}).toArray(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('MongoDB query timeout')), 15000)
+        )
+      ]);
       
       // Get next ID
       const metaCollection = db.collection('meta');
@@ -86,8 +116,11 @@ async function loadBookings() {
       return { ...fallbackData };
     }
   } catch (error) {
-    console.error('Load bookings error:', error);
-    return { bookings: [], nextId: 1 };
+    console.error('❌ Load bookings error:', error.message);
+    // Reset db connection on error
+    db = null;
+    console.log('🔄 Falling back to memory storage');
+    return { ...fallbackData };
   }
 }
 
@@ -131,6 +164,52 @@ async function saveBookings(data) {
 }
 
 // Routes
+
+// Health check endpoint for MongoDB
+app.get('/api/health', async (req, res) => {
+  try {
+    const mongoStatus = process.env.MONGODB_URI ? 'configured' : 'not configured';
+    
+    if (process.env.MONGODB_URI && !db) {
+      await initializeMongoDB();
+    }
+    
+    const dbStatus = db ? 'connected' : 'disconnected';
+    
+    if (db) {
+      // Test query
+      const collection = db.collection('bookings');
+      const count = await collection.countDocuments();
+      
+      res.json({
+        status: 'ok',
+        mongodb: {
+          uri: mongoStatus,
+          connection: dbStatus,
+          bookings_count: count
+        },
+        timestamp: new Date()
+      });
+    } else {
+      res.json({
+        status: 'fallback',
+        mongodb: {
+          uri: mongoStatus,
+          connection: dbStatus,
+          error: 'Using fallback storage'
+        },
+        fallback_bookings: fallbackData.bookings.length,
+        timestamp: new Date()
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error.message,
+      timestamp: new Date()
+    });
+  }
+});
 
 // POST /api/bookings - Create a new booking
 app.post('/api/bookings', async (req, res) => {
