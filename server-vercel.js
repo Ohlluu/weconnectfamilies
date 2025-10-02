@@ -60,6 +60,11 @@ let fallbackData = { bookings: [], nextId: 1 };
 // Data storage functions
 async function loadBookings() {
   try {
+    // Ensure MongoDB connection is established
+    if (!db && process.env.MONGODB_URI) {
+      await initializeMongoDB();
+    }
+    
     if (db) {
       // Use MongoDB
       const collection = db.collection('bookings');
@@ -88,6 +93,11 @@ async function loadBookings() {
 
 async function saveBookings(data) {
   try {
+    // Ensure MongoDB connection is established
+    if (!db && process.env.MONGODB_URI) {
+      await initializeMongoDB();
+    }
+    
     if (db) {
       // Use MongoDB
       const collection = db.collection('bookings');
