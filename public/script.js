@@ -168,7 +168,7 @@ if (checkinForm) {
 
 // Form validation
 function validateBookingForm(data) {
-    const requiredFields = ['name', 'phone', 'email', 'visitors', 'facility', 'visit-date'];
+    const requiredFields = ['name', 'phone', 'email', 'visitors', 'facility', 'visit-date', 'pickup-location'];
     let isValid = true;
     
     // Clear previous errors
@@ -1508,6 +1508,7 @@ async function handleDatabaseBookingSubmission(e) {
         facility: formData.get('facility'),
         'visit-date': formData.get('visit-date'),
         visitors: formData.get('visitors'),
+        'pickup-location': formData.get('pickup-location'),
         pickup_location: formData.get('pickup-location'),
         guests: formData.get('guests') || 1,
         notes: formData.get('notes') || ''
