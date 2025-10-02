@@ -1508,7 +1508,8 @@ async function handleDatabaseBookingSubmission(e) {
         phone: formData.get('phone'),
         email: formData.get('email'),
         facility: formData.get('facility'),
-        visit_date: formData.get('visit-date'),
+        'visit-date': formData.get('visit-date'),
+        visitors: formData.get('visitors'),
         pickup_location: formData.get('pickup-location'),
         guests: formData.get('guests') || 1,
         notes: formData.get('notes') || ''
