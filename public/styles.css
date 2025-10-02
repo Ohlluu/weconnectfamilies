@@ -2126,6 +2126,40 @@ html {
     scroll-behavior: smooth;
 }
 
+/* SMS Consent Styling */
+.consent-section {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #2c5aa0;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.checkbox-container input[type="checkbox"] {
+    margin-right: 12px;
+    margin-top: 2px;
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.consent-text {
+    color: #4a5568;
+    flex: 1;
+}
+
+.consent-text a {
+    color: #2c5aa0;
+    text-decoration: underline;
+}
+
 /* Selection colors */
 ::selection {
     background: rgba(59, 130, 246, 0.2);
