@@ -198,7 +198,7 @@ function validateBookingForm(data) {
     
     // Date validation
     if (data['visit-date']) {
-        const visitDate = new Date(data['visit-date']);
+        const visitDate = new Date(data['visit-date'] + 'T00:00:00');
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const dayOfWeek = visitDate.getDay(); // 0 = Sunday, 6 = Saturday
@@ -573,11 +573,9 @@ function enhanceFormExperience() {
             const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
             
             if (selectedDate < today) {
-                this.value = ''; // Clear invalid selection
                 this.setCustomValidity('Visit date cannot be in the past.');
                 showFieldError('visit-date', 'Please select a future date');
             } else if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isFederalHoliday(selectedDate)) {
-                this.value = ''; // Clear invalid selection
                 this.setCustomValidity('We only provide transportation services on weekends (Saturday and Sunday) and federal holidays.');
                 showFieldError('visit-date', 'Please select a weekend date (Saturday or Sunday) or federal holiday');
             } else {
