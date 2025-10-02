@@ -1559,7 +1559,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     gap: 0.5rem;
 }
 
-.refresh-btn, .logout-btn {
+.print-btn, .refresh-btn, .logout-btn {
     background: rgba(255, 255, 255, 0.2);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -1570,7 +1570,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     transition: all 0.3s ease;
 }
 
-.refresh-btn:hover, .logout-btn:hover {
+.print-btn:hover, .refresh-btn:hover, .logout-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
 }

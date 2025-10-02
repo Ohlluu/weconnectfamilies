@@ -1031,6 +1031,10 @@ adminLoginBtn?.addEventListener('click', showAdminLoginModal);
 adminLoginClose?.addEventListener('click', hideAdminLoginModal);
 adminLoginForm?.addEventListener('submit', handleAdminLogin);
 
+// Print and refresh button listeners
+document.getElementById('print-bookings')?.addEventListener('click', handlePrintBookings);
+document.getElementById('refresh-bookings')?.addEventListener('click', handleRefreshBookings);
+
 // Filter buttons
 document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', handleFilterChange);
@@ -1174,6 +1178,7 @@ async function loadBookings() {
         
         if (response.ok && data.success) {
             adminState.bookings = data.bookings;
+            window.currentBookings = data.bookings; // Store for printing
             displayBookings(data.bookings);
             updateStats(data.counts);
         } else {
@@ -1440,6 +1445,17 @@ async function handleBookingAction() {
 
 // Utility functions
 function formatDate(dateString) {
+    // For visit dates (YYYY-MM-DD format), avoid timezone issues
+    if (dateString && dateString.includes('-') && !dateString.includes('T')) {
+        const date = new Date(dateString + 'T00:00:00');
+        return date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+    // For timestamps with time
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
         weekday: 'short',
@@ -1582,6 +1598,103 @@ async function handleDatabaseBookingSubmission(e) {
         submitButton.disabled = false;
         submitButton.textContent = originalText;
     }
+}
+
+// Print bookings function
+function handlePrintBookings() {
+    const bookings = getCurrentBookings();
+    if (!bookings || bookings.length === 0) {
+        alert('No bookings to print. Please refresh to load bookings.');
+        return;
+    }
+    
+    // Create Google Docs compatible template
+    const printContent = generatePrintTemplate(bookings);
+    
+    // Create new window for printing
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+}
+
+function generatePrintTemplate(bookings) {
+    const currentDate = new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    let html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>WE Connect Families - Booking Report</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .booking { border: 1px solid #ddd; margin: 15px 0; padding: 15px; page-break-inside: avoid; }
+            .booking-header { font-weight: bold; color: #2c5aa0; margin-bottom: 10px; }
+            .detail { margin: 5px 0; }
+            .status { padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+            .status-pending { background: #fff3cd; color: #856404; }
+            .status-confirmed { background: #d4edda; color: #155724; }
+            .status-rejected { background: #f8d7da; color: #721c24; }
+            @media print { .no-print { display: none; } }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>🚌 WE Connect Families</h1>
+            <h2>Transportation Booking Report</h2>
+            <p>Generated on: ${currentDate}</p>
+            <p>Total Bookings: ${bookings.length}</p>
+        </div>
+    `;
+    
+    bookings.forEach((booking, index) => {
+        html += `
+        <div class="booking">
+            <div class="booking-header">Booking #${booking.id} - ${booking.name}</div>
+            <div class="detail"><strong>Phone:</strong> ${booking.phone}</div>
+            ${booking.email ? `<div class="detail"><strong>Email:</strong> ${booking.email}</div>` : ''}
+            <div class="detail"><strong>Facility:</strong> ${booking.facility}</div>
+            <div class="detail"><strong>Visit Date:</strong> ${formatDate(booking.visit_date)}</div>
+            <div class="detail"><strong>Pickup Location:</strong> ${booking.pickup_location}</div>
+            <div class="detail"><strong>Visitors:</strong> ${booking.visitors || booking.guests}</div>
+            <div class="detail"><strong>Status:</strong> <span class="status status-${booking.status}">${booking.status.toUpperCase()}</span></div>
+            <div class="detail"><strong>Booked:</strong> ${formatDate(booking.created_at)}</div>
+            ${booking.notes ? `<div class="detail"><strong>Notes:</strong> ${booking.notes}</div>` : ''}
+        </div>
+        `;
+    });
+    
+    html += `
+        <div style="margin-top: 30px; text-align: center; color: #666;">
+            <p>© WE Connect Families Transportation Services</p>
+        </div>
+    </body>
+    </html>
+    `;
+    
+    return html;
+}
+
+// Enhanced refresh with confirmation
+function handleRefreshBookings() {
+    if (confirm('⚠️ WARNING: This will clear all current booking data and reload from the server. This action cannot be undone. Are you sure you want to continue?')) {
+        loadAdminBookings();
+    }
+}
+
+function getCurrentBookings() {
+    // Get bookings from the global variable if available
+    if (window.currentBookings) {
+        return window.currentBookings;
+    }
+    return [];
 }
 
 console.log('🔐 Admin system initialized');
