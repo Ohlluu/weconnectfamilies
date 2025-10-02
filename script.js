@@ -1004,3 +1004,564 @@ function isLastWeekdayOfMonth(date, weekday) {
 
 // Initialize performance optimizations
 optimizePerformance();
+
+// ==========================================
+// ADMIN SYSTEM
+// ==========================================
+
+// Admin state
+let adminState = {
+    isLoggedIn: false,
+    sessionToken: null,
+    bookings: [],
+    currentFilter: 'all'
+};
+
+// Admin DOM elements
+const adminLoginBtn = document.getElementById('admin-login-btn');
+const adminLoginModal = document.getElementById('admin-login-modal');
+const adminLoginClose = document.querySelector('.admin-login-close');
+const adminLoginForm = document.getElementById('admin-login-form');
+const adminLoginError = document.getElementById('admin-login-error');
+const adminDashboardModal = document.getElementById('admin-dashboard-modal');
+const bookingActionModal = document.getElementById('booking-action-modal');
+
+// Admin event listeners
+adminLoginBtn?.addEventListener('click', showAdminLoginModal);
+adminLoginClose?.addEventListener('click', hideAdminLoginModal);
+adminLoginForm?.addEventListener('submit', handleAdminLogin);
+
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', handleFilterChange);
+});
+
+// Admin action buttons
+document.getElementById('admin-logout')?.addEventListener('click', handleAdminLogout);
+document.getElementById('refresh-bookings')?.addEventListener('click', loadBookings);
+
+// Booking action modal
+document.querySelector('.booking-action-close')?.addEventListener('click', hideBookingActionModal);
+document.getElementById('cancel-action')?.addEventListener('click', hideBookingActionModal);
+document.getElementById('confirm-action')?.addEventListener('click', handleBookingAction);
+
+// API Configuration
+const API_BASE = window.location.origin.includes('localhost') 
+    ? 'http://localhost:3333' 
+    : window.location.origin;
+
+// Show admin login modal
+function showAdminLoginModal() {
+    adminLoginModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('admin-password').focus();
+}
+
+// Hide admin login modal
+function hideAdminLoginModal() {
+    adminLoginModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    adminLoginForm.reset();
+    hideError(adminLoginError);
+}
+
+// Handle admin login
+async function handleAdminLogin(e) {
+    e.preventDefault();
+    
+    const password = document.getElementById('admin-password').value;
+    const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in...';
+    hideError(adminLoginError);
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/admin/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Login successful
+            adminState.isLoggedIn = true;
+            adminState.sessionToken = data.sessionToken;
+            
+            // Hide login modal and show dashboard
+            hideAdminLoginModal();
+            showAdminDashboard();
+            
+            // Load bookings
+            await loadBookings();
+            await loadStats();
+            
+            showNotification('✅ Admin login successful!', 'success');
+        } else {
+            // Login failed
+            showError(adminLoginError, data.error || 'Login failed');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        showError(adminLoginError, 'Connection error. Please try again.');
+    } finally {
+        // Reset button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Login';
+    }
+}
+
+// Show admin dashboard
+function showAdminDashboard() {
+    adminDashboardModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+// Hide admin dashboard
+function hideAdminDashboard() {
+    adminDashboardModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Handle admin logout
+async function handleAdminLogout() {
+    try {
+        await fetch(`${API_BASE}/api/admin/logout`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${adminState.sessionToken}`,
+                'Content-Type': 'application/json',
+            }
+        });
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
+    
+    // Clear admin state
+    adminState.isLoggedIn = false;
+    adminState.sessionToken = null;
+    adminState.bookings = [];
+    
+    // Hide dashboard
+    hideAdminDashboard();
+    
+    showNotification('👋 Logged out successfully', 'info');
+}
+
+// Load bookings from API
+async function loadBookings() {
+    if (!adminState.sessionToken) return;
+    
+    const loadingSpinner = document.getElementById('admin-loading');
+    const bookingsContainer = document.getElementById('bookings-container');
+    
+    if (loadingSpinner) loadingSpinner.style.display = 'block';
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/admin/bookings`, {
+            headers: {
+                'Authorization': `Bearer ${adminState.sessionToken}`,
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            adminState.bookings = data.bookings;
+            displayBookings(data.bookings);
+            updateStats(data.counts);
+        } else {
+            throw new Error(data.error || 'Failed to load bookings');
+        }
+    } catch (error) {
+        console.error('Load bookings error:', error);
+        bookingsContainer.innerHTML = `<div class="no-bookings"><h3>Error Loading Bookings</h3><p>${error.message}</p></div>`;
+    } finally {
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
+    }
+}
+
+// Load statistics
+async function loadStats() {
+    if (!adminState.sessionToken) return;
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/admin/stats`, {
+            headers: {
+                'Authorization': `Bearer ${adminState.sessionToken}`,
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            updateStats(data.stats);
+        }
+    } catch (error) {
+        console.error('Load stats error:', error);
+    }
+}
+
+// Update statistics display
+function updateStats(stats) {
+    const statElements = {
+        'stat-total': stats.total || 0,
+        'stat-pending': stats.pending || 0,
+        'stat-confirmed': stats.confirmed || 0
+    };
+    
+    Object.entries(statElements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    });
+}
+
+// Display bookings
+function displayBookings(bookings) {
+    const container = document.getElementById('bookings-container');
+    
+    if (!bookings || bookings.length === 0) {
+        container.innerHTML = `
+            <div class="no-bookings">
+                <h3>No bookings found</h3>
+                <p>When customers make bookings, they will appear here.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Filter bookings based on current filter
+    let filteredBookings = bookings;
+    if (adminState.currentFilter !== 'all') {
+        filteredBookings = bookings.filter(booking => booking.status === adminState.currentFilter);
+    }
+    
+    if (filteredBookings.length === 0) {
+        container.innerHTML = `
+            <div class="no-bookings">
+                <h3>No ${adminState.currentFilter} bookings</h3>
+                <p>Try selecting a different filter.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = filteredBookings.map(booking => `
+        <div class="booking-item" data-booking-id="${booking.id}">
+            <div class="booking-header">
+                <div class="booking-info">
+                    <h4>${booking.name}</h4>
+                    <p>📞 ${booking.phone} ${booking.email ? `• 📧 ${booking.email}` : ''}</p>
+                    <p>📅 Booked: ${formatDate(booking.created_at)}</p>
+                </div>
+                <span class="booking-status status-${booking.status}">${booking.status}</span>
+            </div>
+            
+            <div class="booking-details">
+                <div class="detail-item">
+                    <span class="detail-icon">🏢</span>
+                    <span class="detail-text">${booking.facility}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-icon">📅</span>
+                    <span class="detail-text">${formatDate(booking.visit_date)}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-icon">📍</span>
+                    <span class="detail-text">${booking.pickup_location}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-icon">👥</span>
+                    <span class="detail-text">${booking.guests} guest(s)</span>
+                </div>
+            </div>
+            
+            ${booking.status === 'pending' ? `
+                <div class="booking-actions">
+                    <button class="confirm-booking-btn" onclick="showBookingActionModal(${booking.id}, 'confirm')">
+                        ✅ Confirm Booking
+                    </button>
+                    <button class="reject-booking-btn" onclick="showBookingActionModal(${booking.id}, 'reject')">
+                        ❌ Reject Booking
+                    </button>
+                </div>
+            ` : ''}
+            
+            ${booking.confirmed_at ? `
+                <p style="color: #28a745; font-size: 0.9rem; margin-top: 0.5rem;">
+                    ✅ Confirmed: ${formatDate(booking.confirmed_at)}
+                </p>
+            ` : ''}
+            
+            ${booking.notes ? `
+                <p style="color: #6c757d; font-size: 0.9rem; margin-top: 0.5rem;">
+                    📝 Notes: ${booking.notes}
+                </p>
+            ` : ''}
+        </div>
+    `).join('');
+}
+
+// Handle filter changes
+function handleFilterChange(e) {
+    const status = e.target.dataset.status;
+    adminState.currentFilter = status;
+    
+    // Update active filter button
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    e.target.classList.add('active');
+    
+    // Re-display bookings with new filter
+    displayBookings(adminState.bookings);
+}
+
+// Show booking action modal
+function showBookingActionModal(bookingId, action) {
+    const booking = adminState.bookings.find(b => b.id === bookingId);
+    if (!booking) return;
+    
+    const modal = bookingActionModal;
+    const title = document.getElementById('action-title');
+    const details = document.getElementById('action-booking-details');
+    const reasonSection = document.getElementById('rejection-reason');
+    const confirmBtn = document.getElementById('confirm-action');
+    
+    // Set modal content based on action
+    if (action === 'confirm') {
+        title.textContent = 'Confirm Booking';
+        confirmBtn.textContent = 'Confirm Booking';
+        confirmBtn.className = 'confirm-btn';
+        reasonSection.style.display = 'none';
+    } else {
+        title.textContent = 'Reject Booking';
+        confirmBtn.textContent = 'Reject Booking';
+        confirmBtn.className = 'confirm-btn reject';
+        reasonSection.style.display = 'block';
+    }
+    
+    // Show booking details
+    details.innerHTML = `
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <p><strong>Customer:</strong> ${booking.name}</p>
+            <p><strong>Phone:</strong> ${booking.phone}</p>
+            ${booking.email ? `<p><strong>Email:</strong> ${booking.email}</p>` : ''}
+            <p><strong>Facility:</strong> ${booking.facility}</p>
+            <p><strong>Visit Date:</strong> ${formatDate(booking.visit_date)}</p>
+            <p><strong>Pickup:</strong> ${booking.pickup_location}</p>
+            <p><strong>Guests:</strong> ${booking.guests}</p>
+        </div>
+    `;
+    
+    // Store booking ID and action for later use
+    confirmBtn.dataset.bookingId = bookingId;
+    confirmBtn.dataset.action = action;
+    
+    // Show modal
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+// Hide booking action modal
+function hideBookingActionModal() {
+    bookingActionModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    document.getElementById('rejection-reason-input').value = '';
+}
+
+// Handle booking action (confirm/reject)
+async function handleBookingAction() {
+    const confirmBtn = document.getElementById('confirm-action');
+    const bookingId = confirmBtn.dataset.bookingId;
+    const action = confirmBtn.dataset.action;
+    const reason = document.getElementById('rejection-reason-input').value.trim();
+    
+    if (!bookingId || !action) return;
+    
+    // Show loading state
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = action === 'confirm' ? 'Confirming...' : 'Rejecting...';
+    
+    try {
+        const endpoint = `${API_BASE}/api/admin/bookings/${bookingId}/${action}`;
+        const body = action === 'reject' && reason ? { reason } : {};
+        
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${adminState.sessionToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Success
+            showNotification(data.message, 'success');
+            
+            // Log notification results
+            if (data.notifications) {
+                if (data.notifications.sms?.success) {
+                    console.log('📱 SMS sent successfully');
+                }
+                if (data.notifications.email?.success) {
+                    console.log('📧 Email sent successfully');
+                }
+            }
+            
+            // Refresh bookings
+            await loadBookings();
+            await loadStats();
+            
+            // Hide modal
+            hideBookingActionModal();
+        } else {
+            throw new Error(data.error || `Failed to ${action} booking`);
+        }
+    } catch (error) {
+        console.error(`${action} booking error:`, error);
+        showNotification(`Failed to ${action} booking: ${error.message}`, 'error');
+    } finally {
+        // Reset button
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = action === 'confirm' ? 'Confirm Booking' : 'Reject Booking';
+    }
+}
+
+// Utility functions
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function showError(element, message) {
+    if (element) {
+        element.textContent = message;
+        element.style.display = 'block';
+    }
+}
+
+function hideError(element) {
+    if (element) {
+        element.style.display = 'none';
+    }
+}
+
+// Close modals when clicking outside
+window.addEventListener('click', (e) => {
+    if (e.target === adminLoginModal) {
+        hideAdminLoginModal();
+    }
+    if (e.target === adminDashboardModal) {
+        // Don't close dashboard when clicking outside - user should use logout button
+    }
+    if (e.target === bookingActionModal) {
+        hideBookingActionModal();
+    }
+});
+
+// ==========================================
+// UPDATE BOOKING FORM TO USE DATABASE
+// ==========================================
+
+// Override the existing booking form submission
+const originalBookingForm = document.getElementById('booking-form');
+if (originalBookingForm) {
+    // Replace the form submission handler
+    const newForm = originalBookingForm.cloneNode(true);
+    originalBookingForm.parentNode.replaceChild(newForm, originalBookingForm);
+    newForm.addEventListener('submit', handleDatabaseBookingSubmission);
+}
+
+async function handleDatabaseBookingSubmission(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    
+    // Show loading state
+    submitButton.disabled = true;
+    submitButton.textContent = 'Submitting...';
+    
+    // Get form data
+    const formData = new FormData(form);
+    const bookingData = {
+        name: formData.get('name'),
+        phone: formData.get('phone'),
+        email: formData.get('email'),
+        facility: formData.get('facility'),
+        visit_date: formData.get('visit-date'),
+        pickup_location: formData.get('pickup-location'),
+        guests: formData.get('guests') || 1,
+        notes: formData.get('notes') || ''
+    };
+    
+    // Validate form
+    if (!validateBookingForm(bookingData)) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/bookings`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bookingData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Success - booking saved to database
+            showNotification(
+                `🎉 Booking submitted successfully! Booking ID: ${data.bookingId}. We will contact you soon to confirm.`,
+                'success'
+            );
+            
+            // Reset form
+            form.reset();
+            
+            // Reset pickup location dropdown
+            const pickupSelect = document.getElementById('pickup-location');
+            if (pickupSelect) {
+                pickupSelect.disabled = true;
+                pickupSelect.innerHTML = '<option value="">First select a facility above...</option>';
+            }
+            
+        } else {
+            throw new Error(data.error || 'Failed to submit booking');
+        }
+    } catch (error) {
+        console.error('Booking submission error:', error);
+        showNotification(`❌ Failed to submit booking: ${error.message}`, 'error');
+    } finally {
+        // Reset button
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+    }
+}
+
+console.log('🔐 Admin system initialized');
+console.log('📊 Database integration ready');
+console.log('🚀 WE Connect Families booking system loaded');

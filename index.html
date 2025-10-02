@@ -22,6 +22,7 @@
                 <a href="#book" class="nav-link">Book</a>
                 <a href="#facilities" class="nav-link">Facilities</a>
                 <a href="#contact" class="nav-link">Contact</a>
+                <button id="admin-login-btn" class="admin-login-button" title="Admin Login">🔐</button>
             </div>
             <div class="nav-toggle" id="nav-toggle">
                 <span class="bar"></span>
@@ -979,6 +980,76 @@
                 <div class="contact-footer">
                     <p>If you have any additional questions please call/text</p>
                     <p><strong>Thank you kindly,</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="modal admin-modal">
+        <div class="modal-content admin-modal-content">
+            <span class="modal-close admin-login-close">&times;</span>
+            <div class="admin-login-form">
+                <h2>🔐 Admin Login</h2>
+                <p>Enter admin password to access booking management</p>
+                <form id="admin-login-form">
+                    <input type="password" id="admin-password" placeholder="Admin Password" required>
+                    <button type="submit">Login</button>
+                </form>
+                <div id="admin-login-error" class="error-message" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Modal -->
+    <div id="admin-dashboard-modal" class="modal admin-modal admin-dashboard">
+        <div class="modal-content admin-dashboard-content">
+            <div class="admin-header">
+                <div class="admin-title">
+                    <h2>📊 Admin Dashboard</h2>
+                    <div class="admin-stats" id="admin-stats">
+                        <span class="stat-item">Total: <span id="stat-total">-</span></span>
+                        <span class="stat-item">Pending: <span id="stat-pending">-</span></span>
+                        <span class="stat-item">Confirmed: <span id="stat-confirmed">-</span></span>
+                    </div>
+                </div>
+                <div class="admin-actions">
+                    <button id="refresh-bookings" class="refresh-btn">🔄 Refresh</button>
+                    <button id="admin-logout" class="logout-btn">🚪 Logout</button>
+                </div>
+            </div>
+
+            <div class="admin-content">
+                <div class="bookings-section">
+                    <div class="bookings-filters">
+                        <button class="filter-btn active" data-status="all">All Bookings</button>
+                        <button class="filter-btn" data-status="pending">Pending</button>
+                        <button class="filter-btn" data-status="confirmed">Confirmed</button>
+                        <button class="filter-btn" data-status="rejected">Rejected</button>
+                    </div>
+
+                    <div class="bookings-container" id="bookings-container">
+                        <div class="loading-spinner" id="admin-loading">Loading bookings...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Confirmation Modal -->
+    <div id="booking-action-modal" class="modal admin-modal">
+        <div class="modal-content booking-action-content">
+            <span class="modal-close booking-action-close">&times;</span>
+            <div class="booking-action-form">
+                <h3 id="action-title">Confirm Booking</h3>
+                <div id="action-booking-details"></div>
+                <div id="rejection-reason" style="display: none;">
+                    <label for="rejection-reason-input">Reason for rejection (optional):</label>
+                    <textarea id="rejection-reason-input" placeholder="Enter reason for rejection..."></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button id="confirm-action" class="confirm-btn">Confirm</button>
+                    <button id="cancel-action" class="cancel-btn">Cancel</button>
                 </div>
             </div>
         </div>
