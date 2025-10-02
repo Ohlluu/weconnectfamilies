@@ -1530,12 +1530,26 @@ async function handleDatabaseBookingSubmission(e) {
     console.log('Validation passed');
     
     try {
+        // Convert field names for server
+        const serverData = {
+            name: bookingData.name,
+            phone: bookingData.phone,
+            email: bookingData.email,
+            facility: bookingData.facility,
+            visit_date: bookingData['visit-date'],
+            pickup_location: bookingData['pickup-location'],
+            guests: bookingData.guests,
+            notes: bookingData.notes
+        };
+        
+        console.log('Sending to server:', serverData);
+        
         const response = await fetch(`${API_BASE}/api/bookings`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(bookingData)
+            body: JSON.stringify(serverData)
         });
         
         const data = await response.json();
