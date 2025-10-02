@@ -68,9 +68,10 @@ app.post('/api/bookings', async (req, res) => {
       phone,
       email: email || null,
       facility,
-      visit_date,
+      visit_date: visit_date, // Keep the date as-is to avoid timezone issues
       pickup_location,
       guests: guests || 1,
+      visitors: guests || 1, // Add visitors field for admin display
       notes: notes || null,
       status: 'pending',
       created_at: new Date().toISOString(),

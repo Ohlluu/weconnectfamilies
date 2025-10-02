@@ -1538,7 +1538,7 @@ async function handleDatabaseBookingSubmission(e) {
             facility: bookingData.facility,
             visit_date: bookingData['visit-date'],
             pickup_location: bookingData['pickup-location'],
-            guests: bookingData.guests,
+            guests: bookingData.visitors || bookingData.guests || 1, // Use visitors count from form
             notes: bookingData.notes
         };
         
