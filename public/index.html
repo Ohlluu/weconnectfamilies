@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WE Connect Families | Prison Transportation Services | New York</title>
+    <meta name="description" content="WE Connect Families - Reliable prison transportation services across New York State. Serving families since 2000. Book your visit transportation today.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span>WE Connect Families</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#book" class="nav-link">Book</a>
+                <a href="#facilities" class="nav-link">Facilities</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                <button id="admin-login-btn" class="admin-login-button" title="Admin Login">🔐</button>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Connecting Families <span class="highlight">Since 2014</span></h1>
+                <div class="hero-spanish-notice">
+                    <strong>Hablamos Español</strong> - WE speak Spanish! Call (347) 967-6711
+                </div>
+                <p class="hero-description">
+                    Reliable, safe, and compassionate transportation to correctional facilities across New York State. 
+                    WE understand the importance of staying connected with your loved ones.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#book" class="btn btn-primary">Book Transportation</a>
+                    <a href="tel:6462262433" class="btn btn-outline">Call (646) 226-2433</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">11+</span>
+                        <span class="stat-label">Years</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">18</span>
+                        <span class="stat-label">Facilities</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">5K+</span>
+                        <span class="stat-label">Families</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Section -->
+    <section id="book" class="booking-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Book Your Transportation</h2>
+                <p>Simple, fast booking process</p>
+            </div>
+            
+            <div class="booking-container">
+                <form id="booking-form" class="booking-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="visitors">Number of Visitors</label>
+                            <select id="visitors" name="visitors" required>
+                                <option value="">Select...</option>
+                                <option value="1">1 Person</option>
+                                <option value="2">2 People</option>
+                                <option value="3">3 People</option>
+                                <option value="4">4 People</option>
+                                <option value="5+">5+ People</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="facility">Select Facility</label>
+                            <select id="facility" name="facility" required>
+                                <option value="">Choose facility...</option>
+                                <option value="Coxsackie Correctional Facility">Coxsackie Correctional Facility</option>
+                                <option value="Greene Correctional Facility">Greene Correctional Facility</option>
+                                <option value="Washington Correctional Facility">Washington Correctional Facility</option>
+                                <option value="Clinton Correctional Facility">Clinton Correctional Facility</option>
+                                <option value="Altona Correctional Facility">Altona Correctional Facility</option>
+                                <option value="Franklin Correctional Facility">Franklin Correctional Facility</option>
+                                <option value="Barehill Correctional Facility">Barehill Correctional Facility</option>
+                                <option value="Upstate Correctional Facility">Upstate Correctional Facility</option>
+                                <option value="Adirondack Correctional Facility">Adirondack Correctional Facility</option>
+                                <option value="Raybrook Correctional Facility">Raybrook Correctional Facility</option>
+                                <option value="Mohawk Correctional Facility">Mohawk Correctional Facility</option>
+                                <option value="Mid-State Correctional Facility">Mid-State Correctional Facility</option>
+                                <option value="Marcy Correctional Facility">Marcy Correctional Facility</option>
+                                <option value="Riverview Correctional Facility">Riverview Correctional Facility</option>
+                                <option value="Gouverneur Correctional Facility">Gouverneur Correctional Facility</option>
+                                <option value="Cape Vincent Correctional Facility">Cape Vincent Correctional Facility</option>
+                                <option value="Collins Correctional Facility">Collins Correctional Facility</option>
+                                <option value="Lakeview Correctional Facility">Lakeview Correctional Facility</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="visit-date">Visit Date <span class="weekend-only">📅 Weekends Only</span></label>
+                            <input type="date" id="visit-date" name="visit-date" required>
+                            <small class="date-helper">⚠️ Important: WE provide transportation services on Saturdays, Sundays, and federal holidays. Invalid dates will be automatically cleared.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group pickup-location-group">
+                            <label for="pickup-location">Select Pickup Location</label>
+                            <select id="pickup-location" name="pickup-location" required disabled>
+                                <option value="">First select a facility above...</option>
+                            </select>
+                            <div id="pickup-time-info" class="pickup-time-info">
+                                <p class="pickup-time-text">Select a facility to see available pickup locations and times</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Special Requests (Optional)</label>
+                        <textarea id="notes" name="notes" placeholder="Any special accommodations or requests..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-large">
+                        <span>Book Transportation</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                </form>
+                
+                <!-- Check-in Box -->
+                <div class="checkin-box">
+                    <h3>Already Booked?</h3>
+                    <p>Check in for your scheduled trip</p>
+                    <form id="checkin-form" class="checkin-form">
+                        <div class="checkin-input-group">
+                            <input type="text" id="booking-id" placeholder="Enter Booking ID" required>
+                            <button type="submit" class="btn btn-secondary">Check In</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Facilities Section -->
+    <section id="facilities" class="facilities-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Facilities WE Serve</h2>
+                <p>Transportation to 18 correctional facilities across New York State</p>
+            </div>
+            
+            <div class="facilities-grid">
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Coxsackie Correctional Facility</h3>
+                        <span class="facility-location">Coxsackie, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="coxsackie">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Greene Correctional Facility</h3>
+                        <span class="facility-location">Coxsackie, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="greene">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Washington Correctional Facility</h3>
+                        <span class="facility-location">Comstock, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="washington">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Clinton Correctional Facility</h3>
+                        <span class="facility-location">Dannemora, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="clinton">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Altona Correctional Facility</h3>
+                        <span class="facility-location">Altona, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="altona">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Franklin Correctional Facility</h3>
+                        <span class="facility-location">Malone, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="franklin">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Barehill Correctional Facility</h3>
+                        <span class="facility-location">Malone, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="barehill">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Upstate Correctional Facility</h3>
+                        <span class="facility-location">Malone, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="upstate">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Adirondack Correctional Facility</h3>
+                        <span class="facility-location">Ray Brook, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="adirondack">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Raybrook Correctional Facility</h3>
+                        <span class="facility-location">Ray Brook, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="raybrook">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Mohawk Correctional Facility</h3>
+                        <span class="facility-location">Rome, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="mohawk">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Mid-State Correctional Facility</h3>
+                        <span class="facility-location">Marcy, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="midstate">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Marcy Correctional Facility</h3>
+                        <span class="facility-location">Marcy, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status">Weekend Service</span>
+                        <button class="facility-details-btn" data-facility="marcy">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Collins Correctional Facility</h3>
+                        <span class="facility-location">Collins, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status sunday-only">Sunday Only</span>
+                        <button class="facility-details-btn" data-facility="collins">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Lakeview Correctional Facility</h3>
+                        <span class="facility-location">Brocton, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status sunday-only">Sunday Only</span>
+                        <button class="facility-details-btn" data-facility="lakeview">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Riverview Correctional Facility</h3>
+                        <span class="facility-location">Ogdensburg, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status sunday-only-status">Sunday Only</span>
+                        <button class="facility-details-btn" data-facility="riverview">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Gouverneur Correctional Facility</h3>
+                        <span class="facility-location">Gouverneur, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status sunday-only-status">Sunday Only</span>
+                        <button class="facility-details-btn" data-facility="gouverneur">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="facility-card">
+                    <div class="facility-header">
+                        <h3>Cape Vincent Correctional Facility</h3>
+                        <span class="facility-location">Cape Vincent, NY</span>
+                    </div>
+                    <div class="facility-info">
+                        <span class="facility-status sunday-only-status">Sunday Only</span>
+                        <button class="facility-details-btn" data-facility="capevincent">
+                            Click for more details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>About WE Connect Families</h2>
+                    <p>
+                        Since 2014, WE Connect Families has been the trusted transportation service connecting families 
+                        with their incarcerated loved ones across New York State. WE understand that maintaining these 
+                        important relationships shouldn't be limited by distance or transportation barriers.
+                    </p>
+                    <p>
+                        Our experienced team provides safe, reliable, and dignified transportation services every weekend 
+                        to 18 correctional facilities throughout New York. We've helped thousands of families stay connected 
+                        during some of life's most challenging times.
+                    </p>
+                    <div class="about-features">
+                        <div class="feature">
+                            <span class="feature-icon">🚐</span>
+                            <span>Safe & Reliable Transportation</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">💙</span>
+                            <span>Compassionate Service</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">⏰</span>
+                            <span>25+ Years of Experience</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h2>Contact Us / Contáctanos</h2>
+                    <p>Questions about our services? Ready to book? We're here to help.</p>
+                    
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <div>
+                                <strong>Phone / Teléfono</strong>
+                                <a href="tel:6462262433">(646) 226-2433</a>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <div>
+                                <strong>Spanish Line / Línea en Español</strong>
+                                <a href="tel:3479676711">(347) 967-6711</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <span class="contact-icon">✉️</span>
+                            <div>
+                                <strong>Email</strong>
+                                <a href="mailto:info@weconnectfamilies.com">info@weconnectfamilies.com</a>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <span class="contact-icon">📸</span>
+                            <div>
+                                <strong>Instagram</strong>
+                                <a href="https://instagram.com/wetransportation2015?r=nametag" target="_blank" rel="noopener">@wetransportation2015</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <span class="contact-icon">🕒</span>
+                            <div>
+                                <strong>Office Hours</strong>
+                                <span>Monday - Friday, 9AM - 7PM</span>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <span class="contact-icon">🚐</span>
+                            <div>
+                                <strong>Transportation</strong>
+                                <span>Every Weekend</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nonprofit Donation Section -->
+    <section class="donation-section">
+        <div class="container">
+            <div class="donation-content">
+                <div class="donation-badge">
+                    <span class="badge-icon">🏛️</span>
+                    <span class="badge-text">501(c)(3) Approved Nonprofit</span>
+                </div>
+                <h2>Support Our Mission</h2>
+                <p>WE Connect Families is an IRS-approved 501(c)(3) tax-exempt nonprofit organization. Your donations help us continue connecting families with their loved ones.</p>
+                
+                <div class="donation-benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">💰</span>
+                        <div>
+                            <strong>Tax Deductible</strong>
+                            <p>All donations are tax-deductible under IRC Section 170</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">📋</span>
+                        <div>
+                            <strong>Official Documentation</strong>
+                            <p>Receive proper receipts for tax filing purposes</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">❤️</span>
+                        <div>
+                            <strong>Direct Impact</strong>
+                            <p>100% of donations support transportation services for families</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="donation-cta">
+                    <a href="tel:6462262433" class="btn btn-primary">Contact Us to Donate</a>
+                    <p class="donation-note">Call us at (646) 226-2433 to make a tax-deductible donation</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span>WE Connect Families</span>
+                    <p>Connecting families since 2000</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#home">Home</a>
+                    <a href="#book">Book</a>
+                    <a href="#facilities">Facilities</a>
+                    <a href="#contact">Contact</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 WE Connect Families. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Facility Details Modal -->
+    <div id="facility-modal" class="modal facility-modal">
+        <div class="modal-content facility-modal-content">
+            <span class="modal-close facility-modal-close" id="facility-modal-close">&times;</span>
+            <div class="facility-details-content">
+                <div class="facility-alert">
+                    <h2>🛑 STOP AND READ!!! STOP AND READ!!!</h2>
+                </div>
+                
+                <div class="facility-header-info">
+                    <h3>🏢 Coxsackie, Greene & Washington Information ℹ️</h3>
+                    <p class="travel-days">WE travel to these facilities Saturday, Sunday and Holidays.</p>
+                    <p class="thank-you">🌺🌺🌺 Thank you for contacting us regarding your upcoming travel.</p>
+                </div>
+
+                <div class="meeting-locations">
+                    <h4>📍 PLEASE BE ADVISED THE MEETING LOCATIONS ARE AS FOLLOWS!</h4>
+                    
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">🗽</span>
+                            <strong>BROOKLYN: Near Broadway Junction @4am</strong>
+                        </div>
+                        <p>(McDonald's on Fulton off Pennsylvania off the Jackie Robinson)</p>
+                        <p class="address">📍 12 Pennsylvania Avenue</p>
+                        <div class="warning-box">
+                            <p><strong>⚠️ DO NOT WAIT IN THE PARKING LOT, YOU WILL NOT SEE THE VEHICLE.</strong></p>
+                            <p>Wait directly in front of the McDonald's</p>
+                        </div>
+                    </div>
+
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">👑</span>
+                            <strong>QUEENS: Jamaica Station LIRR @4:15am</strong>
+                        </div>
+                        <p class="address">📍 (Sutphin BLVD)</p>
+                    </div>
+
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">⚾</span>
+                            <strong>BRONX: 161 Yankee Stadium @5am</strong>
+                        </div>
+                        <p class="address">📍 51-67 161st St</p>
+                    </div>
+                </div>
+
+                <div class="important-notes">
+                    <div class="final-boarding">
+                        <h4>🚨 FINAL BOARDING IS IN THE BRONX @5am</h4>
+                        <p><strong>THERE ARE NO GRACE PERIODS, PLEASE BE ON TIME AND READY FOR YOUR TRIP</strong></p>
+                    </div>
+
+                    <div class="reservation-note">
+                        <p>Please be advised, if this reservation was made through Prisonpulse future reservations should be made directly with the coordinator. Please make all future reservations with this number either phone/text.</p>
+                    </div>
+
+                    <div class="return-info">
+                        <h4>🔄 RETURN TRIP INFORMATION</h4>
+                        <p>When coming home, we drop off at an alternate 4 train location in the Bronx due to ongoing construction and prolonged traffic.</p>
+                        <div class="warning-box">
+                            <p><strong>⚠️ THIS MEANS WE DO NOT GO BACK TO 161!!!!</strong></p>
+                            <p><strong>TRIP ENDS IN THE BRONX REGARDLESS OF YOUR INITIAL PICK UP LOCATION</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="parking-info">
+                        <h4>🚗 PARKING INFORMATION</h4>
+                        <p><strong>IF YOU DRIVE AND ARE LOOKING TO PARK YOUR VEHICLE 🚗, PLEASE COME TO THIS LOCATION @4:30 (DO NOT COME LATE)</strong></p>
+                        <p class="address">📍 1500 Arnow Avenue, Bronx NY 10469</p>
+                        <p>Near Gunhill and Eastchester</p>
+                        <p>You will be brought back to this location</p>
+                        <div class="parking-highlight">
+                            <p><strong>🆓 THIS IS FREE PUBLIC SAFE PARKING</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-footer">
+                    <p>If you have any additional questions please call/text</p>
+                    <p><strong>Thank you kindly,</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Northern Facilities Details Modal -->
+    <div id="northern-facility-modal" class="modal facility-modal">
+        <div class="modal-content facility-modal-content">
+            <span class="modal-close northern-facility-modal-close" id="northern-facility-modal-close">&times;</span>
+            <div class="facility-details-content">
+                <div class="facility-alert">
+                    <h2>🛑 STOP AND READ!!! STOP AND READ!!!</h2>
+                </div>
+                
+                <div class="facility-header-info">
+                    <h3>🏢 Clinton, Altona, Franklin, Barehill, Raybrook, Adirondack & Upstate Information ℹ️</h3>
+                    <p class="thank-you">🌺🌺🌺 Thank you for contacting us regarding your upcoming travel.</p>
+                    <p class="travel-days">Please be advised we meet up at:</p>
+                </div>
+
+                <div class="meeting-locations">
+                    <h4>🗓️ WE TRAVEL EVERY SATURDAY & SUNDAY - MOST HOLIDAYS</h4>
+                    <p class="special-note">With the exception of RAYBROOK & ADIRONDACK (CALL/TEXT for travel info)</p>
+                    <p><strong>You can choose between the three pick up locations!</strong></p>
+                    
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">⚾</span>
+                            <strong>BRONX: 161 Yankee Stadium @ GATE 6 @12:30am (MIDNIGHT)</strong>
+                        </div>
+                        <p>This is directly across the street from the McDonald's</p>
+                        <p class="address">📍 51-67 161st St, Bronx, New York</p>
+                    </div>
+
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">🗽</span>
+                            <strong>BROOKLYN: East New York across from MTA Bus Depot @12am (MIDNIGHT)</strong>
+                        </div>
+                        <p>(McDonald's on Pennsylvania)</p>
+                        <p class="address">📍 12 Pennsylvania Avenue</p>
+                        <div class="warning-box">
+                            <p><strong>⚠️ DO NOT WAIT IN THE PARKING LOT, YOU WILL NOT SEE THE VEHICLE.</strong></p>
+                            <p>Wait directly in front of the McDonald's</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="important-notes">
+                    <div class="final-boarding">
+                        <h4>🚨 FINAL BOARDING IS IN THE BRONX 12:30am @161 YANKEE STADIUM GATE 6</h4>
+                        <p><strong>THERE ARE NO GRACE PERIODS, PLEASE 🙏 BE ON TIME AND READY FOR YOUR TRIP</strong></p>
+                    </div>
+
+                    <div class="return-info">
+                        <h4>🔄 DROP OFF ON THE WAY HOME</h4>
+                        <div class="location-item">
+                            <p><strong>Drop off locations:</strong></p>
+                            <p>• 4 train WOODLAWN, BX</p>
+                            <p>• 12 Pennsylvania Avenue, BK</p>
+                            <p>• 1500 ARNOW Avenue</p>
+                            <p class="address">📍 Near Eastchester and Gunhill</p>
+                        </div>
+                        
+                        <div class="warning-box">
+                            <p><strong>⚠️ PLEASE BE ADVISED: When coming home, we drop off at an alternate 4 train location in the Bronx due to ongoing construction and prolonged traffic.</strong></p>
+                            <p><strong>THIS MEANS WE DO NOT GO BACK TO 161!!!!</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-footer">
+                    <p>If you have any additional questions please call/text</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Central Facilities Details Modal -->
+    <div id="central-facility-modal" class="modal facility-modal">
+        <div class="modal-content facility-modal-content">
+            <span class="modal-close central-facility-modal-close" id="central-facility-modal-close">&times;</span>
+            <div class="facility-details-content">
+                <div class="facility-alert">
+                    <h2>🛑 STOP & READ!!!! STOP & READ!!!!</h2>
+                </div>
+                
+                <div class="facility-header-info">
+                    <h3>🏢 Mohawk, Marcy & Midstate Information ℹ️</h3>
+                    <p class="thank-you">🌺🌺🌺 Thank you for contacting us regarding your upcoming travel.</p>
+                    <p class="travel-days">Please be advised we meet up at:</p>
+                </div>
+
+                <div class="meeting-locations">
+                    <h4>📍 PICKUP LOCATIONS</h4>
+                    
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">🗽</span>
+                            <strong>BROOKLYN: East New York across from MTA Bus Depot @2am</strong>
+                        </div>
+                        <p>(McDonald's on Pennsylvania)</p>
+                        <p class="address">📍 12 Pennsylvania Avenue</p>
+                        <div class="warning-box">
+                            <p><strong>⚠️ DO NOT WAIT IN THE PARKING LOT, YOU WILL NOT SEE THE VEHICLE.</strong></p>
+                            <p>Wait directly in front of the McDonald's</p>
+                        </div>
+                    </div>
+
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">👑</span>
+                            <strong>QUEENS: Jamaica Station LIRR @2:15am</strong>
+                        </div>
+                        <p class="address">📍 (Corner of Sutphin BLVD)</p>
+                    </div>
+
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">⚾</span>
+                            <strong>BRONX: 161 McDonald's - Yankee Stadium @3am</strong>
+                        </div>
+                        <p class="address">📍 51-67 161st St</p>
+                    </div>
+                </div>
+
+                <div class="important-notes">
+                    <div class="final-boarding">
+                        <h4>🚨 FINAL BOARDING IS IN THE BRONX @3am</h4>
+                        <p><strong>THERE ARE NO GRACE PERIODS, PLEASE BE ON TIME AND READY FOR YOUR TRIP</strong></p>
+                    </div>
+
+                    <div class="return-info">
+                        <h4>🔄 RETURN TRIP INFORMATION</h4>
+                        <div class="warning-box">
+                            <p><strong>⚠️ PLEASE BE ADVISED: When coming home, we drop off at an alternate 4 train location in the Bronx due to ongoing construction and prolonged traffic.</strong></p>
+                            <p><strong>THIS MEANS WE DO NOT GO BACK TO 161!!!!</strong></p>
+                            <p><strong>TRIP ENDS IN THE BRONX REGARDLESS OF YOUR INITIAL PICK UP LOCATION</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="reservation-note">
+                        <p>Please be advised, if this reservation was made through Prisonpulse future reservations should be made directly with the coordinator. Please make all future reservations with this number either phone/text.</p>
+                    </div>
+
+                    <div class="parking-info">
+                        <h4>🚗 PARKING INFORMATION</h4>
+                        <p><strong>IF YOU DRIVE AND ARE LOOKING TO PARK YOUR VEHICLE 🚗, PLEASE COME TO THIS LOCATION @1:30am (DO NOT COME LATE)</strong></p>
+                        <p class="address">📍 1500 Arnow Avenue, Bronx NY 10469</p>
+                        <p>You will be brought back to this location</p>
+                        <div class="parking-highlight">
+                            <p><strong>🆓 THIS IS FREE PUBLIC SAFE PARKING!!!</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-footer">
+                    <p>If you have any additional questions please call/text</p>
+                    <p><strong>Thank you kindly,</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Western Facilities Details Modal -->
+    <div id="western-facility-modal" class="modal facility-modal">
+        <div class="modal-content facility-modal-content">
+            <span class="modal-close western-facility-modal-close" id="western-facility-modal-close">&times;</span>
+            <div class="facility-details-content">
+                <div class="facility-alert">
+                    <h2>🛑 STOP AND READ!!! STOP AND READ TRAVEL INFORMATION ℹ️</h2>
+                </div>
+                
+                <div class="facility-header-info">
+                    <h3>🏢 Collins & Lakeview Correctional Facility</h3>
+                    <div class="sunday-only-notice">
+                        <h4>⚠️ WE CURRENTLY ONLY TRAVEL SUNDAYS TO THIS FACILITY</h4>
+                    </div>
+                    <p class="thank-you">🌺🌺🌺 Thank you for contacting us regarding your upcoming travel.</p>
+                    <p class="travel-days">Please be advised we meet up at:</p>
+                </div>
+
+                <div class="meeting-locations">
+                    <h4>📍 PICKUP LOCATIONS</h4>
+                    
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">⚾</span>
+                            <strong>161 Yankee Stadium @ GATE 6 @12:30am (MIDNIGHT)</strong>
+                        </div>
+                        <p>This is directly across the street from the McDonald's</p>
+                        <p class="address">📍 51-67 161st St, Bronx, New York</p>
+                    </div>
+
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">🗽</span>
+                            <strong>BROOKLYN: East New York across from MTA Bus Depot @12am (MIDNIGHT)</strong>
+                        </div>
+                        <p>(McDonald's on Pennsylvania)</p>
+                        <p class="address">📍 12 Pennsylvania Avenue</p>
+                        <div class="warning-box">
+                            <p><strong>⚠️ DO NOT WAIT IN THE PARKING LOT, YOU WILL NOT SEE THE VEHICLE.</strong></p>
+                            <p>Wait directly in front of the McDonald's</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="important-notes">
+                    <div class="final-boarding">
+                        <h4>🚨 FINAL BOARDING IS IN THE BRONX 12:30am (MIDNIGHT)</h4>
+                        <p><strong>THERE ARE NO GRACE PERIODS, PLEASE BE ON TIME AND READY FOR YOUR TRIP</strong></p>
+                    </div>
+
+                    <div class="return-info">
+                        <h4>🔄 RETURN TRIP INFORMATION</h4>
+                        <div class="warning-box">
+                            <p><strong>⚠️ PLEASE BE ADVISED: When coming home, we drop off at an alternate 4 train location in the Bronx due to ongoing construction and prolonged traffic.</strong></p>
+                            <p><strong>THIS MEANS WE DO NOT GO BACK TO 161!!!!</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-footer">
+                    <p>If you have any additional questions please call/text</p>
+                    <p><strong>Thank you kindly,</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sunday Only Facilities Modal (Riverview, Gouverneur, Cape Vincent) -->
+    <div id="sunday-only-facility-modal" class="modal facility-modal">
+        <div class="modal-content facility-modal-content">
+            <span class="modal-close sunday-only-facility-modal-close" id="sunday-only-facility-modal-close">&times;</span>
+            <div class="facility-details-content">
+                <div class="facility-alert">
+                    <h2>🛑 STOP AND READ!!! STOP AND READ!!!</h2>
+                </div>
+                
+                <div class="facility-header-info">
+                    <h3>🏢 RIVERVIEW, GOUVERNEUR & CAPE VINCENT</h3>
+                    <div class="sunday-only-notice">
+                        <h4>⚠️ WE CURRENTLY ONLY TRAVEL SUNDAYS TO THIS FACILITY</h4>
+                    </div>
+                    <p class="thank-you">🌺🌺🌺 Thank you for contacting us regarding your upcoming travel.</p>
+                    <p class="travel-days">Please be advised we meet up at:</p>
+                </div>
+
+                <div class="meeting-locations">
+                    <h4>📍 PICKUP LOCATIONS</h4>
+                    
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">🗽</span>
+                            <strong>BROOKLYN: EAST NEW YORK ACROSS FROM MTA BUS DEPOT @12am</strong>
+                        </div>
+                        <p>(McDonald's on Pennsylvania)</p>
+                        <p class="address">📍 12 Pennsylvania Avenue</p>
+                        <div class="warning-box">
+                            <p><strong>⚠️ DO NOT WAIT IN THE PARKING LOT, YOU WILL NOT SEE THE VEHICLE.</strong></p>
+                            <p>Wait directly in front of the McDonald's</p>
+                        </div>
+                    </div>
+
+                    <div class="location-item">
+                        <div class="location-header">
+                            <span class="location-icon">⚾</span>
+                            <strong>161 Yankee Stadium GATE 6 @12:30am</strong>
+                        </div>
+                        <p>This is directly across the street from the McDonald's.</p>
+                        <p class="address">📍 51-67 161st St Bronx, New York</p>
+                    </div>
+                </div>
+
+                <div class="important-notes">
+                    <div class="final-boarding">
+                        <h4>🚨 FINAL BOARDING IS IN THE BRONX 12:30am @161 YANKEE STADIUM GATE 6</h4>
+                        <p><strong>THERE ARE NO GRACE PERIODS, PLEASE 🙏 BE ON TIME AND READY FOR YOUR TRIP</strong></p>
+                    </div>
+
+                    <div class="return-info">
+                        <h4>🔄 DROP OFF ON THE WAY HOME</h4>
+                        <div class="location-item">
+                            <p><strong>Drop off locations:</strong></p>
+                            <p>• Drop off on the way home will be back at 12 Pennsylvania Avenue</p>
+                            <p>• 1500 ARNOW Avenue</p>
+                            <p class="address">📍 Near Eastchester and Gunhill</p>
+                        </div>
+                        
+                        <div class="warning-box">
+                            <p><strong>⚠️ PLEASE BE ADVISED: When coming home, we drop off at an alternate 4 train location in the bronx due to ongoing construction and prolonged traffic.</strong></p>
+                            <p><strong>THIS MEANS WE DO NOT GO BACK TO 161!!!!</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="parking-info">
+                        <h4>🚗 PARKING INFORMATION</h4>
+                        <p><strong>IF YOU DRIVE AND ARE LOOKING TO PARK YOUR VEHICLE 🚗, PLEASE COME TO THIS LOCATION @12am (DO NOT COME LATE)</strong></p>
+                        <p class="address">📍 1500 Arnow avenue, Bronx NY 10469</p>
+                        <p>You will be brought back to this location</p>
+                        <div class="parking-highlight">
+                            <p><strong>🆓 THIS IS FREE PUBLIC SAFE PARKING!!!</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="reservation-note">
+                        <p>Please note that if your reservation was done via Prisonpulse, we are unable to accept future bookings through the site. Prisonpulse is a third-party vendor intended for initial bookings only.</p>
+                        <p>Kindly contact us directly for all future reservations via phone or text at this number. Thank you.</p>
+                    </div>
+                </div>
+
+                <div class="contact-footer">
+                    <p>If you have any additional questions please call/text</p>
+                    <p><strong>Thank you kindly,</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="modal admin-modal">
+        <div class="modal-content admin-modal-content">
+            <span class="modal-close admin-login-close">&times;</span>
+            <div class="admin-login-form">
+                <h2>🔐 Admin Login</h2>
+                <p>Enter admin password to access booking management</p>
+                <form id="admin-login-form">
+                    <input type="password" id="admin-password" placeholder="Admin Password" required>
+                    <button type="submit">Login</button>
+                </form>
+                <div id="admin-login-error" class="error-message" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Modal -->
+    <div id="admin-dashboard-modal" class="modal admin-modal admin-dashboard">
+        <div class="modal-content admin-dashboard-content">
+            <div class="admin-header">
+                <div class="admin-title">
+                    <h2>📊 Admin Dashboard</h2>
+                    <div class="admin-stats" id="admin-stats">
+                        <span class="stat-item">Total: <span id="stat-total">-</span></span>
+                        <span class="stat-item">Pending: <span id="stat-pending">-</span></span>
+                        <span class="stat-item">Confirmed: <span id="stat-confirmed">-</span></span>
+                    </div>
+                </div>
+                <div class="admin-actions">
+                    <button id="refresh-bookings" class="refresh-btn">🔄 Refresh</button>
+                    <button id="admin-logout" class="logout-btn">🚪 Logout</button>
+                </div>
+            </div>
+
+            <div class="admin-content">
+                <div class="bookings-section">
+                    <div class="bookings-filters">
+                        <button class="filter-btn active" data-status="all">All Bookings</button>
+                        <button class="filter-btn" data-status="pending">Pending</button>
+                        <button class="filter-btn" data-status="confirmed">Confirmed</button>
+                        <button class="filter-btn" data-status="rejected">Rejected</button>
+                    </div>
+
+                    <div class="bookings-container" id="bookings-container">
+                        <div class="loading-spinner" id="admin-loading">Loading bookings...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Confirmation Modal -->
+    <div id="booking-action-modal" class="modal admin-modal">
+        <div class="modal-content booking-action-content">
+            <span class="modal-close booking-action-close">&times;</span>
+            <div class="booking-action-form">
+                <h3 id="action-title">Confirm Booking</h3>
+                <div id="action-booking-details"></div>
+                <div id="rejection-reason" style="display: none;">
+                    <label for="rejection-reason-input">Reason for rejection (optional):</label>
+                    <textarea id="rejection-reason-input" placeholder="Enter reason for rejection..."></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button id="confirm-action" class="confirm-btn">Confirm</button>
+                    <button id="cancel-action" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
