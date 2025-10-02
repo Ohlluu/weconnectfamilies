@@ -1101,7 +1101,7 @@ async function handleAdminLogin(e) {
             hideAdminLoginModal();
             showAdminDashboard();
             
-            // Load bookings
+            // Load bookings immediately after login
             await loadBookings();
             await loadStats();
             
