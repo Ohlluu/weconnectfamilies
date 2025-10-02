@@ -1,11 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs').promises;
 const rateLimit = require('express-rate-limit');
 
-// Simple file-based storage for Vercel (temporary solution)
-const DATA_FILE = '/tmp/bookings.json';
+// Use Vercel KV for persistent storage
+let kv;
+try {
+  kv = require('@vercel/kv');
+} catch (error) {
+  console.log('🔧 KV not available, using fallback storage');
+}
 
 const app = express();
 
@@ -35,15 +39,39 @@ const adminSessions = new Map();
 // Data storage functions
 async function loadBookings() {
   try {
-    const data = await fs.readFile(DATA_FILE, 'utf8');
-    return JSON.parse(data);
+    if (kv) {
+      // Use Vercel KV
+      const bookings = await kv.get('bookings') || [];
+      const nextId = await kv.get('nextId') || 1;
+      return { bookings, nextId };
+    } else {
+      // Fallback to file storage (local development)
+      const fs = require('fs').promises;
+      const DATA_FILE = '/tmp/bookings.json';
+      const data = await fs.readFile(DATA_FILE, 'utf8');
+      return JSON.parse(data);
+    }
   } catch (error) {
     return { bookings: [], nextId: 1 };
   }
 }
 
 async function saveBookings(data) {
-  await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
+  try {
+    if (kv) {
+      // Use Vercel KV
+      await kv.set('bookings', data.bookings);
+      await kv.set('nextId', data.nextId);
+    } else {
+      // Fallback to file storage (local development)
+      const fs = require('fs').promises;
+      const DATA_FILE = '/tmp/bookings.json';
+      await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
+    }
+  } catch (error) {
+    console.error('Save error:', error);
+    throw error;
+  }
 }
 
 // Routes
