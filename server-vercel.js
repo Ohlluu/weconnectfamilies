@@ -3,8 +3,31 @@ const cors = require('cors');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
 
-// Simple persistent storage solution
-console.log('🗄️ Using file-based storage for Vercel deployment');
+// MongoDB connection
+const { MongoClient } = require('mongodb');
+
+let mongoClient = null;
+let db = null;
+
+// Initialize MongoDB connection
+async function initializeMongoDB() {
+  try {
+    if (process.env.MONGODB_URI) {
+      console.log('🍃 Connecting to MongoDB Atlas...');
+      mongoClient = new MongoClient(process.env.MONGODB_URI);
+      await mongoClient.connect();
+      db = mongoClient.db('weconnectfamilies');
+      console.log('✅ MongoDB connected successfully');
+      return true;
+    } else {
+      console.log('⚠️ MONGODB_URI not found, using fallback storage');
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ MongoDB connection failed:', error);
+    return false;
+  }
+}
 
 const app = express();
 
@@ -31,40 +54,69 @@ app.use('/api/admin/login', loginLimiter);
 // Simple session store
 const adminSessions = new Map();
 
-// In-memory storage with backup (works reliably on Vercel)
-let bookingsData = { bookings: [], nextId: 1 };
-const DATA_FILE = '/tmp/bookings.json';
-const fs = require('fs').promises;
-
-// Initialize storage
-async function initializeStorage() {
-  try {
-    const data = await fs.readFile(DATA_FILE, 'utf8');
-    bookingsData = JSON.parse(data);
-    console.log(`📊 Loaded ${bookingsData.bookings.length} bookings from storage`);
-  } catch (error) {
-    console.log('📊 Starting with empty booking database');
-    bookingsData = { bookings: [], nextId: 1 };
-  }
-}
+// Fallback storage for when MongoDB is not available
+let fallbackData = { bookings: [], nextId: 1 };
 
 // Data storage functions
 async function loadBookings() {
-  return { ...bookingsData };
+  try {
+    if (db) {
+      // Use MongoDB
+      const collection = db.collection('bookings');
+      const bookings = await collection.find({}).toArray();
+      
+      // Get next ID
+      const metaCollection = db.collection('meta');
+      let metaDoc = await metaCollection.findOne({ _id: 'counters' });
+      if (!metaDoc) {
+        metaDoc = { _id: 'counters', nextId: 1 };
+        await metaCollection.insertOne(metaDoc);
+      }
+      
+      console.log(`📊 Loaded ${bookings.length} bookings from MongoDB`);
+      return { bookings, nextId: metaDoc.nextId };
+    } else {
+      // Use fallback storage
+      console.log(`📊 Using fallback storage: ${fallbackData.bookings.length} bookings`);
+      return { ...fallbackData };
+    }
+  } catch (error) {
+    console.error('Load bookings error:', error);
+    return { bookings: [], nextId: 1 };
+  }
 }
 
 async function saveBookings(data) {
   try {
-    // Update in-memory storage
-    bookingsData = { ...data };
-    
-    // Also save to file for persistence
-    await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
-    console.log(`💾 Saved ${data.bookings.length} bookings to storage`);
+    if (db) {
+      // Use MongoDB
+      const collection = db.collection('bookings');
+      const metaCollection = db.collection('meta');
+      
+      // Clear existing bookings and insert new ones
+      await collection.deleteMany({});
+      if (data.bookings.length > 0) {
+        await collection.insertMany(data.bookings);
+      }
+      
+      // Update counter
+      await metaCollection.updateOne(
+        { _id: 'counters' },
+        { $set: { nextId: data.nextId } },
+        { upsert: true }
+      );
+      
+      console.log(`💾 Saved ${data.bookings.length} bookings to MongoDB`);
+    } else {
+      // Use fallback storage
+      fallbackData = { ...data };
+      console.log(`💾 Saved ${data.bookings.length} bookings to fallback storage`);
+    }
   } catch (error) {
     console.error('Save error:', error);
-    // Don't throw error - in-memory storage still works
-    console.log('⚠️ File save failed, but booking is in memory');
+    // For fallback, still save to memory
+    fallbackData = { ...data };
+    console.log('⚠️ MongoDB save failed, using fallback');
   }
 }
 
@@ -347,7 +399,7 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Initialize storage on startup
-initializeStorage();
+// Initialize MongoDB connection on startup
+initializeMongoDB();
 
 module.exports = app;
