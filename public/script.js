@@ -178,7 +178,9 @@ function validateBookingForm(data) {
     });
     
     requiredFields.forEach(field => {
+        console.log(`Checking field ${field}: "${data[field]}"`);
         if (!data[field] || data[field].trim() === '') {
+            console.log(`Field ${field} is missing or empty`);
             isValid = false;
             showFieldError(field, 'This field is required');
         }
@@ -1514,12 +1516,18 @@ async function handleDatabaseBookingSubmission(e) {
         notes: formData.get('notes') || ''
     };
     
+    // Debug: Log form data
+    console.log('Form data being submitted:', bookingData);
+    
     // Validate form
     if (!validateBookingForm(bookingData)) {
+        console.log('Validation failed');
         submitButton.disabled = false;
         submitButton.textContent = originalText;
         return;
     }
+    
+    console.log('Validation passed');
     
     try {
         const response = await fetch(`${API_BASE}/api/bookings`, {
