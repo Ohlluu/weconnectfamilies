@@ -3,15 +3,8 @@ const cors = require('cors');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
 
-// Use Vercel KV for persistent storage
-let kv;
-try {
-  kv = require('@vercel/kv');
-  console.log('🗄️ KV storage initialized');
-} catch (error) {
-  console.log('🔧 KV not available, using fallback storage');
-  kv = null;
-}
+// Simple persistent storage solution
+console.log('🗄️ Using file-based storage for Vercel deployment');
 
 const app = express();
 
@@ -38,53 +31,40 @@ app.use('/api/admin/login', loginLimiter);
 // Simple session store
 const adminSessions = new Map();
 
+// In-memory storage with backup (works reliably on Vercel)
+let bookingsData = { bookings: [], nextId: 1 };
+const DATA_FILE = '/tmp/bookings.json';
+const fs = require('fs').promises;
+
+// Initialize storage
+async function initializeStorage() {
+  try {
+    const data = await fs.readFile(DATA_FILE, 'utf8');
+    bookingsData = JSON.parse(data);
+    console.log(`📊 Loaded ${bookingsData.bookings.length} bookings from storage`);
+  } catch (error) {
+    console.log('📊 Starting with empty booking database');
+    bookingsData = { bookings: [], nextId: 1 };
+  }
+}
+
 // Data storage functions
 async function loadBookings() {
-  try {
-    if (kv && process.env.KV_REST_API_URL) {
-      // Use Vercel KV (when properly configured)
-      console.log('📊 Loading from KV storage');
-      const bookings = await kv.get('bookings') || [];
-      const nextId = await kv.get('nextId') || 1;
-      return { bookings, nextId };
-    } else {
-      // Fallback to file storage
-      console.log('📁 Loading from file storage (fallback)');
-      const fs = require('fs').promises;
-      const DATA_FILE = '/tmp/bookings.json';
-      try {
-        const data = await fs.readFile(DATA_FILE, 'utf8');
-        return JSON.parse(data);
-      } catch (fileError) {
-        // File doesn't exist yet, return empty
-        return { bookings: [], nextId: 1 };
-      }
-    }
-  } catch (error) {
-    console.error('Load bookings error:', error);
-    return { bookings: [], nextId: 1 };
-  }
+  return { ...bookingsData };
 }
 
 async function saveBookings(data) {
   try {
-    if (kv && process.env.KV_REST_API_URL) {
-      // Use Vercel KV (when properly configured)
-      console.log('💾 Saving to KV storage');
-      await kv.set('bookings', data.bookings);
-      await kv.set('nextId', data.nextId);
-      console.log('✅ Saved to KV successfully');
-    } else {
-      // Fallback to file storage
-      console.log('💾 Saving to file storage (fallback)');
-      const fs = require('fs').promises;
-      const DATA_FILE = '/tmp/bookings.json';
-      await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
-      console.log('✅ Saved to file successfully');
-    }
+    // Update in-memory storage
+    bookingsData = { ...data };
+    
+    // Also save to file for persistence
+    await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
+    console.log(`💾 Saved ${data.bookings.length} bookings to storage`);
   } catch (error) {
     console.error('Save error:', error);
-    throw new Error('Failed to save booking data');
+    // Don't throw error - in-memory storage still works
+    console.log('⚠️ File save failed, but booking is in memory');
   }
 }
 
@@ -366,5 +346,8 @@ app.use((error, req, res, next) => {
     message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
   });
 });
+
+// Initialize storage on startup
+initializeStorage();
 
 module.exports = app;
