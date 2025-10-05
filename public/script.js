@@ -700,19 +700,19 @@ const pickupLocationData = {
         { name: 'Brooklyn: East New York McDonald\'s', time: '4:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
         { name: 'Queens: Jamaica Station LIRR', time: '4:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
         { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '5:00 AM', address: '51-67 161st St', value: 'bronx-yankee' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '5:15 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
+        { name: 'Bronx: 1500 Arnow Avenue', time: '4:30 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
     ],
     'Greene Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '4:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
         { name: 'Queens: Jamaica Station LIRR', time: '4:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
         { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '5:00 AM', address: '51-67 161st St', value: 'bronx-yankee' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '5:15 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
+        { name: 'Bronx: 1500 Arnow Avenue', time: '4:30 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
     ],
     'Washington Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '4:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
         { name: 'Queens: Jamaica Station LIRR', time: '4:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
         { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '5:00 AM', address: '51-67 161st St', value: 'bronx-yankee' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '5:15 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
+        { name: 'Bronx: 1500 Arnow Avenue', time: '4:30 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
     ],
     
     // Northern Facilities (12am-12:30am)
