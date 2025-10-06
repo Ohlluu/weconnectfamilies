@@ -6,6 +6,14 @@ const rateLimit = require('express-rate-limit');
 // MongoDB connection
 const { MongoClient } = require('mongodb');
 
+// Twilio SMS setup
+let twilioClient = null;
+if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+  const twilio = require('twilio');
+  twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+  console.log('📱 Twilio SMS initialized');
+}
+
 let mongoClient = null;
 let db = null;
 
@@ -160,6 +168,44 @@ async function saveBookings(data) {
     // For fallback, still save to memory
     fallbackData = { ...data };
     console.log('⚠️ MongoDB save failed, using fallback');
+  }
+}
+
+// SMS Functions
+async function sendConfirmationSMS(booking) {
+  if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
+    console.log('⚠️ Twilio not configured, skipping SMS');
+    return { success: false, error: 'Twilio not configured' };
+  }
+
+  try {
+    const message = `Hi ${booking.name}!
+
+Your trip to ${booking.facility} has been CONFIRMED! ✅
+
+📅 Visit Date: ${new Date(booking.visit_date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+📍 Pickup: ${booking.pickup_location}
+👥 Guests: ${booking.guests || booking.visitors || 1}
+
+IMPORTANT: When you arrive, check in using the SAME NAME you used to book: "${booking.name}"
+
+Check In: https://weconnectfamilies.vercel.app (Click Check In in menu)
+
+Questions? Call (347) 967-6711
+
+Reply STOP to unsubscribe.`;
+
+    const result = await twilioClient.messages.create({
+      body: message,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: booking.phone
+    });
+
+    console.log(`📱 SMS sent to ${booking.phone}: ${result.sid}`);
+    return { success: true, sid: result.sid };
+  } catch (error) {
+    console.error('SMS send error:', error.message);
+    return { success: false, error: error.message };
   }
 }
 
@@ -364,18 +410,21 @@ app.post('/api/admin/bookings/:id/confirm', verifyAdminSession, async (req, res)
 
     booking.status = 'confirmed';
     booking.confirmed_at = new Date().toISOString();
-    
+
     await saveBookings(data);
 
     console.log(`✅ Booking ${bookingId} confirmed for ${booking.name}`);
+
+    // Send SMS confirmation
+    const smsResult = await sendConfirmationSMS(booking);
 
     res.json({
       success: true,
       message: 'Booking confirmed successfully',
       booking: booking,
-      notifications: { 
-        sms: { success: false, error: 'SMS not configured on Vercel' },
-        email: { success: false, error: 'Email not configured on Vercel' }
+      notifications: {
+        sms: smsResult,
+        email: { success: false, error: 'Email not configured' }
       }
     });
   } catch (error) {
