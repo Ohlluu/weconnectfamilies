@@ -204,7 +204,7 @@ function validateBookingForm(data) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const dayOfWeek = visitDate.getDay(); // 0 = Sunday, 6 = Saturday
-        
+
         if (visitDate < today) {
             isValid = false;
             showFieldError('visit-date', 'Visit date cannot be in the past');
@@ -213,7 +213,14 @@ function validateBookingForm(data) {
             showFieldError('visit-date', 'We only provide transportation on weekends (Saturday and Sunday) and federal holidays');
         }
     }
-    
+
+    // SMS consent validation
+    const smsConsentCheckbox = document.getElementById('sms-consent');
+    if (smsConsentCheckbox && !smsConsentCheckbox.checked) {
+        isValid = false;
+        showFieldError('sms-consent', 'You must consent to receive SMS notifications to complete your booking');
+    }
+
     return isValid;
 }
 
