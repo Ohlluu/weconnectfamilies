@@ -1114,16 +1114,21 @@ async function handleAdminLogin(e) {
             // Login successful
             adminState.isLoggedIn = true;
             adminState.sessionToken = data.sessionToken;
-            
-            // Hide login modal and show dashboard
+
+            // Hide login modal
             hideAdminLoginModal();
+
+            // Show dashboard with loading state
             showAdminDashboard();
-            
-            // Load bookings immediately after login
-            await loadBookings();
-            await loadStats();
-            
-            showNotification('✅ Admin login successful!', 'success');
+
+            // Load bookings and stats BEFORE removing loading spinner
+            try {
+                await Promise.all([loadBookings(), loadStats()]);
+                showNotification('✅ Admin login successful!', 'success');
+            } catch (error) {
+                console.error('Failed to load admin data:', error);
+                showNotification('⚠️ Logged in, but failed to load bookings. Please refresh.', 'warning');
+            }
         } else {
             // Login failed
             showError(adminLoginError, data.error || 'Login failed');
@@ -1175,15 +1180,15 @@ async function handleAdminLogout() {
     showNotification('👋 Logged out successfully', 'info');
 }
 
-// Load bookings from API
-async function loadBookings() {
+// Load bookings from API with retry
+async function loadBookings(retryCount = 0) {
     if (!adminState.sessionToken) return;
-    
+
     const loadingSpinner = document.getElementById('admin-loading');
     const bookingsContainer = document.getElementById('bookings-container');
-    
+
     if (loadingSpinner) loadingSpinner.style.display = 'block';
-    
+
     try {
         const response = await fetch(`${API_BASE}/api/admin/bookings`, {
             headers: {
@@ -1191,20 +1196,34 @@ async function loadBookings() {
                 'Content-Type': 'application/json',
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok && data.success) {
             adminState.bookings = data.bookings;
             window.currentBookings = data.bookings; // Store for printing
             displayBookings(data.bookings);
             updateStats(data.counts);
+            console.log(`✅ Loaded ${data.bookings.length} bookings successfully`);
         } else {
             throw new Error(data.error || 'Failed to load bookings');
         }
     } catch (error) {
         console.error('Load bookings error:', error);
-        bookingsContainer.innerHTML = `<div class="no-bookings"><h3>Error Loading Bookings</h3><p>${error.message}</p></div>`;
+
+        // Retry up to 2 times with exponential backoff
+        if (retryCount < 2) {
+            console.log(`🔄 Retrying... (attempt ${retryCount + 1}/2)`);
+            await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+            return loadBookings(retryCount + 1);
+        }
+
+        bookingsContainer.innerHTML = `
+            <div class="no-bookings">
+                <h3>Error Loading Bookings</h3>
+                <p>${error.message}</p>
+                <button onclick="loadBookings()" class="btn btn-primary" style="margin-top: 1rem;">Retry</button>
+            </div>`;
     } finally {
         if (loadingSpinner) loadingSpinner.style.display = 'none';
     }
