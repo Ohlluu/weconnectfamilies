@@ -718,38 +718,38 @@ const pickupLocationData = {
     // Northern Facilities (12am-12:30am)
     'Clinton Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     'Altona Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     'Franklin Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     'Barehill Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     'Upstate Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     'Adirondack Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     'Raybrook Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
-        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
     
     // Central Facilities (2am-3am)
@@ -775,30 +775,30 @@ const pickupLocationData = {
     // Western Facilities (12am-12:30am Sunday Only)
     'Collins Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm', note: 'Sunday Only' },
-        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow', note: 'Sunday Only' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow', note: 'Sunday Only' },
+        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' }
     ],
     'Lakeview Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm', note: 'Sunday Only' },
-        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow', note: 'Sunday Only' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow', note: 'Sunday Only' },
+        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' }
     ],
     
     // Sunday Only Facilities (12am-12:30am Sunday Only)
     'Riverview Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm', note: 'Sunday Only' },
-        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow', note: 'Sunday Only' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow', note: 'Sunday Only' },
+        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' }
     ],
     'Gouverneur Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm', note: 'Sunday Only' },
-        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow', note: 'Sunday Only' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow', note: 'Sunday Only' },
+        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' }
     ],
     'Cape Vincent Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm', note: 'Sunday Only' },
-        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' },
-        { name: 'Bronx: 1500 Arnow Avenue', time: '12:45 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow', note: 'Sunday Only' }
+        { name: 'Bronx: 1500 Arnow Avenue (Near Gunhill and Eastchester Rd)', time: '12:00 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow', note: 'Sunday Only' },
+        { name: 'Bronx: 161 Yankee Stadium Gate 6', time: '12:30 AM', address: '51-67 161st St', value: 'bronx-gate6', note: 'Sunday Only' }
     ]
 };
 
