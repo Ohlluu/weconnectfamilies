@@ -116,48 +116,41 @@ if (bookingForm) {
 if (checkinForm) {
     checkinForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        
-        const bookingId = document.getElementById('booking-id').value.trim();
-        
-        if (!bookingId) {
-            showNotification('Please enter your booking ID', 'error');
+
+        const name = document.getElementById('checkin-name').value.trim();
+
+        if (!name) {
+            showNotification('Please enter your full name', 'error');
             return;
         }
-        
+
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Checking In...';
         submitBtn.disabled = true;
-        
+
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            const booking = getBooking(bookingId);
-            
-            if (booking) {
-                // Update booking status
-                updateBookingStatus(bookingId, 'checked-in');
-                
-                // Send notification
-                sendOwnerNotification({
-                    ...booking,
-                    action: 'checked_in',
-                    checkinTime: new Date().toISOString()
-                });
-                
-                showNotification(
-                    `Check-in successful! Welcome, ${booking.name}. Have a meaningful visit.`,
-                    'success'
-                );
-                
+            const response = await fetch(`${API_BASE}/api/checkin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                showNotification(data.message, 'success');
+
                 // Clear form
-                document.getElementById('booking-id').value = '';
+                document.getElementById('checkin-name').value = '';
             } else {
-                showNotification('Booking ID not found. Please check and try again.', 'error');
+                showNotification(data.error || 'Check-in failed. Please try again.', 'error');
             }
-            
+
         } catch (error) {
+            console.error('Check-in error:', error);
             showNotification('Check-in failed. Please try again or contact us.', 'error');
         } finally {
             submitBtn.textContent = originalText;
@@ -1291,7 +1284,12 @@ function displayBookings(bookings) {
     // Filter bookings based on current filter
     let filteredBookings = bookings;
     if (adminState.currentFilter !== 'all') {
-        filteredBookings = bookings.filter(booking => booking.status === adminState.currentFilter);
+        if (adminState.currentFilter === 'checked-in') {
+            // Show only bookings that have checked in
+            filteredBookings = bookings.filter(booking => booking.checked_in_at);
+        } else {
+            filteredBookings = bookings.filter(booking => booking.status === adminState.currentFilter);
+        }
     }
     
     if (filteredBookings.length === 0) {
@@ -1350,7 +1348,13 @@ function displayBookings(bookings) {
                     ✅ Confirmed: ${formatDate(booking.confirmed_at)}
                 </p>
             ` : ''}
-            
+
+            ${booking.checked_in_at ? `
+                <p style="color: #007bff; font-size: 0.9rem; margin-top: 0.5rem; font-weight: bold;">
+                    ✅ Checked In: ${formatDate(booking.checked_in_at)}
+                </p>
+            ` : ''}
+
             ${booking.notes ? `
                 <p style="color: #6c757d; font-size: 0.9rem; margin-top: 0.5rem;">
                     📝 Notes: ${booking.notes}

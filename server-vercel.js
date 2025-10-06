@@ -455,10 +455,73 @@ app.get('/api/admin/stats', verifyAdminSession, async (req, res) => {
   }
 });
 
+// Customer check-in endpoint
+app.post('/api/checkin', async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    if (!name || name.trim() === '') {
+      return res.status(400).json({ error: 'Full name is required' });
+    }
+
+    const data = await loadBookings();
+
+    // Find booking by name (case-insensitive, partial match)
+    const normalizedName = name.trim().toLowerCase();
+    const booking = data.bookings.find(b =>
+      b.name.toLowerCase().includes(normalizedName) ||
+      normalizedName.includes(b.name.toLowerCase())
+    );
+
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found. Please check your name and try again.' });
+    }
+
+    // Check if booking is confirmed
+    if (booking.status !== 'confirmed') {
+      return res.status(400).json({
+        error: 'Your booking must be confirmed before check-in. Please contact us.'
+      });
+    }
+
+    // Check if already checked in
+    if (booking.checked_in_at) {
+      return res.json({
+        success: true,
+        message: `Welcome back, ${booking.name}! You already checked in at ${new Date(booking.checked_in_at).toLocaleTimeString()}.`,
+        booking: booking
+      });
+    }
+
+    // Mark as checked in
+    booking.checked_in_at = new Date().toISOString();
+
+    await saveBookings(data);
+
+    console.log(`✅ Check-in successful: ${booking.name} (Booking ID: ${booking.id})`);
+
+    res.json({
+      success: true,
+      message: `Check-in successful! Welcome, ${booking.name}. Have a meaningful visit.`,
+      booking: {
+        id: booking.id,
+        name: booking.name,
+        facility: booking.facility,
+        visit_date: booking.visit_date,
+        pickup_location: booking.pickup_location,
+        checked_in_at: booking.checked_in_at
+      }
+    });
+  } catch (error) {
+    console.error('Check-in error:', error);
+    res.status(500).json({ error: 'Check-in failed. Please try again.' });
+  }
+});
+
 // Admin logout
 app.post('/api/admin/logout', verifyAdminSession, (req, res) => {
   const sessionToken = req.headers.authorization?.replace('Bearer ', '');
-  
+
   if (sessionToken && adminSessions.has(sessionToken)) {
     adminSessions.delete(sessionToken);
   }

@@ -20,6 +20,7 @@
             <div class="nav-menu" id="nav-menu">
                 <a href="#home" class="nav-link">Home</a>
                 <a href="#book" class="nav-link">Book</a>
+                <a href="#check-in-section" class="nav-link">Check In</a>
                 <a href="#facilities" class="nav-link">Facilities</a>
                 <a href="#contact" class="nav-link">Contact</a>
                 <button id="admin-login-btn" class="admin-login-button" title="Admin Login">🔐</button>
@@ -174,12 +175,12 @@
                 </form>
                 
                 <!-- Check-in Box -->
-                <div class="checkin-box">
+                <div class="checkin-box" id="check-in-section">
                     <h3>Already Booked?</h3>
                     <p>Check in for your scheduled trip</p>
                     <form id="checkin-form" class="checkin-form">
                         <div class="checkin-input-group">
-                            <input type="text" id="booking-id" placeholder="Enter Booking ID" required>
+                            <input type="text" id="checkin-name" name="checkin-name" placeholder="Enter Your Full Name" required>
                             <button type="submit" class="btn btn-secondary">Check In</button>
                         </div>
                     </form>
@@ -1039,6 +1040,7 @@
                         <button class="filter-btn active" data-status="all">All Bookings</button>
                         <button class="filter-btn" data-status="pending">Pending</button>
                         <button class="filter-btn" data-status="confirmed">Confirmed</button>
+                        <button class="filter-btn" data-status="checked-in">✅ Checked In</button>
                         <button class="filter-btn" data-status="rejected">Rejected</button>
                     </div>
 
