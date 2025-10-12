@@ -175,7 +175,7 @@ router.post('/bookings/:id/confirm', verifyAdminSession, async (req, res) => {
             UPDATE bookings 
             SET status = 'confirmed', confirmed_at = CURRENT_TIMESTAMP 
             WHERE id = ?
-        `, [bookingId], async function(updateErr) {
+        `, [bookingId], function(updateErr) {
             if (updateErr) {
                 console.error('Database error:', updateErr);
                 return res.status(500).json({ error: 'Failed to confirm booking' });
@@ -183,15 +183,26 @@ router.post('/bookings/:id/confirm', verifyAdminSession, async (req, res) => {
 
             console.log(`✅ Booking ${bookingId} confirmed for ${booking.name}`);
 
-            // Send notifications
-            const notifications = await sendBookingNotifications(booking, 'confirmed');
-
-            res.json({
-                success: true,
-                message: 'Booking confirmed successfully',
-                booking: { ...booking, status: 'confirmed', confirmed_at: new Date() },
-                notifications: notifications
-            });
+            // Send notifications asynchronously
+            sendBookingNotifications(booking, 'confirmed')
+                .then(notifications => {
+                    res.json({
+                        success: true,
+                        message: 'Booking confirmed successfully',
+                        booking: { ...booking, status: 'confirmed', confirmed_at: new Date() },
+                        notifications: notifications
+                    });
+                })
+                .catch(notifError => {
+                    console.error('Notification error:', notifError);
+                    // Still send success response even if notification fails
+                    res.json({
+                        success: true,
+                        message: 'Booking confirmed successfully (notification may have failed)',
+                        booking: { ...booking, status: 'confirmed', confirmed_at: new Date() },
+                        notifications: { error: notifError.message }
+                    });
+                });
         });
     });
 });
@@ -222,7 +233,7 @@ router.post('/bookings/:id/reject', verifyAdminSession, async (req, res) => {
             UPDATE bookings 
             SET status = 'rejected', notes = ? 
             WHERE id = ?
-        `, [reason || 'Booking rejected by admin', bookingId], async function(updateErr) {
+        `, [reason || 'Booking rejected by admin', bookingId], function(updateErr) {
             if (updateErr) {
                 console.error('Database error:', updateErr);
                 return res.status(500).json({ error: 'Failed to reject booking' });
@@ -230,15 +241,26 @@ router.post('/bookings/:id/reject', verifyAdminSession, async (req, res) => {
 
             console.log(`❌ Booking ${bookingId} rejected for ${booking.name}`);
 
-            // Send notifications
-            const notifications = await sendBookingNotifications(booking, 'rejected', reason);
-
-            res.json({
-                success: true,
-                message: 'Booking rejected successfully',
-                booking: { ...booking, status: 'rejected' },
-                notifications: notifications
-            });
+            // Send notifications asynchronously
+            sendBookingNotifications(booking, 'rejected', reason)
+                .then(notifications => {
+                    res.json({
+                        success: true,
+                        message: 'Booking rejected successfully',
+                        booking: { ...booking, status: 'rejected' },
+                        notifications: notifications
+                    });
+                })
+                .catch(notifError => {
+                    console.error('Notification error:', notifError);
+                    // Still send success response even if notification fails
+                    res.json({
+                        success: true,
+                        message: 'Booking rejected successfully (notification may have failed)',
+                        booking: { ...booking, status: 'rejected' },
+                        notifications: { error: notifError.message }
+                    });
+                });
         });
     });
 });
