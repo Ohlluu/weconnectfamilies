@@ -291,7 +291,40 @@ app.post('/api/bookings', async (req, res) => {
     await saveBookings(data);
 
     console.log(`📝 New booking created: ID ${booking.id} - ${name} for ${facility}`);
-    
+
+    // Send SMS notification to admin about new booking
+    if (twilioClient && process.env.TWILIO_PHONE_NUMBER && process.env.ADMIN_PHONE_NUMBER) {
+      try {
+        const visitDate = new Date(visit_date).toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        });
+
+        const adminMessage = `📅 NEW BOOKING #${booking.id}
+
+Name: ${name}
+Phone: ${phone}
+Facility: ${facility}
+Date: ${visitDate}
+Pickup: ${pickup_location}
+Guests: ${guests || 1}
+
+View: weconnectfam.com/admin`;
+
+        await twilioClient.messages.create({
+          body: adminMessage,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: process.env.ADMIN_PHONE_NUMBER
+        });
+
+        console.log(`📱 Admin notification sent for booking #${booking.id}`);
+      } catch (error) {
+        console.error('Failed to send admin notification SMS:', error.message);
+      }
+    }
+
     res.status(201).json({
       success: true,
       bookingId: booking.id,
