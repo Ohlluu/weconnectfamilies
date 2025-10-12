@@ -456,13 +456,48 @@ app.post('/api/admin/bookings/:id/reject', verifyAdminSession, async (req, res) 
 
     console.log(`❌ Booking ${bookingId} rejected for ${booking.name}`);
 
+    // Send SMS notification for rejection
+    let smsResult = { success: false, error: 'SMS not configured' };
+    if (twilioClient && process.env.TWILIO_PHONE_NUMBER) {
+      try {
+        const visitDate = new Date(booking.visit_date).toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        });
+
+        const message = `❌ BOOKING UPDATE - WE Connect Families
+
+Unfortunately, your transportation booking for ${booking.facility} on ${visitDate} could not be confirmed.
+
+${reason ? `Reason: ${reason}` : ''}
+
+Please call (646) 226-2433 to discuss alternatives or reschedule.
+
+Thank you for understanding.`;
+
+        const result = await twilioClient.messages.create({
+          body: message,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: booking.phone
+        });
+
+        smsResult = { success: true, sid: result.sid };
+        console.log(`📱 Rejection SMS sent to ${booking.phone}: ${result.sid}`);
+      } catch (error) {
+        console.error('Rejection SMS error:', error.message);
+        smsResult = { success: false, error: error.message };
+      }
+    }
+
     res.json({
       success: true,
       message: 'Booking rejected successfully',
       booking: booking,
-      notifications: { 
-        sms: { success: false, error: 'SMS not configured on Vercel' },
-        email: { success: false, error: 'Email not configured on Vercel' }
+      notifications: {
+        sms: smsResult,
+        email: { success: false, error: 'Email not configured' }
       }
     });
   } catch (error) {
