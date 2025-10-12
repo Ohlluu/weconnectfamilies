@@ -267,8 +267,9 @@ router.post('/bookings/:id/reject', verifyAdminSession, async (req, res) => {
 
 // Function to send SMS and Email notifications
 async function sendBookingNotifications(booking, action, reason = null) {
+    console.log(`🔔 sendBookingNotifications called with action: ${action}, booking ID: ${booking.id}`);
     const notifications = { sms: null, email: null };
-    
+
     // Format date nicely
     const visitDate = new Date(booking.visit_date).toLocaleDateString('en-US', {
         weekday: 'long',
