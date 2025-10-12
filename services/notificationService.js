@@ -19,6 +19,8 @@ function initializeTwilio() {
 
 // Send SMS notification to admin about new booking
 async function sendAdminBookingNotification(booking) {
+    console.log('🔔 Attempting to send admin notification for booking:', booking.id);
+
     if (!twilioClient) {
         const initialized = initializeTwilio();
         if (!initialized) {
@@ -29,6 +31,9 @@ async function sendAdminBookingNotification(booking) {
 
     const adminPhone = process.env.ADMIN_PHONE_NUMBER;
     const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+
+    console.log('📱 Admin phone:', adminPhone);
+    console.log('📱 Twilio phone:', twilioPhone);
 
     if (!adminPhone || !twilioPhone) {
         console.log('❌ Admin phone or Twilio phone not configured');
