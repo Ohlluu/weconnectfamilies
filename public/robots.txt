@@ -1,0 +1,34 @@
+# WE Connect Families - Robots.txt
+# https://weconnectfam.com/robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+
+# Sitemap
+Sitemap: https://weconnectfam.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 10
+
+# Block access to admin and API routes
+User-agent: *
+Disallow: /api/admin/
+Disallow: /api/bookings/
+
+# Popular search engines
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /admin
+
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /admin
+
+User-agent: Slurp
+Allow: /
+Disallow: /api/
+Disallow: /admin

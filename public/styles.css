@@ -2121,9 +2121,25 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     animation: fadeIn 0.6s ease forwards;
 }
 
-/* Smooth scrolling */
+/* Smooth scrolling with offset for fixed navbar */
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: 100px; /* Offset for fixed navbar */
+}
+
+/* Specific offset for check-in section on mobile */
+#check-in-section {
+    scroll-margin-top: 100px;
+}
+
+@media (max-width: 768px) {
+    html {
+        scroll-padding-top: 120px; /* More space on mobile */
+    }
+
+    #check-in-section {
+        scroll-margin-top: 120px;
+    }
 }
 
 /* SMS Consent Styling */
