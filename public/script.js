@@ -15,19 +15,41 @@ document.querySelectorAll('.nav-link').forEach(link => {
     });
 });
 
-// Smooth scrolling for navigation links
+// Smooth scrolling for navigation links with special handling for Check In
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const navHeight = document.querySelector('.navbar').offsetHeight;
-            const targetPosition = target.offsetTop - navHeight;
-            
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
+        const href = this.getAttribute('href');
+
+        // Special handling for Check In navigation
+        if (href === '#check-in-section') {
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                // On mobile: scroll to the check-in section
+                const target = document.querySelector('#check-in-section');
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            } else {
+                // On desktop: scroll to booking section (where check-in box is visible)
+                const bookingSection = document.querySelector('#book');
+                if (bookingSection) {
+                    bookingSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        } else {
+            // Regular navigation for other links
+            const target = document.querySelector(href);
+            if (target) {
+                const navHeight = document.querySelector('.navbar').offsetHeight;
+                const targetPosition = target.offsetTop - navHeight;
+
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
         }
     });
 });
