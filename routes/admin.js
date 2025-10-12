@@ -339,6 +339,12 @@ Thank you for choosing WE Connect Families!`;
         }
     } else if (action === 'rejected') {
         // SMS Notification for rejection
+        console.log('🔍 Rejection SMS check:', {
+            twilioClient: !!twilioClient,
+            twilioPhone: process.env.TWILIO_PHONE_NUMBER,
+            bookingPhone: booking.phone
+        });
+
         if (twilioClient && process.env.TWILIO_PHONE_NUMBER) {
             try {
                 console.log(`📱 Sending rejection SMS to ${booking.phone}`);
@@ -362,10 +368,13 @@ Thank you for understanding.`;
                 console.log(`✅ Rejection SMS sent to ${booking.phone} (${formatPhoneNumber(booking.phone)}) - SID: ${smsResult.sid}`);
             } catch (smsError) {
                 console.error('❌ Rejection SMS Error:', smsError);
+                console.error('Error details:', JSON.stringify(smsError, null, 2));
                 notifications.sms = { success: false, error: smsError.message };
             }
         } else {
             console.log('❌ Cannot send rejection SMS - Twilio not configured');
+            console.log('twilioClient exists:', !!twilioClient);
+            console.log('TWILIO_PHONE_NUMBER:', process.env.TWILIO_PHONE_NUMBER);
             notifications.sms = { success: false, error: 'Twilio not configured' };
         }
 
