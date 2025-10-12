@@ -2,6 +2,7 @@ const express = require('express');
 const crypto = require('crypto');
 const twilio = require('twilio');
 const nodemailer = require('nodemailer');
+const { formatPhoneNumber } = require('../utils/phoneFormatter');
 const router = express.Router();
 
 // Twilio client (will be initialized when credentials are provided)
@@ -271,11 +272,11 @@ Thank you for choosing WE Connect Families!`;
                 const smsResult = await twilioClient.messages.create({
                     body: smsMessage,
                     from: process.env.TWILIO_PHONE_NUMBER,
-                    to: booking.phone
+                    to: formatPhoneNumber(booking.phone)
                 });
 
                 notifications.sms = { success: true, sid: smsResult.sid };
-                console.log(`📱 Confirmation SMS sent to ${booking.phone}`);
+                console.log(`✅ Confirmation SMS sent to ${booking.phone} - SID: ${smsResult.sid}`);
             } catch (smsError) {
                 console.error('SMS Error:', smsError);
                 notifications.sms = { success: false, error: smsError.message };
@@ -354,11 +355,11 @@ Thank you for understanding.`;
                 const smsResult = await twilioClient.messages.create({
                     body: smsMessage,
                     from: process.env.TWILIO_PHONE_NUMBER,
-                    to: booking.phone
+                    to: formatPhoneNumber(booking.phone)
                 });
 
                 notifications.sms = { success: true, sid: smsResult.sid };
-                console.log(`✅ Rejection SMS sent to ${booking.phone} - SID: ${smsResult.sid}`);
+                console.log(`✅ Rejection SMS sent to ${booking.phone} (${formatPhoneNumber(booking.phone)}) - SID: ${smsResult.sid}`);
             } catch (smsError) {
                 console.error('❌ Rejection SMS Error:', smsError);
                 notifications.sms = { success: false, error: smsError.message };

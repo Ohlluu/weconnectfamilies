@@ -1,4 +1,5 @@
 const twilio = require('twilio');
+const { formatPhoneNumber } = require('../utils/phoneFormatter');
 
 // Initialize Twilio client
 let twilioClient = null;
@@ -62,16 +63,24 @@ Guests: ${booking.guests || 1}
 View: weconnectfam.com`;
 
     try {
+        // Format phone numbers to E.164
+        const formattedAdminPhone = formatPhoneNumber(adminPhone);
+        const formattedTwilioPhone = formatPhoneNumber(twilioPhone);
+
+        console.log('📱 Formatted admin phone:', formattedAdminPhone);
+        console.log('📱 Formatted Twilio phone:', formattedTwilioPhone);
+
         const result = await twilioClient.messages.create({
             body: message,
-            from: twilioPhone,
-            to: adminPhone
+            from: formattedTwilioPhone,
+            to: formattedAdminPhone
         });
 
-        console.log(`📱 SMS sent to admin for booking #${booking.id} - SID: ${result.sid}`);
+        console.log(`✅ Admin SMS sent for booking #${booking.id} - SID: ${result.sid}`);
         return { success: true, messageSid: result.sid };
     } catch (error) {
-        console.error('❌ Failed to send SMS:', error.message);
+        console.error('❌ Failed to send admin SMS:', error.message);
+        console.error('Full error:', error);
         return { success: false, error: error.message };
     }
 }
