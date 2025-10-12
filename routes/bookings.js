@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { sendAdminBookingNotification } = require('../services/notificationService');
 
 // POST /api/bookings - Create a new booking
 router.post('/', async (req, res) => {
@@ -8,7 +9,7 @@ router.post('/', async (req, res) => {
 
     // Validation
     if (!name || !phone || !facility || !visit_date || !pickup_location) {
-        return res.status(400).json({ 
+        return res.status(400).json({
             error: 'Missing required fields',
             required: ['name', 'phone', 'facility', 'visit_date', 'pickup_location']
         });
@@ -20,20 +21,39 @@ router.post('/', async (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    stmt.run([name, phone, email || null, facility, visit_date, pickup_location, guests || 1, notes || null], function(err) {
+    stmt.run([name, phone, email || null, facility, visit_date, pickup_location, guests || 1, notes || null], async function(err) {
         if (err) {
             console.error('Database error:', err);
             return res.status(500).json({ error: 'Failed to save booking' });
         }
 
-        console.log(`📝 New booking created: ID ${this.lastID} - ${name} for ${facility}`);
-        
+        const bookingId = this.lastID;
+        console.log(`📝 New booking created: ID ${bookingId} - ${name} for ${facility}`);
+
+        // Send SMS notification to admin
+        const booking = {
+            id: bookingId,
+            name,
+            phone,
+            email,
+            facility,
+            visit_date,
+            pickup_location,
+            guests: guests || 1,
+            notes
+        };
+
+        // Send SMS notification (don't wait for it, run in background)
+        sendAdminBookingNotification(booking).catch(error => {
+            console.error('Failed to send admin SMS notification:', error);
+        });
+
         res.status(201).json({
             success: true,
-            bookingId: this.lastID,
+            bookingId: bookingId,
             message: 'Booking submitted successfully! We will contact you soon to confirm.',
             booking: {
-                id: this.lastID,
+                id: bookingId,
                 name,
                 phone,
                 facility,
