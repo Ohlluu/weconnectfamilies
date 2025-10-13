@@ -189,9 +189,9 @@ Your trip to ${booking.facility} has been CONFIRMED! ✅
 
 IMPORTANT: When you arrive, check in using the SAME NAME you used to book: "${booking.name}"
 
-Check In: https://weconnectfamilies.vercel.app (Click Check In in menu)
+Check In: https://weconnectfam.com (Click Check In in menu)
 
-Questions? Call (347) 967-6711
+Questions? Call (646) 226-2433
 
 Reply STOP to unsubscribe.`;
 
