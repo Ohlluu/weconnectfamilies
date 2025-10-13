@@ -1752,11 +1752,9 @@ function generatePrintTemplate(bookings) {
     return html;
 }
 
-// Enhanced refresh with confirmation
+// Refresh bookings from server
 function handleRefreshBookings() {
-    if (confirm('⚠️ WARNING: This will clear all current booking data and reload from the server. This action cannot be undone. Are you sure you want to continue?')) {
-        loadAdminBookings();
-    }
+    loadBookings();
 }
 
 function getCurrentBookings() {
