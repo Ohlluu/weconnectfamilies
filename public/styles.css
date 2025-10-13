@@ -1858,19 +1858,19 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
         flex-direction: column;
         gap: 0.5rem;
         text-align: center;
-        padding: 0.75rem 1rem;
+        padding: 0.75rem 0.5rem;
     }
 
-    /* Reduce admin title size */
+    /* Increase admin title size and reduce spacing */
     .admin-title h2 {
-        font-size: 1.1rem;
-        margin: 0 0 0.3rem 0;
+        font-size: 1.3rem;
+        margin: 0 0 0.15rem 0;
     }
 
     /* Make stats much smaller and compact */
     .admin-stats {
         justify-content: center;
-        gap: 0.4rem;
+        gap: 0.3rem;
         font-size: 0.7rem;
         flex-wrap: wrap;
     }
@@ -1916,29 +1916,59 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
         text-overflow: ellipsis;
     }
 
-    /* Make date filter section display in rows of 3-4 */
+    /* Make date filter section display in 2 rows */
     .bookings-date-filters {
         gap: 0.25rem;
         padding: 0.4rem 0.25rem;
         margin-bottom: 0.5rem;
-        flex-direction: row;
-        align-items: center;
+        display: grid;
+        grid-template-columns: auto 1fr 1fr 1fr;
+        grid-template-rows: auto auto;
     }
 
     .filter-label {
         font-size: 0.7rem;
         margin-bottom: 0;
         margin-right: 0.3rem;
-        width: auto;
-        flex-shrink: 0;
+        grid-column: 1;
+        grid-row: 1;
+        align-self: center;
+    }
+
+    .date-filter-btn:nth-of-type(1) { /* All Time */
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .date-filter-btn:nth-of-type(2) { /* Today */
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+    .date-filter-btn:nth-of-type(3) { /* Last 7 Days */
+        grid-column: 4;
+        grid-row: 1;
+    }
+
+    .date-filter-btn:nth-of-type(4) { /* Last 14 Days */
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .date-filter-btn:nth-of-type(5) { /* Last 21 Days */
+        grid-column: 3;
+        grid-row: 2;
+    }
+
+    .date-filter-btn:nth-of-type(6) { /* Last 30 Days */
+        grid-column: 4;
+        grid-row: 2;
     }
 
     .date-filter-btn {
         padding: 0.35rem 0.4rem;
         border-radius: 10px;
         font-size: 0.65rem;
-        flex: 1;
-        min-width: 0;
     }
 
     /* Increase bookings container height to show more bookings */
