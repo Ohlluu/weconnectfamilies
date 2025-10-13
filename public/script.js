@@ -1054,7 +1054,8 @@ let adminState = {
     isLoggedIn: false,
     sessionToken: null,
     bookings: [],
-    currentFilter: 'all'
+    currentFilter: 'all',
+    currentDateFilter: 'all' // Track date range filter
 };
 
 // Admin DOM elements
@@ -1078,6 +1079,11 @@ document.getElementById('refresh-bookings')?.addEventListener('click', handleRef
 // Filter buttons
 document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', handleFilterChange);
+});
+
+// Date filter buttons
+document.querySelectorAll('.date-filter-btn').forEach(btn => {
+    btn.addEventListener('click', handleDateFilterChange);
 });
 
 // Admin action buttons
@@ -1292,7 +1298,7 @@ function updateStats(stats) {
 // Display bookings
 function displayBookings(bookings) {
     const container = document.getElementById('bookings-container');
-    
+
     if (!bookings || bookings.length === 0) {
         container.innerHTML = `
             <div class="no-bookings">
@@ -1302,8 +1308,8 @@ function displayBookings(bookings) {
         `;
         return;
     }
-    
-    // Filter bookings based on current filter
+
+    // Filter bookings based on current status filter
     let filteredBookings = bookings;
     if (adminState.currentFilter !== 'all') {
         if (adminState.currentFilter === 'checked-in') {
@@ -1313,11 +1319,36 @@ function displayBookings(bookings) {
             filteredBookings = bookings.filter(booking => booking.status === adminState.currentFilter);
         }
     }
-    
+
+    // Filter bookings based on date range (when booking was created)
+    if (adminState.currentDateFilter !== 'all') {
+        const now = new Date();
+        const days = parseInt(adminState.currentDateFilter);
+
+        filteredBookings = filteredBookings.filter(booking => {
+            if (!booking.created_at) return false;
+
+            const bookingDate = new Date(booking.created_at);
+            const diffTime = Math.abs(now - bookingDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            // For "Today" filter (0 days)
+            if (days === 0) {
+                return bookingDate.toDateString() === now.toDateString();
+            }
+
+            // For other filters (last X days)
+            return diffDays <= days;
+        });
+    }
+
     if (filteredBookings.length === 0) {
+        const filterText = adminState.currentDateFilter !== 'all'
+            ? `${adminState.currentFilter} bookings in the selected date range`
+            : `${adminState.currentFilter} bookings`;
         container.innerHTML = `
             <div class="no-bookings">
-                <h3>No ${adminState.currentFilter} bookings</h3>
+                <h3>No ${filterText}</h3>
                 <p>Try selecting a different filter.</p>
             </div>
         `;
@@ -1390,12 +1421,25 @@ function displayBookings(bookings) {
 function handleFilterChange(e) {
     const status = e.target.dataset.status;
     adminState.currentFilter = status;
-    
+
     // Update active filter button
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
     e.target.classList.add('active');
-    
+
     // Re-display bookings with new filter
+    displayBookings(adminState.bookings);
+}
+
+// Handle date filter changes
+function handleDateFilterChange(e) {
+    const days = e.target.dataset.days;
+    adminState.currentDateFilter = days;
+
+    // Update active date filter button
+    document.querySelectorAll('.date-filter-btn').forEach(btn => btn.classList.remove('active'));
+    e.target.classList.add('active');
+
+    // Re-display bookings with new date filter
     displayBookings(adminState.bookings);
 }
 

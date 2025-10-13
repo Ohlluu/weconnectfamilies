@@ -1604,6 +1604,42 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     color: white;
 }
 
+.bookings-date-filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+}
+
+.date-filter-btn {
+    background: white;
+    border: 2px solid #dee2e6;
+    color: #495057;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.date-filter-btn.active,
+.date-filter-btn:hover {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
 .bookings-container {
     max-height: 60vh;
     overflow-y: auto;
@@ -1873,6 +1909,27 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
         padding: 0.3rem 0.6rem;
         border-radius: 12px;
         font-size: 0.75rem;
+    }
+
+    /* Make date filter section more compact on mobile */
+    .bookings-date-filters {
+        gap: 0.3rem;
+        padding: 0.5rem;
+        margin-bottom: 0.75rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .filter-label {
+        font-size: 0.8rem;
+        margin-bottom: 0.3rem;
+        width: 100%;
+    }
+
+    .date-filter-btn {
+        padding: 0.3rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
     }
 
     /* Increase bookings container height to show more bookings */
