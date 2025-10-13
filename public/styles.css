@@ -1894,42 +1894,51 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
         font-size: 0.75rem;
     }
 
-    /* Reduce admin content padding */
+    /* Reduce admin content padding - use more screen width */
     .admin-content {
-        padding: 0.75rem 1rem;
+        padding: 0.5rem 0.25rem;
     }
 
-    /* Make filter buttons smaller and more compact */
+    /* Make filter buttons display in rows of 3-4 */
     .bookings-filters {
-        gap: 0.3rem;
-        margin-bottom: 0.75rem;
+        gap: 0.25rem;
+        margin-bottom: 0.5rem;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .filter-btn {
-        padding: 0.3rem 0.6rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
+        padding: 0.4rem 0.3rem;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    /* Make date filter section more compact on mobile */
+    /* Make date filter section display in rows of 3-4 */
     .bookings-date-filters {
-        gap: 0.3rem;
-        padding: 0.5rem;
-        margin-bottom: 0.75rem;
-        flex-direction: column;
-        align-items: flex-start;
+        gap: 0.25rem;
+        padding: 0.4rem 0.25rem;
+        margin-bottom: 0.5rem;
+        flex-direction: row;
+        align-items: center;
     }
 
     .filter-label {
-        font-size: 0.8rem;
-        margin-bottom: 0.3rem;
-        width: 100%;
+        font-size: 0.7rem;
+        margin-bottom: 0;
+        margin-right: 0.3rem;
+        width: auto;
+        flex-shrink: 0;
     }
 
     .date-filter-btn {
-        padding: 0.3rem 0.6rem;
-        border-radius: 12px;
-        font-size: 0.7rem;
+        padding: 0.35rem 0.4rem;
+        border-radius: 10px;
+        font-size: 0.65rem;
+        flex: 1;
+        min-width: 0;
     }
 
     /* Increase bookings container height to show more bookings */
