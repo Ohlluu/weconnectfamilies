@@ -1714,17 +1714,61 @@ async function handleDatabaseBookingSubmission(e) {
     }
 }
 
-// Print bookings function
+// Get currently filtered bookings (respects status and date filters)
+function getFilteredBookings() {
+    let filteredBookings = adminState.bookings || [];
+
+    // Apply status filter
+    if (adminState.currentFilter !== 'all') {
+        if (adminState.currentFilter === 'checked-in') {
+            filteredBookings = filteredBookings.filter(booking => booking.checked_in_at);
+        } else {
+            filteredBookings = filteredBookings.filter(booking => booking.status === adminState.currentFilter);
+        }
+    }
+
+    // Apply date range filter
+    if (adminState.currentDateFilter !== 'all') {
+        const now = new Date();
+        const days = parseInt(adminState.currentDateFilter);
+
+        filteredBookings = filteredBookings.filter(booking => {
+            if (!booking.created_at) return false;
+
+            const bookingDate = new Date(booking.created_at);
+            const diffTime = Math.abs(now - bookingDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            // For "Today" filter (0 days)
+            if (days === 0) {
+                return bookingDate.toDateString() === now.toDateString();
+            }
+
+            // For other filters (last X days)
+            return diffDays <= days;
+        });
+    }
+
+    return filteredBookings;
+}
+
+// Print bookings function - now respects current filters
 function handlePrintBookings() {
-    const bookings = getCurrentBookings();
+    console.log('🖨️ Print button clicked');
+    console.log('Current filters:', { status: adminState.currentFilter, dateRange: adminState.currentDateFilter });
+    console.log('Total bookings in adminState:', adminState.bookings.length);
+
+    const bookings = getFilteredBookings();
+    console.log('Filtered bookings to print:', bookings.length);
+
     if (!bookings || bookings.length === 0) {
-        alert('No bookings to print. Please refresh to load bookings.');
+        alert('No bookings to print with the current filters. Try changing your filter selection.');
         return;
     }
-    
+
     // Create Google Docs compatible template
     const printContent = generatePrintTemplate(bookings);
-    
+
     // Create new window for printing
     const printWindow = window.open('', '_blank');
     printWindow.document.write(printContent);
