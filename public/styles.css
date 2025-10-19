@@ -1606,13 +1606,84 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
 .bookings-date-filters {
     display: flex;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.75rem;
     margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    align-items: center;
     padding: 1rem;
     background: #f8f9fa;
     border-radius: 8px;
+}
+
+.date-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.date-picker-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.visit-date-picker {
+    padding: 0.5rem 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: #2d3748;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 180px;
+}
+
+.visit-date-picker:hover {
+    border-color: #0DB7BB;
+}
+
+.visit-date-picker:focus {
+    outline: none;
+    border-color: #0DB7BB;
+    box-shadow: 0 0 0 3px rgba(13, 183, 187, 0.1);
+}
+
+.clear-date-btn {
+    padding: 0.4rem 0.6rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: none;
+}
+
+.clear-date-btn.visible {
+    display: block;
+}
+
+.clear-date-btn:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+}
+
+.quick-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.quick-filter-label {
+    font-size: 0.9rem;
+    color: #6b7280;
+    font-weight: 500;
 }
 
 .filter-label {

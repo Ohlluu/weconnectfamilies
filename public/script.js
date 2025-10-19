@@ -1055,7 +1055,8 @@ let adminState = {
     sessionToken: null,
     bookings: [],
     currentFilter: 'all',
-    currentDateFilter: 'all' // Track date range filter
+    currentDateFilter: 'all', // Track date range filter
+    selectedVisitDate: null // Track specific date selected from calendar
 };
 
 // Admin DOM elements
@@ -1085,6 +1086,10 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 document.querySelectorAll('.date-filter-btn').forEach(btn => {
     btn.addEventListener('click', handleDateFilterChange);
 });
+
+// Visit date picker and clear button
+document.getElementById('visit-date-filter')?.addEventListener('change', handleVisitDateSelection);
+document.getElementById('clear-date-filter')?.addEventListener('click', clearVisitDateFilter);
 
 // Admin action buttons
 document.getElementById('admin-logout')?.addEventListener('click', handleAdminLogout);
@@ -1321,7 +1326,14 @@ function displayBookings(bookings) {
     }
 
     // Filter bookings based on visit date (when customers want to travel)
-    if (adminState.currentDateFilter !== 'all') {
+    // First check if a specific date is selected in the calendar
+    if (adminState.selectedVisitDate) {
+        filteredBookings = filteredBookings.filter(booking => {
+            if (!booking.visit_date) return false;
+            return booking.visit_date === adminState.selectedVisitDate;
+        });
+    } else if (adminState.currentDateFilter !== 'all') {
+        // Use quick filters if no specific date selected
         const today = dayjs().startOf('day');
         const filter = adminState.currentDateFilter;
 
@@ -1330,7 +1342,6 @@ function displayBookings(bookings) {
 
             // Parse visit date using dayjs (handles YYYY-MM-DD format properly)
             const visitDate = dayjs(booking.visit_date);
-            const dayOfWeek = visitDate.day(); // 0 = Sunday, 6 = Saturday
 
             // Upcoming trips (future dates only)
             if (filter === 'upcoming') {
@@ -1340,62 +1351,6 @@ function displayBookings(bookings) {
             // Past trips
             if (filter === 'past') {
                 return visitDate.isBefore(today, 'day');
-            }
-
-            // This weekend (Saturday or Sunday of current week)
-            if (filter === 'this-weekend') {
-                const currentDay = today.day();
-
-                // If today is Saturday (6) or Sunday (0), show this Sat/Sun
-                // Otherwise show the upcoming Saturday and Sunday
-                let thisSaturday, thisSunday;
-
-                if (currentDay === 0) {
-                    // Today is Sunday - show only today
-                    thisSunday = today;
-                    thisSaturday = today.subtract(1, 'day'); // Yesterday's Saturday
-                } else if (currentDay === 6) {
-                    // Today is Saturday - show today and tomorrow
-                    thisSaturday = today;
-                    thisSunday = today.add(1, 'day');
-                } else {
-                    // Weekday - show upcoming weekend
-                    const daysUntilSaturday = 6 - currentDay;
-                    thisSaturday = today.add(daysUntilSaturday, 'day');
-                    thisSunday = thisSaturday.add(1, 'day');
-                }
-
-                return visitDate.isSame(thisSaturday, 'day') || visitDate.isSame(thisSunday, 'day');
-            }
-
-            // Next weekend (Saturday or Sunday of NEXT week)
-            if (filter === 'next-weekend') {
-                const currentDay = today.day();
-                let nextSaturday, nextSunday;
-
-                if (currentDay === 0) {
-                    // Today is Sunday - next weekend is 6 days away (Saturday) and 7 days away (Sunday)
-                    nextSaturday = today.add(6, 'day');
-                    nextSunday = today.add(7, 'day');
-                } else if (currentDay === 6) {
-                    // Today is Saturday - next weekend is 7 days away (Saturday) and 8 days away (Sunday)
-                    nextSaturday = today.add(7, 'day');
-                    nextSunday = today.add(8, 'day');
-                } else {
-                    // Weekday - next weekend is the Saturday/Sunday after this coming weekend
-                    const daysUntilThisSaturday = 6 - currentDay;
-                    nextSaturday = today.add(daysUntilThisSaturday + 7, 'day');
-                    nextSunday = nextSaturday.add(1, 'day');
-                }
-
-                return visitDate.isSame(nextSaturday, 'day') || visitDate.isSame(nextSunday, 'day');
-            }
-
-            // Next X days (future only)
-            const days = parseInt(filter);
-            if (!isNaN(days)) {
-                const futureDate = today.add(days, 'day');
-                return visitDate.isSameOrAfter(today, 'day') && visitDate.isSameOrBefore(futureDate, 'day');
             }
 
             return true;
@@ -1495,11 +1450,68 @@ function handleDateFilterChange(e) {
     const days = e.target.dataset.days;
     adminState.currentDateFilter = days;
 
+    // Clear specific date selection when using quick filters
+    adminState.selectedVisitDate = null;
+    const datePicker = document.getElementById('visit-date-filter');
+    if (datePicker) datePicker.value = '';
+
+    // Hide clear button
+    const clearBtn = document.getElementById('clear-date-filter');
+    if (clearBtn) clearBtn.classList.remove('visible');
+
     // Update active date filter button
     document.querySelectorAll('.date-filter-btn').forEach(btn => btn.classList.remove('active'));
     e.target.classList.add('active');
 
     // Re-display bookings with new date filter
+    displayBookings(adminState.bookings);
+}
+
+// Handle visit date selection from calendar
+function handleVisitDateSelection(e) {
+    const selectedDate = e.target.value;
+
+    if (selectedDate) {
+        // Set the selected date
+        adminState.selectedVisitDate = selectedDate;
+
+        // Clear quick filter selection
+        adminState.currentDateFilter = 'all';
+        document.querySelectorAll('.date-filter-btn').forEach(btn => btn.classList.remove('active'));
+
+        // Show clear button
+        const clearBtn = document.getElementById('clear-date-filter');
+        if (clearBtn) clearBtn.classList.add('visible');
+
+        // Re-display bookings with specific date filter
+        displayBookings(adminState.bookings);
+    }
+}
+
+// Clear visit date filter
+function clearVisitDateFilter() {
+    // Clear the date picker
+    const datePicker = document.getElementById('visit-date-filter');
+    if (datePicker) datePicker.value = '';
+
+    // Clear the selected date
+    adminState.selectedVisitDate = null;
+
+    // Hide clear button
+    const clearBtn = document.getElementById('clear-date-filter');
+    if (clearBtn) clearBtn.classList.remove('visible');
+
+    // Reset to "All Dates" filter
+    adminState.currentDateFilter = 'all';
+    document.querySelectorAll('.date-filter-btn').forEach(btn => {
+        if (btn.dataset.days === 'all') {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    // Re-display all bookings
     displayBookings(adminState.bookings);
 }
 

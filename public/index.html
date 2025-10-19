@@ -1291,14 +1291,19 @@
                     </div>
 
                     <div class="bookings-date-filters">
-                        <span class="filter-label">🚐 Filter by Visit Date (Travel Date):</span>
-                        <button class="date-filter-btn active" data-days="all">All Dates</button>
-                        <button class="date-filter-btn" data-days="upcoming">Upcoming Trips</button>
-                        <button class="date-filter-btn" data-days="this-weekend">This Weekend</button>
-                        <button class="date-filter-btn" data-days="next-weekend">Next Weekend</button>
-                        <button class="date-filter-btn" data-days="7">Next 7 Days</button>
-                        <button class="date-filter-btn" data-days="30">Next 30 Days</button>
-                        <button class="date-filter-btn" data-days="past">Past Trips</button>
+                        <div class="date-filter-row">
+                            <span class="filter-label">🚐 Filter by Visit Date:</span>
+                            <div class="date-picker-container">
+                                <input type="date" id="visit-date-filter" class="visit-date-picker" placeholder="Select visit date...">
+                                <button class="clear-date-btn" id="clear-date-filter" title="Clear date filter">✕</button>
+                            </div>
+                        </div>
+                        <div class="quick-filters">
+                            <span class="quick-filter-label">Quick filters:</span>
+                            <button class="date-filter-btn active" data-days="all">All Dates</button>
+                            <button class="date-filter-btn" data-days="upcoming">Upcoming</button>
+                            <button class="date-filter-btn" data-days="past">Past Trips</button>
+                        </div>
                     </div>
 
                     <div class="bookings-container" id="bookings-container">
