@@ -547,6 +547,41 @@ Thank you for understanding.`;
   }
 });
 
+// Delete booking
+app.delete('/api/admin/bookings/:id', verifyAdminSession, async (req, res) => {
+  try {
+    const bookingId = parseInt(req.params.id);
+    const data = await loadBookings();
+
+    const bookingIndex = data.bookings.findIndex(b => b.id === bookingId);
+    if (bookingIndex === -1) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    const booking = data.bookings[bookingIndex];
+
+    // Remove booking from array
+    data.bookings.splice(bookingIndex, 1);
+
+    await saveBookings(data);
+
+    console.log(`🗑️ Booking ${bookingId} deleted by admin - Customer: ${booking.name}, Facility: ${booking.facility}`);
+
+    res.json({
+      success: true,
+      message: 'Booking deleted successfully',
+      deletedBooking: {
+        id: bookingId,
+        name: booking.name,
+        facility: booking.facility
+      }
+    });
+  } catch (error) {
+    console.error('Delete booking error:', error);
+    res.status(500).json({ error: 'Failed to delete booking' });
+  }
+});
+
 // Admin stats
 app.get('/api/admin/stats', verifyAdminSession, async (req, res) => {
   try {
