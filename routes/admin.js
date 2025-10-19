@@ -516,4 +516,42 @@ router.get('/stats', verifyAdminSession, (req, res) => {
     });
 });
 
+// DELETE /api/admin/bookings/:id - Delete a booking
+router.delete('/bookings/:id', verifyAdminSession, (req, res) => {
+    const db = req.app.locals.db;
+    const bookingId = req.params.id;
+
+    // Get booking details first (for logging)
+    db.get(`SELECT * FROM bookings WHERE id = ?`, [bookingId], (err, booking) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ error: 'Failed to fetch booking' });
+        }
+
+        if (!booking) {
+            return res.status(404).json({ error: 'Booking not found' });
+        }
+
+        // Delete the booking
+        db.run(`DELETE FROM bookings WHERE id = ?`, [bookingId], function(deleteErr) {
+            if (deleteErr) {
+                console.error('Database error:', deleteErr);
+                return res.status(500).json({ error: 'Failed to delete booking' });
+            }
+
+            console.log(`🗑️ Booking ${bookingId} deleted by admin - Customer: ${booking.name}, Facility: ${booking.facility}`);
+
+            res.json({
+                success: true,
+                message: 'Booking deleted successfully',
+                deletedBooking: {
+                    id: bookingId,
+                    name: booking.name,
+                    facility: booking.facility
+                }
+            });
+        });
+    });
+});
+
 module.exports = router;

@@ -1378,7 +1378,12 @@ function displayBookings(bookings) {
                     <p>📞 ${booking.phone} ${booking.email ? `• 📧 ${booking.email}` : ''}</p>
                     <p>📅 Booked: ${formatDate(booking.created_at)}</p>
                 </div>
-                <span class="booking-status status-${booking.status}">${booking.status}</span>
+                <div class="booking-header-actions">
+                    <span class="booking-status status-${booking.status}">${booking.status}</span>
+                    <button class="delete-booking-btn" onclick="showDeleteConfirmation(${booking.id}, '${booking.name}')" title="Delete booking">
+                        🗑️
+                    </button>
+                </div>
             </div>
             
             <div class="booking-details">
@@ -1629,6 +1634,74 @@ async function handleBookingAction() {
     }
 }
 
+// Delete booking functions
+let deleteBookingId = null;
+
+function showDeleteConfirmation(bookingId, bookingName) {
+    deleteBookingId = bookingId;
+
+    const modal = document.getElementById('delete-confirmation-modal');
+    const details = document.getElementById('delete-booking-details');
+
+    details.textContent = `Are you sure you want to delete the booking for "${bookingName}"?`;
+
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function hideDeleteConfirmation() {
+    const modal = document.getElementById('delete-confirmation-modal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    deleteBookingId = null;
+}
+
+async function handleDeleteBooking() {
+    if (!deleteBookingId) return;
+
+    const confirmBtn = document.getElementById('confirm-delete');
+    const originalText = confirmBtn.textContent;
+
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Deleting...';
+
+    try {
+        const response = await fetch(`${API_BASE}/api/admin/bookings/${deleteBookingId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${adminState.sessionToken}`,
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showNotification('🗑️ Booking deleted successfully', 'success');
+
+            // Refresh bookings
+            await loadBookings();
+            await loadStats();
+
+            // Hide modal
+            hideDeleteConfirmation();
+        } else {
+            throw new Error(data.error || 'Failed to delete booking');
+        }
+    } catch (error) {
+        console.error('Delete booking error:', error);
+        showNotification(`Failed to delete booking: ${error.message}`, 'error');
+    } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = originalText;
+    }
+}
+
+// Add event listeners for delete modal
+document.querySelector('.delete-confirmation-close')?.addEventListener('click', hideDeleteConfirmation);
+document.getElementById('cancel-delete')?.addEventListener('click', hideDeleteConfirmation);
+document.getElementById('confirm-delete')?.addEventListener('click', handleDeleteBooking);
+
 // Utility functions
 function formatDate(dateString) {
     // For visit dates (YYYY-MM-DD format), avoid timezone issues
@@ -1787,37 +1860,49 @@ async function handleDatabaseBookingSubmission(e) {
 }
 
 // Get currently filtered bookings (respects status and date filters)
+// This uses the SAME logic as displayBookings() to ensure consistency
 function getFilteredBookings() {
-    let filteredBookings = adminState.bookings || [];
+    let bookings = adminState.bookings || [];
+    let filteredBookings = bookings;
 
-    // Apply status filter
+    // Filter by status (pending, confirmed, rejected, checked-in)
     if (adminState.currentFilter !== 'all') {
         if (adminState.currentFilter === 'checked-in') {
-            filteredBookings = filteredBookings.filter(booking => booking.checked_in_at);
+            filteredBookings = bookings.filter(booking => booking.checked_in_at);
         } else {
-            filteredBookings = filteredBookings.filter(booking => booking.status === adminState.currentFilter);
+            filteredBookings = bookings.filter(booking => booking.status === adminState.currentFilter);
         }
     }
 
-    // Apply date range filter
-    if (adminState.currentDateFilter !== 'all') {
-        const now = new Date();
-        const days = parseInt(adminState.currentDateFilter);
+    // Filter bookings based on visit date (when customers want to travel)
+    // First check if a specific date is selected in the calendar
+    if (adminState.selectedVisitDate) {
+        filteredBookings = filteredBookings.filter(booking => {
+            if (!booking.visit_date) return false;
+            return booking.visit_date === adminState.selectedVisitDate;
+        });
+    } else if (adminState.currentDateFilter !== 'all') {
+        // Use quick filters if no specific date selected
+        const today = dayjs().startOf('day');
+        const filter = adminState.currentDateFilter;
 
         filteredBookings = filteredBookings.filter(booking => {
-            if (!booking.created_at) return false;
+            if (!booking.visit_date) return false;
 
-            const bookingDate = new Date(booking.created_at);
-            const diffTime = Math.abs(now - bookingDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            // Parse visit date using dayjs (handles YYYY-MM-DD format properly)
+            const visitDate = dayjs(booking.visit_date);
 
-            // For "Today" filter (0 days)
-            if (days === 0) {
-                return bookingDate.toDateString() === now.toDateString();
+            // Upcoming trips (future dates only)
+            if (filter === 'upcoming') {
+                return visitDate.isSameOrAfter(today, 'day');
             }
 
-            // For other filters (last X days)
-            return diffDays <= days;
+            // Past trips
+            if (filter === 'past') {
+                return visitDate.isBefore(today, 'day');
+            }
+
+            return true;
         });
     }
 

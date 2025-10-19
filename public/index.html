@@ -1333,6 +1333,22 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirmation-modal" class="modal admin-modal">
+        <div class="modal-content delete-confirmation-content">
+            <span class="modal-close delete-confirmation-close">&times;</span>
+            <div class="delete-confirmation-form">
+                <h3 style="color: #ef4444;">⚠️ Delete Booking?</h3>
+                <p id="delete-booking-details" style="margin: 1rem 0;"></p>
+                <p style="color: #dc2626; font-weight: 600;">This action cannot be undone!</p>
+                <div class="action-buttons" style="margin-top: 1.5rem;">
+                    <button id="confirm-delete" class="confirm-btn" style="background: #ef4444;">Delete</button>
+                    <button id="cancel-delete" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Day.js for better date handling -->
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/isSameOrAfter.js"></script>
