@@ -1320,25 +1320,70 @@ function displayBookings(bookings) {
         }
     }
 
-    // Filter bookings based on date range (when booking was created)
+    // Filter bookings based on visit date (when customers want to travel)
     if (adminState.currentDateFilter !== 'all') {
         const now = new Date();
-        const days = parseInt(adminState.currentDateFilter);
+        now.setHours(0, 0, 0, 0);
+        const filter = adminState.currentDateFilter;
 
         filteredBookings = filteredBookings.filter(booking => {
-            if (!booking.created_at) return false;
+            if (!booking.visit_date) return false;
 
-            const bookingDate = new Date(booking.created_at);
-            const diffTime = Math.abs(now - bookingDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            // Parse visit date (YYYY-MM-DD format)
+            const visitDate = new Date(booking.visit_date + 'T00:00:00');
+            const dayOfWeek = visitDate.getDay(); // 0 = Sunday, 6 = Saturday
 
-            // For "Today" filter (0 days)
-            if (days === 0) {
-                return bookingDate.toDateString() === now.toDateString();
+            // Upcoming trips (future dates only)
+            if (filter === 'upcoming') {
+                return visitDate >= now;
             }
 
-            // For other filters (last X days)
-            return diffDays <= days;
+            // Past trips
+            if (filter === 'past') {
+                return visitDate < now;
+            }
+
+            // This weekend (Saturday or Sunday of current week)
+            if (filter === 'this-weekend') {
+                const today = now.getDay();
+                const daysUntilSaturday = (6 - today + 7) % 7;
+                const daysUntilSunday = (7 - today) % 7;
+
+                const thisSaturday = new Date(now);
+                thisSaturday.setDate(now.getDate() + daysUntilSaturday);
+
+                const thisSunday = new Date(now);
+                thisSunday.setDate(now.getDate() + (daysUntilSunday === 0 ? 0 : daysUntilSunday));
+
+                return visitDate.toDateString() === thisSaturday.toDateString() ||
+                       visitDate.toDateString() === thisSunday.toDateString();
+            }
+
+            // Next weekend (Saturday or Sunday of next week)
+            if (filter === 'next-weekend') {
+                const today = now.getDay();
+                const daysUntilNextSaturday = ((6 - today) % 7) + 7;
+                const daysUntilNextSunday = ((7 - today) % 7) + 7;
+
+                const nextSaturday = new Date(now);
+                nextSaturday.setDate(now.getDate() + daysUntilNextSaturday);
+
+                const nextSunday = new Date(now);
+                nextSunday.setDate(now.getDate() + daysUntilNextSunday);
+
+                return visitDate.toDateString() === nextSaturday.toDateString() ||
+                       visitDate.toDateString() === nextSunday.toDateString();
+            }
+
+            // Next X days (future only)
+            const days = parseInt(filter);
+            if (!isNaN(days)) {
+                const futureDate = new Date(now);
+                futureDate.setDate(now.getDate() + days);
+                return visitDate >= now && visitDate <= futureDate;
+            }
+
+            return true;
         });
     }
 
@@ -1372,8 +1417,8 @@ function displayBookings(bookings) {
                     <span class="detail-text">${booking.facility}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-icon">📅</span>
-                    <span class="detail-text">${formatDate(booking.visit_date)}</span>
+                    <span class="detail-icon">🚐</span>
+                    <span class="detail-text"><strong>Visit Date:</strong> ${formatDate(booking.visit_date)}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-icon">📍</span>
