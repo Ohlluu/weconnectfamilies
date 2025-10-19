@@ -1322,65 +1322,80 @@ function displayBookings(bookings) {
 
     // Filter bookings based on visit date (when customers want to travel)
     if (adminState.currentDateFilter !== 'all') {
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
+        const today = dayjs().startOf('day');
         const filter = adminState.currentDateFilter;
 
         filteredBookings = filteredBookings.filter(booking => {
             if (!booking.visit_date) return false;
 
-            // Parse visit date (YYYY-MM-DD format)
-            const visitDate = new Date(booking.visit_date + 'T00:00:00');
-            const dayOfWeek = visitDate.getDay(); // 0 = Sunday, 6 = Saturday
+            // Parse visit date using dayjs (handles YYYY-MM-DD format properly)
+            const visitDate = dayjs(booking.visit_date);
+            const dayOfWeek = visitDate.day(); // 0 = Sunday, 6 = Saturday
 
             // Upcoming trips (future dates only)
             if (filter === 'upcoming') {
-                return visitDate >= now;
+                return visitDate.isSameOrAfter(today, 'day');
             }
 
             // Past trips
             if (filter === 'past') {
-                return visitDate < now;
+                return visitDate.isBefore(today, 'day');
             }
 
             // This weekend (Saturday or Sunday of current week)
             if (filter === 'this-weekend') {
-                const today = now.getDay();
-                const daysUntilSaturday = (6 - today + 7) % 7;
-                const daysUntilSunday = (7 - today) % 7;
+                const currentDay = today.day();
 
-                const thisSaturday = new Date(now);
-                thisSaturday.setDate(now.getDate() + daysUntilSaturday);
+                // If today is Saturday (6) or Sunday (0), show this Sat/Sun
+                // Otherwise show the upcoming Saturday and Sunday
+                let thisSaturday, thisSunday;
 
-                const thisSunday = new Date(now);
-                thisSunday.setDate(now.getDate() + (daysUntilSunday === 0 ? 0 : daysUntilSunday));
+                if (currentDay === 0) {
+                    // Today is Sunday - show only today
+                    thisSunday = today;
+                    thisSaturday = today.subtract(1, 'day'); // Yesterday's Saturday
+                } else if (currentDay === 6) {
+                    // Today is Saturday - show today and tomorrow
+                    thisSaturday = today;
+                    thisSunday = today.add(1, 'day');
+                } else {
+                    // Weekday - show upcoming weekend
+                    const daysUntilSaturday = 6 - currentDay;
+                    thisSaturday = today.add(daysUntilSaturday, 'day');
+                    thisSunday = thisSaturday.add(1, 'day');
+                }
 
-                return visitDate.toDateString() === thisSaturday.toDateString() ||
-                       visitDate.toDateString() === thisSunday.toDateString();
+                return visitDate.isSame(thisSaturday, 'day') || visitDate.isSame(thisSunday, 'day');
             }
 
-            // Next weekend (Saturday or Sunday of next week)
+            // Next weekend (Saturday or Sunday of NEXT week)
             if (filter === 'next-weekend') {
-                const today = now.getDay();
-                const daysUntilNextSaturday = ((6 - today) % 7) + 7;
-                const daysUntilNextSunday = ((7 - today) % 7) + 7;
+                const currentDay = today.day();
+                let nextSaturday, nextSunday;
 
-                const nextSaturday = new Date(now);
-                nextSaturday.setDate(now.getDate() + daysUntilNextSaturday);
+                if (currentDay === 0) {
+                    // Today is Sunday - next weekend is 6 days away (Saturday) and 7 days away (Sunday)
+                    nextSaturday = today.add(6, 'day');
+                    nextSunday = today.add(7, 'day');
+                } else if (currentDay === 6) {
+                    // Today is Saturday - next weekend is 7 days away (Saturday) and 8 days away (Sunday)
+                    nextSaturday = today.add(7, 'day');
+                    nextSunday = today.add(8, 'day');
+                } else {
+                    // Weekday - next weekend is the Saturday/Sunday after this coming weekend
+                    const daysUntilThisSaturday = 6 - currentDay;
+                    nextSaturday = today.add(daysUntilThisSaturday + 7, 'day');
+                    nextSunday = nextSaturday.add(1, 'day');
+                }
 
-                const nextSunday = new Date(now);
-                nextSunday.setDate(now.getDate() + daysUntilNextSunday);
-
-                return visitDate.toDateString() === nextSaturday.toDateString() ||
-                       visitDate.toDateString() === nextSunday.toDateString();
+                return visitDate.isSame(nextSaturday, 'day') || visitDate.isSame(nextSunday, 'day');
             }
 
             // Next X days (future only)
             const days = parseInt(filter);
             if (!isNaN(days)) {
-                const futureDate = new Date(now);
-                futureDate.setDate(now.getDate() + days);
-                return visitDate >= now && visitDate <= futureDate;
+                const futureDate = today.add(days, 'day');
+                return visitDate.isSameOrAfter(today, 'day') && visitDate.isSameOrBefore(futureDate, 'day');
             }
 
             return true;

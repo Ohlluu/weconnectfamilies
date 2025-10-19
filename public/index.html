@@ -1328,6 +1328,14 @@
         </div>
     </div>
 
+    <!-- Day.js for better date handling -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/isSameOrAfter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/isSameOrBefore.js"></script>
+    <script>
+        dayjs.extend(window.dayjs_plugin_isSameOrAfter);
+        dayjs.extend(window.dayjs_plugin_isSameOrBefore);
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
