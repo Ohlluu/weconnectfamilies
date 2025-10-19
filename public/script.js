@@ -1380,7 +1380,7 @@ function displayBookings(bookings) {
                 </div>
                 <div class="booking-header-actions">
                     <span class="booking-status status-${booking.status}">${booking.status}</span>
-                    <button class="delete-booking-btn" onclick="showDeleteConfirmation(${booking.id}, '${booking.name}')" title="Delete booking">
+                    <button class="delete-booking-btn" data-booking-id="${booking.id}" data-booking-name="${booking.name}" title="Delete booking">
                         🗑️
                     </button>
                 </div>
@@ -1435,6 +1435,15 @@ function displayBookings(bookings) {
             ` : ''}
         </div>
     `).join('');
+
+    // Add event listeners to all delete buttons
+    document.querySelectorAll('.delete-booking-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const bookingId = e.currentTarget.dataset.bookingId;
+            const bookingName = e.currentTarget.dataset.bookingName;
+            showDeleteConfirmation(bookingId, bookingName);
+        });
+    });
 }
 
 // Handle filter changes
