@@ -1666,7 +1666,14 @@ function hideDeleteConfirmation() {
 }
 
 async function handleDeleteBooking() {
-    if (!deleteBookingId) return;
+    if (!deleteBookingId) {
+        console.error('No booking ID to delete');
+        return;
+    }
+
+    console.log('🗑️ Delete booking called for ID:', deleteBookingId);
+    console.log('API_BASE:', API_BASE);
+    console.log('Session token:', adminState.sessionToken ? 'Present' : 'Missing');
 
     const confirmBtn = document.getElementById('confirm-delete');
     const originalText = confirmBtn.textContent;
@@ -1675,7 +1682,10 @@ async function handleDeleteBooking() {
     confirmBtn.textContent = 'Deleting...';
 
     try {
-        const response = await fetch(`${API_BASE}/api/admin/bookings/${deleteBookingId}`, {
+        const url = `${API_BASE}/api/admin/bookings/${deleteBookingId}`;
+        console.log('DELETE request to:', url);
+
+        const response = await fetch(url, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${adminState.sessionToken}`,
@@ -1683,7 +1693,9 @@ async function handleDeleteBooking() {
             }
         });
 
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Response data:', data);
 
         if (response.ok && data.success) {
             showNotification('🗑️ Booking deleted successfully', 'success');
