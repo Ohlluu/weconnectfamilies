@@ -17,13 +17,19 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
 // Stripe setup
 let stripe = null;
 let stripeAvailable = false;
-if (process.env.STRIPE_SECRET_KEY) {
-  const Stripe = require('stripe');
-  stripe = Stripe(process.env.STRIPE_SECRET_KEY);
-  stripeAvailable = true;
-  console.log('💳 Stripe initialized');
-} else {
-  console.log('⚠️ Stripe not configured - payment endpoints will be disabled');
+try {
+  if (process.env.STRIPE_SECRET_KEY) {
+    const Stripe = require('stripe');
+    stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+    stripeAvailable = true;
+    console.log('💳 Stripe initialized successfully');
+  } else {
+    console.log('⚠️ Stripe not configured - payment endpoints will be disabled');
+  }
+} catch (error) {
+  console.error('❌ Stripe initialization error:', error.message);
+  stripe = null;
+  stripeAvailable = false;
 }
 
 let mongoClient = null;
