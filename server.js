@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const bookingRoutes = require('./routes/bookings');
 const adminRoutes = require('./routes/admin');
+const paymentRoutes = require('./routes/payment');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -42,6 +43,7 @@ app.use('/api/admin/login', loginLimiter);
 // Routes
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // SEO: robots.txt
 app.get('/robots.txt', (req, res) => {
@@ -78,8 +80,16 @@ db.serialize(() => {
         status TEXT DEFAULT 'pending',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         confirmed_at DATETIME,
-        notes TEXT
+        notes TEXT,
+        payment_intent_id TEXT,
+        payment_status TEXT DEFAULT 'pending',
+        payment_amount INTEGER DEFAULT 2000
     )`);
+
+    // Add payment columns to existing bookings table (if they don't exist)
+    db.run(`ALTER TABLE bookings ADD COLUMN payment_intent_id TEXT`, () => {});
+    db.run(`ALTER TABLE bookings ADD COLUMN payment_status TEXT DEFAULT 'pending'`, () => {});
+    db.run(`ALTER TABLE bookings ADD COLUMN payment_amount INTEGER DEFAULT 2000`, () => {});
 
     // Admin sessions table
     db.run(`CREATE TABLE IF NOT EXISTS admin_sessions (

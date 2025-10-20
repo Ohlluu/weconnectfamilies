@@ -5,7 +5,7 @@ const { sendAdminBookingNotification } = require('../services/notificationServic
 // POST /api/bookings - Create a new booking
 router.post('/', async (req, res) => {
     const db = req.app.locals.db;
-    const { name, phone, email, facility, visit_date, pickup_location, guests, notes } = req.body;
+    const { name, phone, email, facility, visit_date, pickup_location, guests, notes, payment_intent_id, payment_status } = req.body;
 
     // Validation
     if (!name || !phone || !facility || !visit_date || !pickup_location) {
@@ -15,13 +15,13 @@ router.post('/', async (req, res) => {
         });
     }
 
-    // Insert booking into database
+    // Insert booking into database with payment info
     const stmt = db.prepare(`
-        INSERT INTO bookings (name, phone, email, facility, visit_date, pickup_location, guests, notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO bookings (name, phone, email, facility, visit_date, pickup_location, guests, notes, payment_intent_id, payment_status, payment_amount)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    stmt.run([name, phone, email || null, facility, visit_date, pickup_location, guests || 1, notes || null], async function(err) {
+    stmt.run([name, phone, email || null, facility, visit_date, pickup_location, guests || 1, notes || null, payment_intent_id || null, payment_status || 'pending', 2000], async function(err) {
         if (err) {
             console.error('Database error:', err);
             return res.status(500).json({ error: 'Failed to save booking' });

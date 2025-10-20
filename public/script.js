@@ -74,61 +74,93 @@ const checkinForm = document.getElementById('checkin-form');
 if (bookingForm) {
     bookingForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const formData = new FormData(this);
         const bookingData = Object.fromEntries(formData);
-        
+
         // Validate form
         if (!validateBookingForm(bookingData)) {
             return;
         }
-        
+
         // Show loading state
         const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span>Processing...</span>';
+        const buttonText = document.getElementById('button-text');
+        const spinner = document.getElementById('spinner');
+        const originalText = buttonText.textContent;
+
+        buttonText.textContent = 'Processing Payment...';
+        spinner.style.display = 'inline-block';
         submitBtn.disabled = true;
-        
+
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            // Generate booking ID
-            const bookingId = 'WCF-' + Date.now().toString().slice(-6);
-            
-            // Store booking data
-            const booking = {
-                id: bookingId,
-                ...bookingData,
-                timestamp: new Date().toISOString(),
-                status: 'confirmed'
-            };
-            
-            storeBooking(booking);
-            
-            // Send owner notification
-            sendOwnerNotification(booking);
-            
+            // Clear any previous payment errors
+            clearPaymentError();
+
+            // Step 1: Create Payment Intent
+            console.log('💳 Creating payment intent...');
+            const paymentIntent = await createPaymentIntent(bookingData);
+
+            // Step 2: Process Payment with Stripe
+            console.log('💳 Processing payment...');
+            buttonText.textContent = 'Processing Payment...';
+            const paymentResult = await processPayment(paymentIntent.clientSecret);
+
+            if (!paymentResult.success) {
+                throw new Error('Payment failed');
+            }
+
+            console.log('✅ Payment successful!');
+
+            // Step 3: Submit booking with payment info
+            buttonText.textContent = 'Saving Booking...';
+            const response = await fetch(`${API_BASE}/api/bookings`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...bookingData,
+                    payment_intent_id: paymentResult.paymentIntentId,
+                    payment_status: 'succeeded'
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Failed to save booking');
+            }
+
+            console.log('✅ Booking saved successfully!');
+
             // Show success message
             showNotification(
-                `Booking confirmed! Your booking ID is ${bookingId}. You will receive confirmation details shortly.`,
+                `Booking confirmed! Your booking ID is #${data.bookingId}. Payment of $20.00 received. You will receive confirmation details shortly.`,
                 'success'
             );
-            
-            // Reset form
+
+            // Reset form and card element
             this.reset();
-            
-            // Scroll to check-in section
+            if (cardElement) {
+                cardElement.clear();
+            }
+
+            // Scroll to top
             setTimeout(() => {
-                document.querySelector('.checkin-box').scrollIntoView({
+                window.scrollTo({
+                    top: 0,
                     behavior: 'smooth'
                 });
             }, 1000);
-            
+
         } catch (error) {
-            showNotification('Booking failed. Please try again or call (646) 226-2433.', 'error');
+            console.error('Booking error:', error);
+            showPaymentError(error.message || 'Payment failed. Please try again or call (646) 226-2433.');
+            showNotification('Booking failed: ' + error.message, 'error');
         } finally {
-            submitBtn.innerHTML = originalText;
+            buttonText.textContent = originalText;
+            spinner.style.display = 'none';
             submitBtn.disabled = false;
         }
     });
@@ -1403,6 +1435,18 @@ function displayBookings(bookings) {
                     <span class="detail-icon">👥</span>
                     <span class="detail-text">${booking.guests} guest(s)</span>
                 </div>
+                ${booking.payment_status ? `
+                <div class="detail-item">
+                    <span class="detail-icon">💳</span>
+                    <span class="detail-text">
+                        <strong>Payment:</strong>
+                        ${booking.payment_status === 'succeeded' ?
+                            `<span style="color: #28a745;">✅ Paid $${(booking.payment_amount / 100).toFixed(2)}</span>` :
+                            `<span style="color: #ffc107;">${booking.payment_status}</span>`
+                        }
+                    </span>
+                </div>
+                ` : ''}
             </div>
             
             ${booking.status === 'pending' ? `

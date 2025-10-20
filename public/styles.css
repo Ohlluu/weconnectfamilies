@@ -2465,3 +2465,101 @@ html {
     outline: 2px solid #3b82f6;
     outline-offset: 2px;
 }
+/* ==========================================
+   STRIPE PAYMENT STYLES
+   ========================================== */
+
+.payment-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #0DB7BB;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.payment-heading {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.payment-description {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.payment-amount-display {
+    background: white;
+    border: 2px solid #0DB7BB;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.amount-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.amount-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0DB7BB;
+}
+
+.stripe-card-element {
+    background: white;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.stripe-card-element:focus-within {
+    border-color: #0DB7BB;
+    box-shadow: 0 0 0 3px rgba(13, 183, 187, 0.1);
+}
+
+.payment-error {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.payment-error.visible {
+    display: block;
+}
+
+.payment-security-badge {
+    text-align: center;
+    margin-top: 1rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+#submit-booking-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+

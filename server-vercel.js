@@ -14,6 +14,18 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
   console.log('📱 Twilio SMS initialized');
 }
 
+// Stripe setup
+let stripe = null;
+let stripeAvailable = false;
+if (process.env.STRIPE_SECRET_KEY) {
+  const Stripe = require('stripe');
+  stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+  stripeAvailable = true;
+  console.log('💳 Stripe initialized');
+} else {
+  console.log('⚠️ Stripe not configured - payment endpoints will be disabled');
+}
+
 let mongoClient = null;
 let db = null;
 
@@ -265,9 +277,104 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// ==========================================
+// PAYMENT ROUTES (STRIPE)
+// ==========================================
+
+// GET /api/payment/config - Get Stripe publishable key
+app.get('/api/payment/config', (req, res) => {
+  res.json({
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
+    available: stripeAvailable
+  });
+});
+
+// POST /api/payment/create-intent - Create a payment intent
+app.post('/api/payment/create-intent', async (req, res) => {
+  try {
+    if (!stripeAvailable) {
+      return res.status(503).json({
+        success: false,
+        error: 'Payment system not available'
+      });
+    }
+
+    const { name, email } = req.body;
+
+    // Create a payment intent for $20.00
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: 2000, // $20.00 in cents
+      currency: 'usd',
+      description: 'WE Connect Families - Transportation Deposit',
+      metadata: {
+        customer_name: name || 'Unknown',
+        customer_email: email || 'Not provided'
+      },
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    console.log(`💳 Payment intent created: ${paymentIntent.id} for ${name}`);
+
+    res.json({
+      success: true,
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id
+    });
+
+  } catch (error) {
+    console.error('Payment intent creation error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to create payment intent'
+    });
+  }
+});
+
+// POST /api/payment/verify - Verify payment status
+app.post('/api/payment/verify', async (req, res) => {
+  try {
+    if (!stripeAvailable) {
+      return res.status(503).json({
+        success: false,
+        error: 'Payment system not available'
+      });
+    }
+
+    const { paymentIntentId } = req.body;
+
+    if (!paymentIntentId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Payment Intent ID is required'
+      });
+    }
+
+    // Retrieve the payment intent from Stripe
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    console.log(`💳 Payment verification: ${paymentIntentId} - Status: ${paymentIntent.status}`);
+
+    res.json({
+      success: true,
+      status: paymentIntent.status,
+      amount: paymentIntent.amount,
+      verified: paymentIntent.status === 'succeeded'
+    });
+
+  } catch (error) {
+    console.error('Payment verification error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to verify payment'
+    });
+  }
+});
+
 // POST /api/bookings - Create a new booking
 app.post('/api/bookings', async (req, res) => {
-  const { name, phone, email, facility, visit_date, pickup_location, guests, notes } = req.body;
+  const { name, phone, email, facility, visit_date, pickup_location, guests, notes, payment_intent_id, payment_status } = req.body;
 
   if (!name || !phone || !facility || !visit_date || !pickup_location) {
     return res.status(400).json({ 
@@ -292,7 +399,10 @@ app.post('/api/bookings', async (req, res) => {
       notes: notes || null,
       status: 'pending',
       created_at: new Date().toISOString(),
-      confirmed_at: null
+      confirmed_at: null,
+      payment_intent_id: payment_intent_id || null,
+      payment_status: payment_status || 'pending',
+      payment_amount: 2000 // $20.00 in cents
     };
 
     data.bookings.push(booking);

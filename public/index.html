@@ -202,6 +202,9 @@
     </script>
 
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -360,10 +363,30 @@
                             </label>
                         </div>
                     </div>
-                    
-                    <button type="submit" class="btn btn-primary btn-large">
-                        <span>Book Transportation</span>
+
+                    <!-- Payment Section -->
+                    <div class="payment-section">
+                        <h3 class="payment-heading">💳 Secure $20 Deposit</h3>
+                        <p class="payment-description">A $20 deposit is required to confirm your booking. This amount will be credited toward your transportation cost.</p>
+
+                        <div class="payment-amount-display">
+                            <span class="amount-label">Deposit Amount:</span>
+                            <span class="amount-value">$20.00</span>
+                        </div>
+
+                        <!-- Stripe Card Element -->
+                        <div id="card-element" class="stripe-card-element"></div>
+                        <div id="card-errors" class="payment-error" role="alert"></div>
+
+                        <div class="payment-security-badge">
+                            <span>🔒 Secured by Stripe</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large" id="submit-booking-btn">
+                        <span id="button-text">Pay $20 & Book Transportation</span>
                         <span class="btn-arrow">→</span>
+                        <span id="spinner" class="spinner" style="display: none;"></span>
                     </button>
                 </form>
                 
@@ -1357,6 +1380,7 @@
         dayjs.extend(window.dayjs_plugin_isSameOrAfter);
         dayjs.extend(window.dayjs_plugin_isSameOrBefore);
     </script>
+    <script src="payment.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
