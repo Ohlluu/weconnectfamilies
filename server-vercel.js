@@ -435,7 +435,7 @@ Date: ${visitDate}
 Pickup: ${pickup_location}
 Guests: ${guests || 1}
 
-View: weconnectfam.com/admin`;
+View: weconnectfam.com`;
 
         await twilioClient.messages.create({
           body: adminMessage,
