@@ -165,6 +165,14 @@ function calculatePrice() {
         buttonText.textContent = `Pay $${depositTotal} Deposit & Book`;
     }
 
+    // Update payment section deposit amount
+    const paymentAmountDisplay = document.getElementById('payment-amount-display');
+    const paymentDepositAmount = document.getElementById('payment-deposit-amount');
+    if (paymentAmountDisplay && paymentDepositAmount) {
+        paymentAmountDisplay.style.display = 'flex';
+        paymentDepositAmount.textContent = `$${depositTotal}.00`;
+    }
+
     return {
         facility,
         adults,

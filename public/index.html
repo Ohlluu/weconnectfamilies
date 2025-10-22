@@ -417,12 +417,12 @@
 
                     <!-- Payment Section -->
                     <div class="payment-section">
-                        <h3 class="payment-heading">💳 Secure $20 Deposit</h3>
-                        <p class="payment-description">A $20 deposit is required to confirm your booking. This amount will be credited toward your transportation cost.</p>
+                        <h3 class="payment-heading">💳 Secure Your Deposit</h3>
+                        <p class="payment-description">A deposit of $20 per seat is required to confirm your booking. The deposit will be credited toward your total transportation cost.</p>
 
-                        <div class="payment-amount-display">
+                        <div class="payment-amount-display" id="payment-amount-display" style="display: none;">
                             <span class="amount-label">Deposit Amount:</span>
-                            <span class="amount-value">$20.00</span>
+                            <span class="amount-value" id="payment-deposit-amount">$0.00</span>
                         </div>
 
                         <!-- Stripe Card Element -->
