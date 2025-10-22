@@ -67,7 +67,7 @@ async function initializeStripe() {
 }
 
 // Create Payment Intent
-async function createPaymentIntent(bookingData) {
+async function createPaymentIntent(bookingData, depositAmount) {
     try {
         const response = await fetch(`${API_BASE}/api/payment/create-intent`, {
             method: 'POST',
@@ -77,6 +77,7 @@ async function createPaymentIntent(bookingData) {
             body: JSON.stringify({
                 name: bookingData.name,
                 email: bookingData.email,
+                amount: depositAmount * 100 // Convert dollars to cents
             }),
         });
 

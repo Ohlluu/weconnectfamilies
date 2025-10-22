@@ -291,14 +291,30 @@
                             <input type="email" id="email" name="email">
                         </div>
                         <div class="form-group">
-                            <label for="visitors">Number of Visitors</label>
-                            <select id="visitors" name="visitors" required>
+                            <label for="adults">Adults (10+ years) *</label>
+                            <select id="adults" name="adults" required>
                                 <option value="">Select...</option>
-                                <option value="1">1 Person</option>
-                                <option value="2">2 People</option>
-                                <option value="3">3 People</option>
-                                <option value="4">4 People</option>
-                                <option value="5+">5+ People</option>
+                                <option value="1">1 Adult</option>
+                                <option value="2">2 Adults</option>
+                                <option value="3">3 Adults</option>
+                                <option value="4">4 Adults</option>
+                                <option value="5">5 Adults</option>
+                                <option value="6">6 Adults</option>
+                                <option value="7">7 Adults</option>
+                                <option value="8">8+ Adults</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="children">Children (under 10)</label>
+                            <select id="children" name="children">
+                                <option value="0">None</option>
+                                <option value="1">1 Child</option>
+                                <option value="2">2 Children</option>
+                                <option value="3">3 Children</option>
+                                <option value="4">4 Children</option>
+                                <option value="5">5 Children</option>
+                                <option value="6">6 Children</option>
+                                <option value="7">7+ Children</option>
                             </select>
                         </div>
                     </div>
@@ -346,7 +362,41 @@
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Price Calculator -->
+                    <div id="price-calculator" class="price-calculator" style="display: none;">
+                        <div class="calculator-header">
+                            <h3>📊 Your Trip Cost</h3>
+                        </div>
+                        <div class="calculator-content">
+                            <div class="price-row">
+                                <span class="price-label">Facility:</span>
+                                <span id="calc-facility" class="price-value">-</span>
+                            </div>
+                            <div class="price-row" id="adults-row" style="display: none;">
+                                <span class="price-label">Adults (<span id="calc-adults-count">0</span>):</span>
+                                <span id="calc-adults-price" class="price-value">$0</span>
+                            </div>
+                            <div class="price-row" id="children-row" style="display: none;">
+                                <span class="price-label">Children (<span id="calc-children-count">0</span>):</span>
+                                <span id="calc-children-price" class="price-value">$0</span>
+                            </div>
+                            <div class="price-divider"></div>
+                            <div class="price-row total-row">
+                                <span class="price-label">Total Trip Cost:</span>
+                                <span id="calc-total" class="price-value total-price">$0</span>
+                            </div>
+                            <div class="price-row deposit-row">
+                                <span class="price-label">Deposit Today ($20/seat):</span>
+                                <span id="calc-deposit" class="price-value deposit-price">$0</span>
+                            </div>
+                            <div class="price-row balance-row">
+                                <span class="price-label">Balance Due on Trip:</span>
+                                <span id="calc-balance" class="price-value balance-price">$0</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="notes">Special Requests (Optional)</label>
                         <textarea id="notes" name="notes" placeholder="Any special accommodations or requests..."></textarea>

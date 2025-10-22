@@ -1,3 +1,29 @@
+// ===========================================
+// FACILITY PRICING DATA
+// ===========================================
+const facilityPricing = {
+    'Clinton Correctional Facility': { adult: 150, child: 110 },
+    'Barehill Correctional Facility': { adult: 150, child: 110 },
+    'Franklin Correctional Facility': { adult: 150, child: 110 },
+    'Altona Correctional Facility': { adult: 150, child: 110 },
+    'Upstate Correctional Facility': { adult: 150, child: 110 },
+    'Mid-State Correctional Facility': { adult: 125, child: 80 },
+    'Marcy Correctional Facility': { adult: 125, child: 80 },
+    'Mohawk Correctional Facility': { adult: 125, child: 80 },
+    'Washington Correctional Facility': { adult: 125, child: 80 },
+    'Coxsackie Correctional Facility': { adult: 100, child: 80 },
+    'Greene Correctional Facility': { adult: 100, child: 80 },
+    'Riverview Correctional Facility': { adult: 160, child: 120 },
+    'Gouverneur Correctional Facility': { adult: 160, child: 120 },
+    'Cape Vincent Correctional Facility': { adult: 160, child: 120 },
+    'Adirondack Correctional Facility': { adult: 160, child: 120 },
+    'Raybrook Correctional Facility': { adult: 160, child: 120 },
+    'Collins Correctional Facility': { adult: 200, child: 150 },
+    'Lakeview Correctional Facility': { adult: 200, child: 150 }
+};
+
+const DEPOSIT_PER_SEAT = 20;
+
 // Mobile Navigation Toggle
 const navToggle = document.getElementById('nav-toggle');
 const navMenu = document.getElementById('nav-menu');
@@ -70,6 +96,92 @@ window.addEventListener('scroll', () => {
 const bookingForm = document.getElementById('booking-form');
 const checkinForm = document.getElementById('checkin-form');
 
+// ===========================================
+// PRICE CALCULATOR LOGIC
+// ===========================================
+function calculatePrice() {
+    const facilitySelect = document.getElementById('facility');
+    const adultsSelect = document.getElementById('adults');
+    const childrenSelect = document.getElementById('children');
+    const priceCalculator = document.getElementById('price-calculator');
+
+    const facility = facilitySelect.value;
+    const adults = parseInt(adultsSelect.value) || 0;
+    const children = parseInt(childrenSelect.value) || 0;
+
+    // Only show calculator if facility and at least 1 adult selected
+    if (!facility || adults === 0) {
+        priceCalculator.style.display = 'none';
+        return null;
+    }
+
+    // Get pricing for selected facility
+    const pricing = facilityPricing[facility];
+    if (!pricing) {
+        console.error('Pricing not found for facility:', facility);
+        return null;
+    }
+
+    // Calculate costs
+    const adultsTotal = adults * pricing.adult;
+    const childrenTotal = children * pricing.child;
+    const tripTotal = adultsTotal + childrenTotal;
+    const totalSeats = adults + children;
+    const depositTotal = totalSeats * DEPOSIT_PER_SEAT;
+    const balanceDue = tripTotal - depositTotal;
+
+    // Update calculator display
+    document.getElementById('calc-facility').textContent = facility;
+
+    // Adults row
+    if (adults > 0) {
+        document.getElementById('adults-row').style.display = 'flex';
+        document.getElementById('calc-adults-count').textContent = adults;
+        document.getElementById('calc-adults-price').textContent = `$${pricing.adult} × ${adults} = $${adultsTotal}`;
+    } else {
+        document.getElementById('adults-row').style.display = 'none';
+    }
+
+    // Children row
+    if (children > 0) {
+        document.getElementById('children-row').style.display = 'flex';
+        document.getElementById('calc-children-count').textContent = children;
+        document.getElementById('calc-children-price').textContent = `$${pricing.child} × ${children} = $${childrenTotal}`;
+    } else {
+        document.getElementById('children-row').style.display = 'none';
+    }
+
+    // Totals
+    document.getElementById('calc-total').textContent = `$${tripTotal}`;
+    document.getElementById('calc-deposit').textContent = `$${depositTotal}`;
+    document.getElementById('calc-balance').textContent = `$${balanceDue}`;
+
+    // Show calculator
+    priceCalculator.style.display = 'block';
+
+    // Update payment button text
+    const buttonText = document.getElementById('button-text');
+    if (buttonText) {
+        buttonText.textContent = `Pay $${depositTotal} Deposit & Book`;
+    }
+
+    return {
+        facility,
+        adults,
+        children,
+        adultsPrice: adultsTotal,
+        childrenPrice: childrenTotal,
+        totalPrice: tripTotal,
+        depositAmount: depositTotal,
+        balanceDue: balanceDue
+    };
+}
+
+// Add event listeners to form fields
+document.getElementById('facility')?.addEventListener('change', calculatePrice);
+document.getElementById('adults')?.addEventListener('change', calculatePrice);
+document.getElementById('children')?.addEventListener('change', calculatePrice);
+
 // Booking form submission
 if (bookingForm) {
     bookingForm.addEventListener('submit', async function(e) {
@@ -97,9 +209,17 @@ if (bookingForm) {
             // Clear any previous payment errors
             clearPaymentError();
 
-            // Step 1: Create Payment Intent
+            // Calculate deposit amount based on number of seats
+            const priceInfo = calculatePrice();
+            if (!priceInfo) {
+                throw new Error('Please select facility and number of adults');
+            }
+
+            console.log('💰 Deposit amount:', priceInfo.depositAmount);
+
+            // Step 1: Create Payment Intent with calculated deposit
             console.log('💳 Creating payment intent...');
-            const paymentIntent = await createPaymentIntent(bookingData);
+            const paymentIntent = await createPaymentIntent(bookingData, priceInfo.depositAmount);
 
             // Step 2: Process Payment with Stripe
             console.log('💳 Processing payment...');

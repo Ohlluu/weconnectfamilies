@@ -2203,6 +2203,113 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     margin: 0.25rem 0;
 }
 
+/* Price Calculator */
+.price-calculator {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #0DB7BB;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.calculator-header h3 {
+    color: #0DB7BB;
+    font-size: 1.4rem;
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+}
+
+.calculator-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.price-label {
+    color: #495057;
+    font-size: 0.95rem;
+}
+
+.price-value {
+    color: #212529;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.price-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #0DB7BB, transparent);
+    margin: 0.5rem 0;
+}
+
+.total-row {
+    padding-top: 0.5rem;
+    border-top: 2px solid #dee2e6;
+}
+
+.total-price {
+    font-size: 1.3rem;
+    color: #0DB7BB;
+    font-weight: 700;
+}
+
+.deposit-row {
+    background: rgba(13, 183, 187, 0.1);
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+}
+
+.deposit-price {
+    font-size: 1.2rem;
+    color: #0a9a9e;
+    font-weight: 700;
+}
+
+.balance-row {
+    padding-bottom: 0;
+}
+
+.balance-price {
+    font-size: 1.1rem;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .price-calculator {
+        padding: 1rem;
+    }
+
+    .calculator-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .price-label {
+        font-size: 0.85rem;
+    }
+
+    .price-value {
+        font-size: 0.9rem;
+    }
+
+    .total-price {
+        font-size: 1.1rem;
+    }
+
+    .deposit-price {
+        font-size: 1rem;
+    }
+}
+
 /* Visitor Information Banner */
 .visitor-info-banner {
     background: linear-gradient(135deg, #0DB7BB 0%, #0a9a9e 100%);

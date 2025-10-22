@@ -305,11 +305,14 @@ app.post('/api/payment/create-intent', async (req, res) => {
       });
     }
 
-    const { name, email } = req.body;
+    const { name, email, amount } = req.body;
 
-    // Create a payment intent for $20.00
+    // Validate amount (should be in cents)
+    const depositAmount = amount || 2000; // Default to $20 if not provided
+
+    // Create a payment intent with dynamic deposit amount
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 2000, // $20.00 in cents
+      amount: depositAmount, // Amount in cents (passed from frontend)
       currency: 'usd',
       description: 'WE Connect Families - Transportation Deposit',
       metadata: {
