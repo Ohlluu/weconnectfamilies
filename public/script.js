@@ -354,7 +354,7 @@ if (checkinForm) {
 
 // Form validation
 function validateBookingForm(data) {
-    const requiredFields = ['name', 'phone', 'email', 'visitors', 'facility', 'visit-date', 'pickup-location'];
+    const requiredFields = ['name', 'phone', 'email', 'adults', 'facility', 'visit-date', 'pickup-location'];
     let isValid = true;
     
     // Clear previous errors
