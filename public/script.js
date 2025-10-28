@@ -251,7 +251,9 @@ if (bookingForm) {
                 facility: bookingData.facility,
                 visit_date: bookingData['visit-date'],
                 pickup_location: bookingData['pickup-location'],
-                guests: bookingData.visitors || bookingData.guests || 1,
+                adults: parseInt(bookingData.adults) || 1,
+                children: parseInt(bookingData.children) || 0,
+                guests: (parseInt(bookingData.adults) || 1) + (parseInt(bookingData.children) || 0),
                 notes: bookingData.notes || '',
                 payment_intent_id: paymentResult.paymentIntentId,
                 payment_status: 'succeeded'
