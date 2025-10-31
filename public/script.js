@@ -1574,7 +1574,11 @@ function displayBookings(bookings) {
                 </div>
                 <div class="detail-item">
                     <span class="detail-icon">👥</span>
-                    <span class="detail-text">${booking.adults || 0} Adult(s)${(booking.children && booking.children > 0) ? `, ${booking.children} Child(ren)` : ''}</span>
+                    <span class="detail-text">${
+                        booking.adults ?
+                        `${booking.adults} Adult(s)${(booking.children && booking.children > 0) ? `, ${booking.children} Child(ren)` : ''}` :
+                        `${booking.guests || 1} guest(s)`
+                    }</span>
                 </div>
                 ${booking.payment_status ? `
                 <div class="detail-item">
