@@ -256,7 +256,9 @@ if (bookingForm) {
                 guests: (parseInt(bookingData.adults) || 1) + (parseInt(bookingData.children) || 0),
                 notes: bookingData.notes || '',
                 payment_intent_id: paymentResult.paymentIntentId,
-                payment_status: 'succeeded'
+                payment_status: 'succeeded',
+                total_cost: priceInfo.totalPrice,
+                balance_due: priceInfo.balanceDue
             };
 
             const response = await fetch(`${API_BASE}/api/bookings`, {

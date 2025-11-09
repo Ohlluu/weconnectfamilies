@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { sendAdminBookingNotification } = require('../services/notificationService');
+const { sendAdminBookingNotification, sendCustomerConfirmation } = require('../services/notificationService');
 
 // POST /api/bookings - Create a new booking
 router.post('/', async (req, res) => {
     const db = req.app.locals.db;
-    const { name, phone, email, facility, visit_date, pickup_location, guests, notes, payment_intent_id, payment_status } = req.body;
+    const { name, phone, email, facility, visit_date, pickup_location, guests, notes, payment_intent_id, payment_status, adults, children, total_cost, balance_due } = req.body;
 
     // Validation
     if (!name || !phone || !facility || !visit_date || !pickup_location) {
@@ -17,11 +17,12 @@ router.post('/', async (req, res) => {
 
     // Insert booking into database with payment info
     const stmt = db.prepare(`
-        INSERT INTO bookings (name, phone, email, facility, visit_date, pickup_location, guests, notes, payment_intent_id, payment_status, payment_amount)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO bookings (name, phone, email, facility, visit_date, pickup_location, guests, notes, payment_intent_id, payment_status, payment_amount, adults, children, total_cost, balance_due)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    stmt.run([name, phone, email || null, facility, visit_date, pickup_location, guests || 1, notes || null, payment_intent_id || null, payment_status || 'pending', 2000], async function(err) {
+    const depositAmount = (adults || 1 + children || 0) * 2000; // $20 per seat in cents
+    stmt.run([name, phone, email || null, facility, visit_date, pickup_location, guests || 1, notes || null, payment_intent_id || null, payment_status || 'pending', depositAmount, adults || 1, children || 0, total_cost || 0, balance_due || 0], async function(err) {
         if (err) {
             console.error('Database error:', err);
             return res.status(500).json({ error: 'Failed to save booking' });
@@ -30,7 +31,7 @@ router.post('/', async (req, res) => {
         const bookingId = this.lastID;
         console.log(`📝 New booking created: ID ${bookingId} - ${name} for ${facility}`);
 
-        // Send SMS notification to admin
+        // Send SMS notification to admin and customer
         const booking = {
             id: bookingId,
             name,
@@ -40,12 +41,21 @@ router.post('/', async (req, res) => {
             visit_date,
             pickup_location,
             guests: guests || 1,
-            notes
+            notes,
+            adults: adults || 1,
+            children: children || 0,
+            total_cost: total_cost || 0,
+            balance_due: balance_due || 0,
+            deposit_amount: depositAmount
         };
 
-        // Send SMS notification (don't wait for it, run in background)
+        // Send SMS notifications (don't wait for them, run in background)
         sendAdminBookingNotification(booking).catch(error => {
             console.error('Failed to send admin SMS notification:', error);
+        });
+
+        sendCustomerConfirmation(booking).catch(error => {
+            console.error('Failed to send customer SMS notification:', error);
         });
 
         res.status(201).json({

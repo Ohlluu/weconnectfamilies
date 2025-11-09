@@ -90,6 +90,10 @@ db.serialize(() => {
     db.run(`ALTER TABLE bookings ADD COLUMN payment_intent_id TEXT`, () => {});
     db.run(`ALTER TABLE bookings ADD COLUMN payment_status TEXT DEFAULT 'pending'`, () => {});
     db.run(`ALTER TABLE bookings ADD COLUMN payment_amount INTEGER DEFAULT 2000`, () => {});
+    db.run(`ALTER TABLE bookings ADD COLUMN adults INTEGER DEFAULT 1`, () => {});
+    db.run(`ALTER TABLE bookings ADD COLUMN children INTEGER DEFAULT 0`, () => {});
+    db.run(`ALTER TABLE bookings ADD COLUMN total_cost INTEGER`, () => {});
+    db.run(`ALTER TABLE bookings ADD COLUMN balance_due INTEGER`, () => {});
 
     // Admin sessions table
     db.run(`CREATE TABLE IF NOT EXISTS admin_sessions (

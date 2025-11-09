@@ -109,6 +109,11 @@ async function sendCustomerConfirmation(booking) {
         year: 'numeric'
     });
 
+    // Format payment amounts (convert from cents to dollars)
+    const totalCost = (booking.total_cost / 100).toFixed(2);
+    const depositPaid = (booking.deposit_amount / 100).toFixed(2);
+    const balanceDue = (booking.balance_due / 100).toFixed(2);
+
     const message = `✅ WE Connect Families - Booking Confirmed!
 
 Booking #${booking.id}
@@ -116,7 +121,14 @@ ${booking.facility}
 ${formattedDate}
 Pickup: ${booking.pickup_location}
 
-We'll see you soon! Questions? Call (646) 226-2433`;
+💰 PAYMENT DETAILS:
+Total Trip Contribution: $${totalCost}
+Deposit Paid: $${depositPaid}
+Balance Due on Trip: $${balanceDue}
+
+⚠️ IMPORTANT: Remaining balance must be paid in CASH on the day of your trip.
+
+Questions? Call (646) 226-2433`;
 
     try {
         const result = await twilioClient.messages.create({
