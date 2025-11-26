@@ -9,12 +9,6 @@ let currentPaymentIntent = null;
 
 // Initialize Stripe when page loads
 async function initializeStripe() {
-    // Check if payment is disabled
-    if (window.PAYMENT_DISABLED) {
-        console.log('⚠️ Payment system disabled - under construction');
-        return false;
-    }
-
     try {
         // Get Stripe publishable key from backend
         const response = await fetch(`${API_BASE}/api/payment/config`);

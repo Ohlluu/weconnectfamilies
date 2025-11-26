@@ -209,15 +209,13 @@ if (bookingForm) {
         const spinner = document.getElementById('spinner');
         const originalText = buttonText.textContent;
 
-        buttonText.textContent = window.PAYMENT_DISABLED ? 'Submitting Booking...' : 'Processing Payment...';
+        buttonText.textContent = 'Processing Payment...';
         spinner.style.display = 'inline-block';
         submitBtn.disabled = true;
 
         try {
             // Clear any previous payment errors
-            if (typeof clearPaymentError === 'function') {
-                clearPaymentError();
-            }
+            clearPaymentError();
 
             // Calculate deposit amount based on number of seats
             const priceInfo = calculatePrice();
@@ -227,33 +225,20 @@ if (bookingForm) {
 
             console.log('💰 Deposit amount:', priceInfo.depositAmount);
 
-            let paymentResult = null;
+            // Step 1: Create Payment Intent with calculated deposit
+            console.log('💳 Creating payment intent...');
+            const paymentIntent = await createPaymentIntent(bookingData, priceInfo.depositAmount);
 
-            // Check if payment is disabled (under construction)
-            if (window.PAYMENT_DISABLED) {
-                console.log('⚠️ Payment disabled - submitting booking without payment');
-                buttonText.textContent = 'Saving Booking...';
-                // Skip payment processing
-                paymentResult = {
-                    success: true,
-                    paymentIntentId: null
-                };
-            } else {
-                // Step 1: Create Payment Intent with calculated deposit
-                console.log('💳 Creating payment intent...');
-                const paymentIntent = await createPaymentIntent(bookingData, priceInfo.depositAmount);
+            // Step 2: Process Payment with Stripe
+            console.log('💳 Processing payment...');
+            buttonText.textContent = 'Processing Payment...';
+            const paymentResult = await processPayment(paymentIntent.clientSecret);
 
-                // Step 2: Process Payment with Stripe
-                console.log('💳 Processing payment...');
-                buttonText.textContent = 'Processing Payment...';
-                paymentResult = await processPayment(paymentIntent.clientSecret);
-
-                if (!paymentResult.success) {
-                    throw new Error('Payment failed');
-                }
-
-                console.log('✅ Payment successful!');
+            if (!paymentResult.success) {
+                throw new Error('Payment failed');
             }
+
+            console.log('✅ Payment successful!');
 
             // Step 3: Submit booking with payment info
             buttonText.textContent = 'Saving Booking...';
@@ -271,7 +256,7 @@ if (bookingForm) {
                 guests: (parseInt(bookingData.adults) || 1) + (parseInt(bookingData.children) || 0),
                 notes: bookingData.notes || '',
                 payment_intent_id: paymentResult.paymentIntentId,
-                payment_status: window.PAYMENT_DISABLED ? 'pending' : 'succeeded',
+                payment_status: 'succeeded',
                 total_cost: priceInfo.totalPrice,
                 balance_due: priceInfo.balanceDue
             };
@@ -293,11 +278,10 @@ if (bookingForm) {
             console.log('✅ Booking saved successfully!');
 
             // Show success message
-            const successMessage = window.PAYMENT_DISABLED
-                ? `Booking submitted! Your booking ID is #${data.bookingId}. We will contact you shortly to arrange payment and confirm your trip. Thank you!`
-                : `Booking confirmed! Your booking ID is #${data.bookingId}. Payment of $20.00 received. You will receive confirmation details shortly.`;
-
-            showNotification(successMessage, 'success');
+            showNotification(
+                `Booking confirmed! Your booking ID is #${data.bookingId}. Payment of $20.00 received. You will receive confirmation details shortly.`,
+                'success'
+            );
 
             // Reset form and card element
             this.reset();
