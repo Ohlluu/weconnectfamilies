@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    const depositAmount = (adults || 1 + children || 0) * 2000; // $20 per seat in cents
+    const depositAmount = ((adults || 1) + (children || 0)) * 2000; // $20 per seat in cents
     stmt.run([name, phone, email || null, facility, visit_date, pickup_location, guests || 1, notes || null, payment_intent_id || null, payment_status || 'pending', depositAmount, adults || 1, children || 0, total_cost || 0, balance_due || 0], async function(err) {
         if (err) {
             console.error('Database error:', err);

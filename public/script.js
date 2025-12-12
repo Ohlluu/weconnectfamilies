@@ -279,7 +279,7 @@ if (bookingForm) {
 
             // Show success message
             showNotification(
-                `Booking confirmed! Your booking ID is #${data.bookingId}. Payment of $20.00 received. You will receive confirmation details shortly.`,
+                `Booking confirmed! Your booking ID is #${data.bookingId}. Payment of $${priceInfo.depositAmount}.00 received. You will receive confirmation details shortly.`,
                 'success'
             );
 
