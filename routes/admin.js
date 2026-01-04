@@ -336,7 +336,7 @@ Thank you for choosing WE Connect Families!`;
                             </div>
                             
                             <p>Thank you for choosing WE Connect Families. We look forward to serving you!</p>
-                            
+
                             <div style="text-align: center; margin-top: 30px;">
                                 <p><strong>WE Connect Families</strong><br>
                                 Connecting families since 2014<br>
