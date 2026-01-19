@@ -19,7 +19,9 @@ const facilityPricing = {
     'Adirondack Correctional Facility': { adult: 160, child: 120 },
     'Raybrook Correctional Facility': { adult: 160, child: 120 },
     'Collins Correctional Facility': { adult: 200, child: 150 },
-    'Lakeview Correctional Facility': { adult: 200, child: 150 }
+    'Lakeview Correctional Facility': { adult: 200, child: 150 },
+    'Otisville Correctional Facility': { adult: 125, child: 80 },
+    'Otisville FCI': { adult: 125, child: 80 }
 };
 
 const DEPOSIT_PER_SEAT = 20;
@@ -525,6 +527,10 @@ const westernFacilityModalClose = document.getElementById('western-facility-moda
 const sundayOnlyModal = document.getElementById('sunday-only-facility-modal');
 const sundayOnlyModalClose = document.getElementById('sunday-only-facility-modal-close');
 
+// Otisville Facilities Modal Elements
+const otisvilleFacilityModal = document.getElementById('otisville-facility-modal');
+const otisvilleFacilityModalClose = document.getElementById('otisville-facility-modal-close');
+
 const facilityDetailsButtons = document.querySelectorAll('.facility-details-btn');
 
 // Add click event listeners to all facility detail buttons
@@ -557,6 +563,11 @@ facilityDetailsButtons.forEach(button => {
         // Show Sunday-only facilities modal
         else if (facility === 'gouverneur' || facility === 'riverview' || facility === 'capevincent') {
             sundayOnlyModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+        // Show Otisville facilities modal
+        else if (facility === 'otisville') {
+            otisvilleFacilityModal.style.display = 'block';
             document.body.style.overflow = 'hidden'; // Prevent background scroll
         }
     });
@@ -598,6 +609,14 @@ if (westernFacilityModalClose) {
 if (sundayOnlyModalClose) {
     sundayOnlyModalClose.addEventListener('click', () => {
         sundayOnlyModal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scroll
+    });
+}
+
+// Close Otisville facility modal when clicking X button
+if (otisvilleFacilityModalClose) {
+    otisvilleFacilityModalClose.addEventListener('click', () => {
+        otisvilleFacilityModal.style.display = 'none';
         document.body.style.overflow = 'auto'; // Restore scroll
     });
 }
@@ -647,6 +666,16 @@ if (sundayOnlyModal) {
     sundayOnlyModal.addEventListener('click', (e) => {
         if (e.target === sundayOnlyModal) {
             sundayOnlyModal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scroll
+        }
+    });
+}
+
+// Close Otisville facility modal when clicking outside of it
+if (otisvilleFacilityModal) {
+    otisvilleFacilityModal.addEventListener('click', (e) => {
+        if (e.target === otisvilleFacilityModal) {
+            otisvilleFacilityModal.style.display = 'none';
             document.body.style.overflow = 'auto'; // Restore scroll
         }
     });
@@ -911,7 +940,17 @@ const pickupLocationData = {
         { name: 'Bronx: 1500 Arnow Avenue', time: '4:30 AM', address: '1500 Arnow Avenue', value: 'bronx-arnow' },
         { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '5:00 AM', address: '51-67 161st St', value: 'bronx-yankee' }
     ],
-    
+    'Otisville Correctional Facility': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '4:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '4:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '5:00 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+    'Otisville FCI': [
+        { name: 'Brooklyn: East New York McDonald\'s', time: '4:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
+        { name: 'Queens: Jamaica Station LIRR', time: '4:15 AM', address: 'Corner of Sutphin BLVD', value: 'queens-jamaica' },
+        { name: 'Bronx: 161 McDonald\'s - Yankee Stadium', time: '5:00 AM', address: '51-67 161st St', value: 'bronx-yankee' }
+    ],
+
     // Northern Facilities (12am-12:30am)
     'Clinton Correctional Facility': [
         { name: 'Brooklyn: East New York McDonald\'s', time: '12:00 AM', address: '12 Pennsylvania Avenue', value: 'brooklyn-enm' },
