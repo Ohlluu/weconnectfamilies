@@ -153,6 +153,22 @@ function calculatePrice() {
         document.getElementById('children-row').style.display = 'none';
     }
 
+    // Children documentation consent
+    const childrenDocsSection = document.getElementById('children-docs-section');
+    const childrenDocsConsent = document.getElementById('children-docs-consent');
+    if (childrenDocsSection) {
+        if (children > 0) {
+            childrenDocsSection.style.display = 'block';
+            if (childrenDocsConsent) childrenDocsConsent.required = true;
+        } else {
+            childrenDocsSection.style.display = 'none';
+            if (childrenDocsConsent) {
+                childrenDocsConsent.required = false;
+                childrenDocsConsent.checked = false;
+            }
+        }
+    }
+
     // Totals
     document.getElementById('calc-total').textContent = `$${tripTotal}`;
     document.getElementById('calc-deposit').textContent = `$${depositTotal}`;
@@ -411,6 +427,14 @@ function validateBookingForm(data) {
     if (smsConsentCheckbox && !smsConsentCheckbox.checked) {
         isValid = false;
         showFieldError('sms-consent', 'You must consent to receive SMS notifications to complete your booking');
+    }
+
+    // Children documentation consent validation
+    const childrenCount = parseInt(document.getElementById('children')?.value) || 0;
+    const childrenDocsCheckbox = document.getElementById('children-docs-consent');
+    if (childrenCount > 0 && childrenDocsCheckbox && !childrenDocsCheckbox.checked) {
+        isValid = false;
+        showFieldError('children-docs-consent', 'You must acknowledge the children\'s documentation requirements to complete your booking');
     }
 
     return isValid;
