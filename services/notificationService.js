@@ -114,7 +114,7 @@ async function sendCustomerConfirmation(booking) {
     const depositPaid = (booking.deposit_amount / 100).toFixed(2);
     const balanceDue = (booking.balance_due / 100).toFixed(2);
 
-    const message = `✅ WE Connect Families - Booking Confirmed!
+    const message = `📋 WE Connect Families - Booking Received!
 
 Booking #${booking.id}
 ${booking.facility}
@@ -127,6 +127,8 @@ Deposit Paid: $${depositPaid}
 Balance Due on Trip: $${balanceDue}
 
 ⚠️ IMPORTANT: Remaining balance must be paid in CASH on the day of your trip.
+
+🕐 Your booking will be confirmed within 24-48 hrs (upcoming weekends) or the week of travel (future reservations).
 
 Questions? Call (646) 226-2433`;
 

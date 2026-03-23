@@ -295,11 +295,13 @@ if (bookingForm) {
 
             console.log('✅ Booking saved successfully!');
 
-            // Show success message
-            showNotification(
-                `Booking confirmed! Your booking ID is #${data.bookingId}. Payment of $${priceInfo.depositAmount}.00 received. You will receive confirmation details shortly.`,
-                'success'
-            );
+            // Show success screen
+            const bookingForm = document.getElementById('booking-form');
+            const successScreen = document.getElementById('booking-success-screen');
+            const successSummary = document.getElementById('success-booking-summary');
+            if (bookingForm) bookingForm.style.display = 'none';
+            if (successSummary) successSummary.textContent = `Thank you! Your booking #${data.bookingId} has been received and your deposit of $${priceInfo.depositAmount}.00 has been processed.`;
+            if (successScreen) successScreen.style.display = 'block';
 
             // Reset form and card element
             this.reset();
@@ -307,13 +309,10 @@ if (bookingForm) {
                 cardElement.clear();
             }
 
-            // Scroll to top
+            // Scroll to booking section
             setTimeout(() => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            }, 1000);
+                document.getElementById('book')?.scrollIntoView({ behavior: 'smooth' });
+            }, 300);
 
         } catch (error) {
             console.error('Booking error:', error);
