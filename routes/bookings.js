@@ -5,7 +5,7 @@ const { sendAdminBookingNotification, sendCustomerConfirmation } = require('../s
 // POST /api/bookings - Create a new booking
 router.post('/', async (req, res) => {
     const db = req.app.locals.db;
-    const { name, phone, email, facility, visit_date, pickup_location, guests, notes, payment_intent_id, payment_status, adults, children, total_cost, balance_due } = req.body;
+    const { name, phone, email, facility, visit_date, pickup_location, guests, notes, payment_intent_id, payment_status, adults, children, deposit_amount, total_cost, balance_due } = req.body;
 
     // Validation
     if (!name || !phone || !facility || !visit_date || !pickup_location) {
@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    const depositAmount = ((adults || 1) + (children || 0)) * 2000; // $20 per seat in cents
+    const depositAmount = deposit_amount ? Math.round(parseFloat(deposit_amount) * 100) : ((parseInt(adults) || 1) + (parseInt(children) || 0)) * 2000; // in cents
     stmt.run([name, phone, email || null, facility, visit_date, pickup_location, guests || 1, notes || null, payment_intent_id || null, payment_status || 'pending', depositAmount, adults || 1, children || 0, total_cost || 0, balance_due || 0], async function(err) {
         if (err) {
             console.error('Database error:', err);

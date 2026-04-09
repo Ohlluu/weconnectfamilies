@@ -109,10 +109,11 @@ async function sendCustomerConfirmation(booking) {
         year: 'numeric'
     });
 
-    // Format payment amounts (convert from cents to dollars)
-    const totalCost = (booking.total_cost / 100).toFixed(2);
+    // Format payment amounts
+    // deposit_amount is stored in cents, total_cost and balance_due are stored in dollars
+    const totalCost = parseFloat(booking.total_cost || 0).toFixed(2);
     const depositPaid = (booking.deposit_amount / 100).toFixed(2);
-    const balanceDue = (booking.balance_due / 100).toFixed(2);
+    const balanceDue = parseFloat(booking.balance_due || 0).toFixed(2);
 
     const message = `📋 WE Connect Families - Booking Received!
 

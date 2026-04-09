@@ -275,6 +275,7 @@ if (bookingForm) {
                 notes: bookingData.notes || '',
                 payment_intent_id: paymentResult.paymentIntentId,
                 payment_status: 'succeeded',
+                deposit_amount: priceInfo.depositAmount,
                 total_cost: priceInfo.totalPrice,
                 balance_due: priceInfo.balanceDue
             };
@@ -1650,7 +1651,8 @@ function displayBookings(bookings) {
                     <span class="detail-text">
                         <strong>Payment:</strong>
                         ${booking.payment_status === 'succeeded' ?
-                            `<span style="color: #28a745;">✅ Paid $${(booking.payment_amount / 100).toFixed(2)}</span>` :
+                            `<span style="color: #28a745;">✅ Deposit Paid: $${(booking.payment_amount / 100).toFixed(2)}</span>
+                             ${booking.total_cost ? `<br><small style="color:#555;">Trip Total: $${parseFloat(booking.total_cost).toFixed(2)} &nbsp;|&nbsp; Balance Due on Trip: $${parseFloat(booking.balance_due || 0).toFixed(2)}</small>` : ''}` :
                             `<span style="color: #ffc107;">${booking.payment_status}</span>`
                         }
                     </span>
