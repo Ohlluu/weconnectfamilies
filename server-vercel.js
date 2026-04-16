@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 
 // MongoDB connection
@@ -101,8 +102,30 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Apply rate limiting to admin login
 app.use('/api/admin/login', loginLimiter);
 
-// Simple session store
-const adminSessions = new Map();
+// Stateless HMAC-signed session tokens (survive Vercel cold starts)
+function createSessionToken() {
+  const expiresAt = Date.now() + 24 * 60 * 60 * 1000;
+  const secret = process.env.JWT_SECRET || process.env.ADMIN_PASSWORD || 'wcf-secret';
+  const hmac = crypto.createHmac('sha256', secret).update(expiresAt.toString()).digest('hex');
+  return `${expiresAt}.${hmac}`;
+}
+
+function verifySessionToken(token) {
+  if (!token) return null;
+  const dotIndex = token.lastIndexOf('.');
+  if (dotIndex === -1) return null;
+  const timestamp = token.substring(0, dotIndex);
+  const hmac = token.substring(dotIndex + 1);
+  const secret = process.env.JWT_SECRET || process.env.ADMIN_PASSWORD || 'wcf-secret';
+  const expectedHmac = crypto.createHmac('sha256', secret).update(timestamp).digest('hex');
+  try {
+    if (!crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(expectedHmac))) return null;
+  } catch {
+    return null;
+  }
+  if (Date.now() > parseInt(timestamp)) return null;
+  return { expiresAt: new Date(parseInt(timestamp)) };
+}
 
 // Fallback storage for when MongoDB is not available
 let fallbackData = { bookings: [], nextId: 1 };
@@ -383,7 +406,7 @@ app.post('/api/payment/verify', async (req, res) => {
 
 // POST /api/bookings - Create a new booking
 app.post('/api/bookings', async (req, res) => {
-  const { name, phone, email, facility, visit_date, pickup_location, guests, notes, payment_intent_id, payment_status } = req.body;
+  const { name, phone, email, facility, visit_date, pickup_location, guests, notes, payment_intent_id, payment_status, adults, children, deposit_amount, total_cost, balance_due } = req.body;
 
   if (!name || !phone || !facility || !visit_date || !pickup_location) {
     return res.status(400).json({ 
@@ -395,23 +418,31 @@ app.post('/api/bookings', async (req, res) => {
   try {
     const data = await loadBookings();
     
+    const paymentAmount = deposit_amount
+      ? Math.round(parseFloat(deposit_amount) * 100)
+      : ((parseInt(adults) || 1) + (parseInt(children) || 0)) * 2000;
+
     const booking = {
       id: data.nextId++,
       name,
       phone,
       email: email || null,
       facility,
-      visit_date: visit_date, // Keep the date as-is to avoid timezone issues
+      visit_date: visit_date,
       pickup_location,
       guests: guests || 1,
-      visitors: guests || 1, // Add visitors field for admin display
+      visitors: guests || 1,
+      adults: parseInt(adults) || 1,
+      children: parseInt(children) || 0,
+      total_cost: total_cost || 0,
+      balance_due: balance_due || 0,
       notes: notes || null,
       status: 'pending',
       created_at: new Date().toISOString(),
       confirmed_at: null,
       payment_intent_id: payment_intent_id || null,
       payment_status: payment_status || 'pending',
-      payment_amount: 2000 // $20.00 in cents
+      payment_amount: paymentAmount
     };
 
     data.bookings.push(booking);
@@ -484,14 +515,8 @@ app.post('/api/admin/login', (req, res) => {
     return res.status(401).json({ error: 'Invalid password' });
   }
 
-  // Generate session token
-  const sessionToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  const sessionToken = createSessionToken();
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-  adminSessions.set(sessionToken, { 
-    createdAt: new Date(),
-    expiresAt: expiresAt
-  });
 
   console.log('✅ Admin logged in successfully');
 
@@ -511,14 +536,9 @@ function verifyAdminSession(req, res, next) {
     return res.status(401).json({ error: 'No session token provided' });
   }
 
-  const session = adminSessions.get(sessionToken);
+  const session = verifySessionToken(sessionToken);
   if (!session) {
-    return res.status(401).json({ error: 'Invalid session token' });
-  }
-
-  if (new Date() > session.expiresAt) {
-    adminSessions.delete(sessionToken);
-    return res.status(401).json({ error: 'Session expired' });
+    return res.status(401).json({ error: 'Invalid or expired session token' });
   }
 
   req.adminSession = session;
@@ -797,14 +817,8 @@ app.post('/api/checkin', async (req, res) => {
   }
 });
 
-// Admin logout
+// Admin logout (stateless tokens are invalidated client-side by discarding them)
 app.post('/api/admin/logout', verifyAdminSession, (req, res) => {
-  const sessionToken = req.headers.authorization?.replace('Bearer ', '');
-
-  if (sessionToken && adminSessions.has(sessionToken)) {
-    adminSessions.delete(sessionToken);
-  }
-
   res.json({
     success: true,
     message: 'Logged out successfully'
