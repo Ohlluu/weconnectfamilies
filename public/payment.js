@@ -2,6 +2,8 @@
 // STRIPE PAYMENT HANDLER
 // ==========================================
 
+const API_BASE = window.location.origin;
+
 let stripe = null;
 let elements = null;
 let cardElement = null;
@@ -106,6 +108,7 @@ async function processPayment(clientSecret) {
             payment_method: {
                 card: cardElement,
             },
+            return_url: window.location.origin,
         });
 
         if (error) {

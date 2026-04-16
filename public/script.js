@@ -1339,9 +1339,7 @@ document.getElementById('cancel-action')?.addEventListener('click', hideBookingA
 document.getElementById('confirm-action')?.addEventListener('click', handleBookingAction);
 
 // API Configuration
-const API_BASE = window.location.origin.includes('localhost') 
-    ? 'http://localhost:3333' 
-    : window.location.origin;
+const API_BASE = window.location.origin;
 
 // Show admin login modal
 function showAdminLoginModal() {
