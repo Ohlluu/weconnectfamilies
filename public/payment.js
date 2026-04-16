@@ -2,8 +2,6 @@
 // STRIPE PAYMENT HANDLER
 // ==========================================
 
-const API_BASE = window.location.origin;
-
 let stripe = null;
 let elements = null;
 let cardElement = null;
@@ -13,7 +11,7 @@ let currentPaymentIntent = null;
 async function initializeStripe() {
     try {
         // Get Stripe publishable key from backend
-        const response = await fetch(`${API_BASE}/api/payment/config`);
+        const response = await fetch(`${window.location.origin}/api/payment/config`);
         const config = await response.json();
 
         if (!config.publishableKey || !config.available) {
@@ -71,7 +69,7 @@ async function initializeStripe() {
 // Create Payment Intent
 async function createPaymentIntent(bookingData, depositAmount) {
     try {
-        const response = await fetch(`${API_BASE}/api/payment/create-intent`, {
+        const response = await fetch(`${window.location.origin}/api/payment/create-intent`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
