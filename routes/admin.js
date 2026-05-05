@@ -326,12 +326,20 @@ Thank you for choosing WE Connect Families!`;
                                     <li><strong>📍 Facility:</strong> ${booking.facility}</li>
                                     <li><strong>📅 Date:</strong> ${visitDate}</li>
                                     <li><strong>🚐 Pickup Location:</strong> ${booking.pickup_location}</li>
-                                    <li><strong>👥 Number of Guests:</strong> ${booking.guests}</li>
+                                    <li><strong>👥 Guests:</strong> ${booking.adults ? `${booking.adults} Adult(s)${booking.children > 0 ? `, ${booking.children} Child(ren)` : ''}` : `${booking.guests} guest(s)`}</li>
                                 </ul>
                             </div>
-                            
+
+                            ${booking.total_cost ? `
+                            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                <h3>💰 Payment Summary:</h3>
+                                <p><strong>Total Trip Contribution:</strong> $${parseFloat(booking.total_cost).toFixed(2)}</p>
+                                <p><strong>Deposit Paid:</strong> $${(booking.payment_amount / 100).toFixed(2)}</p>
+                                <p><strong>Balance Due on Trip Day (CASH):</strong> $${parseFloat(booking.balance_due || 0).toFixed(2)}</p>
+                            </div>` : ''}
+
                             <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                                <p><strong>Important:</strong> Please arrive 15 minutes early at your pickup location.</p>
+                                <p><strong>Important:</strong> Please arrive 15 minutes early at your pickup location. Balance must be paid in <strong>CASH</strong> on the day of your trip.</p>
                                 <p>Questions or need to make changes? Call us at <strong>(646) 226-2433</strong></p>
                             </div>
                             

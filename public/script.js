@@ -1082,7 +1082,7 @@ function updatePickupLocations() {
     pickupLocationSelect.innerHTML = '<option value="">Choose pickup location...</option>';
     locations.forEach(location => {
         const option = document.createElement('option');
-        option.value = location.value;
+        option.value = `${location.name} - ${location.time}`;
         option.textContent = `${location.name} - ${location.time}`;
         pickupLocationSelect.appendChild(option);
     });

@@ -50,6 +50,11 @@ async function sendAdminBookingNotification(booking) {
         year: 'numeric'
     });
 
+    const guestLine = booking.adults ? `Adults: ${booking.adults}${booking.children > 0 ? ` | Children: ${booking.children}` : ''}` : `Guests: ${booking.guests || 1}`;
+    const totalCostAdmin = parseFloat(booking.total_cost || 0).toFixed(2);
+    const depositPaidAdmin = (booking.deposit_amount / 100).toFixed(2);
+    const balanceDueAdmin = parseFloat(booking.balance_due || 0).toFixed(2);
+
     // Create detailed message
     const message = `📅 NEW BOOKING #${booking.id}
 
@@ -58,7 +63,8 @@ Phone: ${booking.phone}
 Facility: ${booking.facility}
 Date: ${formattedDate}
 Pickup: ${booking.pickup_location}
-Guests: ${booking.guests || 1}
+${guestLine}
+Trip Total: $${totalCostAdmin} | Deposit: $${depositPaidAdmin} | Balance: $${balanceDueAdmin}
 
 View: weconnectfam.com`;
 
@@ -115,21 +121,24 @@ async function sendCustomerConfirmation(booking) {
     const depositPaid = (booking.deposit_amount / 100).toFixed(2);
     const balanceDue = parseFloat(booking.balance_due || 0).toFixed(2);
 
+    const adultsLine = booking.adults ? `Adults: ${booking.adults}${booking.children > 0 ? ` | Children: ${booking.children}` : ''}` : `Guests: ${booking.guests || 1}`;
+
     const message = `📋 WE Connect Families - Booking Received!
 
 Booking #${booking.id}
-${booking.facility}
-${formattedDate}
+Facility: ${booking.facility}
+Date: ${formattedDate}
 Pickup: ${booking.pickup_location}
+${adultsLine}
 
 💰 PAYMENT DETAILS:
 Total Trip Contribution: $${totalCost}
 Deposit Paid: $${depositPaid}
-Balance Due on Trip: $${balanceDue}
+Balance Due on Trip Day: $${balanceDue}
 
-⚠️ IMPORTANT: Remaining balance must be paid in CASH on the day of your trip.
+⚠️ Balance must be paid in CASH on the day of your trip. No exceptions.
 
-🕐 Your booking will be confirmed within 24-48 hrs (upcoming weekends) or the week of travel (future reservations).
+🕐 Booking confirmed within 24-48 hrs (upcoming weekends) or the week of travel (future reservations).
 
 Questions? Call (646) 226-2433`;
 
