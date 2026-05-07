@@ -342,6 +342,11 @@ Thank you for choosing WE Connect Families!`;
                                 <p><strong>Important:</strong> Please arrive 15 minutes early at your pickup location. Balance must be paid in <strong>CASH</strong> on the day of your trip.</p>
                                 <p>Questions or need to make changes? Call us at <strong>(646) 226-2433</strong></p>
                             </div>
+
+                            <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                <p style="margin:0;font-weight:bold;">🚫 DEPOSIT POLICY REMINDER</p>
+                                <p style="margin:8px 0 0;">Your deposit is NON-REFUNDABLE and NON-TRANSFERABLE under any and all circumstances. No exceptions.</p>
+                            </div>
                             
                             <p>Thank you for choosing WE Connect Families. We look forward to serving you!</p>
 

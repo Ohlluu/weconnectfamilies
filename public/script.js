@@ -301,7 +301,7 @@ if (bookingForm) {
             const successScreen = document.getElementById('booking-success-screen');
             const successSummary = document.getElementById('success-booking-summary');
             if (bookingForm) bookingForm.style.display = 'none';
-            if (successSummary) successSummary.textContent = `Thank you! Your booking #${data.bookingId} has been received and your deposit of $${priceInfo.depositAmount}.00 has been processed.`;
+            if (successSummary) successSummary.textContent = `Thank you! Your booking #${data.bookingId} has been received and your deposit of $${priceInfo.depositAmount}.00 has been processed. Note: deposits are non-refundable & non-transferable under any and all circumstances.`;
             if (successScreen) successScreen.style.display = 'block';
 
             // Reset form and card element

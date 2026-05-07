@@ -138,6 +138,8 @@ Balance Due on Trip Day: $${balanceDue}
 
 ⚠️ Balance must be paid in CASH on the day of your trip. No exceptions.
 
+🚫 Your deposit is NON-REFUNDABLE & NON-TRANSFERABLE under any and all circumstances. No exceptions.
+
 🕐 Booking confirmed within 24-48 hrs (upcoming weekends) or the week of travel (future reservations).
 
 Questions? Call (646) 226-2433`;
