@@ -238,6 +238,8 @@ Your trip to ${booking.facility} has been CONFIRMED! ✅
 
 IMPORTANT: When you arrive, check in using the SAME NAME you used to book: "${booking.name}"
 
+💵 BALANCE DUE IN CASH ONLY: The remaining balance must be paid in CASH. No electronic payments will be processed on the bus. CASH ONLY.
+
 Check In: https://weconnectfam.com (Click Check In in menu)
 
 Questions? Call (646) 226-2433
