@@ -15,15 +15,6 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
   console.log('📱 Twilio SMS initialized');
 }
 
-function formatPhone(phone) {
-  if (!phone) return null;
-  const digits = phone.replace(/\D/g, '');
-  if (digits.length === 10) return `+1${digits}`;
-  if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`;
-  if (phone.startsWith('+')) return phone;
-  return `+${digits}`;
-}
-
 // Stripe setup
 let stripe = null;
 let stripeAvailable = false;
@@ -257,8 +248,8 @@ Reply STOP to unsubscribe.`;
 
     const result = await twilioClient.messages.create({
       body: message,
-      from: formatPhone(process.env.TWILIO_PHONE_NUMBER),
-      to: formatPhone(booking.phone)
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: booking.phone
     });
 
     console.log(`📱 SMS sent to ${booking.phone}: ${result.sid}`);
@@ -484,8 +475,8 @@ View: weconnectfam.com`;
 
         await twilioClient.messages.create({
           body: adminMessage,
-          from: formatPhone(process.env.TWILIO_PHONE_NUMBER),
-          to: formatPhone(process.env.ADMIN_PHONE_NUMBER)
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: process.env.ADMIN_PHONE_NUMBER
         });
 
         console.log(`📱 Admin notification sent for booking #${booking.id}`);
@@ -670,8 +661,8 @@ Thank you for understanding.`;
 
         const result = await twilioClient.messages.create({
           body: message,
-          from: formatPhone(process.env.TWILIO_PHONE_NUMBER),
-          to: formatPhone(booking.phone)
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: booking.phone
         });
 
         smsResult = { success: true, sid: result.sid };
