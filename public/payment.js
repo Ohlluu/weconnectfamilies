@@ -44,6 +44,7 @@ function mountPaymentElement(amountInCents) {
         mode: 'payment',
         amount: amountInCents,
         currency: 'usd',
+        payment_method_types: ['card'],
         appearance: {
             theme: 'stripe',
             variables: {

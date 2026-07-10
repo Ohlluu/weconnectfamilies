@@ -344,9 +344,7 @@ app.post('/api/payment/create-intent', async (req, res) => {
         customer_name: name || 'Unknown',
         customer_email: email || 'Not provided'
       },
-      automatic_payment_methods: {
-        enabled: true,
-      },
+      payment_method_types: ['card'],
     });
 
     console.log(`💳 Payment intent created: ${paymentIntent.id} for ${name}`);
