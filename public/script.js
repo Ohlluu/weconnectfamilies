@@ -191,6 +191,11 @@ function calculatePrice() {
         paymentDepositAmount.textContent = `$${depositTotal}.00`;
     }
 
+    // Update Stripe Payment Element amount (Apple Pay / Google Pay sheet will show correct amount)
+    if (typeof updatePaymentAmount === 'function') {
+        updatePaymentAmount(depositTotal * 100);
+    }
+
     return {
         facility,
         adults,
@@ -207,6 +212,45 @@ function calculatePrice() {
 document.getElementById('facility')?.addEventListener('change', calculatePrice);
 document.getElementById('adults')?.addEventListener('change', calculatePrice);
 document.getElementById('children')?.addEventListener('change', calculatePrice);
+
+// Handle return from 3D Secure bank redirect (rare but needs to be handled)
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof checkRedirectReturn !== 'function') return;
+    const redirect = checkRedirectReturn();
+    if (!redirect) return;
+
+    window.history.replaceState({}, '', window.location.pathname);
+
+    if (redirect.redirectStatus === 'succeeded') {
+        const stored = sessionStorage.getItem('pendingBooking');
+        if (stored) {
+            sessionStorage.removeItem('pendingBooking');
+            const pending = JSON.parse(stored);
+            pending.serverData.payment_intent_id = redirect.paymentIntentId;
+            pending.serverData.payment_status = 'succeeded';
+
+            fetch(`${window.location.origin}/api/bookings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(pending.serverData)
+            }).then(r => r.json()).then(data => {
+                if (data.success) {
+                    const successScreen = document.getElementById('booking-success-screen');
+                    const successSummary = document.getElementById('success-booking-summary');
+                    const form = document.getElementById('booking-form');
+                    if (form) form.style.display = 'none';
+                    if (successSummary) successSummary.textContent = `Thank you! Your booking #${data.bookingId} has been received and your deposit of $${pending.depositAmount}.00 has been processed. Note: deposits are non-refundable & non-transferable under any and all circumstances.`;
+                    if (successScreen) successScreen.style.display = 'block';
+                    document.getElementById('book')?.scrollIntoView({ behavior: 'smooth' });
+                }
+            }).catch(console.error);
+        }
+    } else {
+        if (typeof showPaymentError === 'function') {
+            showPaymentError('Your bank could not verify the payment. Please try again.');
+        }
+    }
+});
 
 // Booking form submission
 if (bookingForm) {
@@ -243,25 +287,7 @@ if (bookingForm) {
 
             console.log('💰 Deposit amount:', priceInfo.depositAmount);
 
-            // Step 1: Create Payment Intent with calculated deposit
-            console.log('💳 Creating payment intent...');
-            const paymentIntent = await createPaymentIntent(bookingData, priceInfo.depositAmount);
-
-            // Step 2: Process Payment with Stripe
-            console.log('💳 Processing payment...');
-            buttonText.textContent = 'Processing Payment...';
-            const paymentResult = await processPayment(paymentIntent.clientSecret);
-
-            if (!paymentResult.success) {
-                throw new Error('Payment failed');
-            }
-
-            console.log('✅ Payment successful!');
-
-            // Step 3: Submit booking with payment info
-            buttonText.textContent = 'Saving Booking...';
-
-            // Transform field names for server (hyphens to underscores)
+            // Store booking data in case of 3D Secure redirect
             const serverData = {
                 name: bookingData.name,
                 phone: bookingData.phone,
@@ -273,12 +299,31 @@ if (bookingForm) {
                 children: parseInt(bookingData.children) || 0,
                 guests: (parseInt(bookingData.adults) || 1) + (parseInt(bookingData.children) || 0),
                 notes: bookingData.notes || '',
-                payment_intent_id: paymentResult.paymentIntentId,
                 payment_status: 'succeeded',
                 deposit_amount: priceInfo.depositAmount,
                 total_cost: priceInfo.totalPrice,
                 balance_due: priceInfo.balanceDue
             };
+            sessionStorage.setItem('pendingBooking', JSON.stringify({
+                serverData,
+                depositAmount: priceInfo.depositAmount
+            }));
+
+            // Process payment — handles Apple Pay, Google Pay, and card in one call
+            console.log('💳 Processing payment...');
+            buttonText.textContent = 'Processing Payment...';
+            const paymentResult = await processPayment(bookingData, priceInfo.depositAmount);
+
+            if (!paymentResult.success) {
+                throw new Error('Payment failed');
+            }
+
+            console.log('✅ Payment successful!');
+            sessionStorage.removeItem('pendingBooking');
+
+            // Save booking
+            buttonText.textContent = 'Saving Booking...';
+            serverData.payment_intent_id = paymentResult.paymentIntentId;
 
             const response = await fetch(`${API_BASE}/api/bookings`, {
                 method: 'POST',
@@ -304,11 +349,8 @@ if (bookingForm) {
             if (successSummary) successSummary.textContent = `Thank you! Your booking #${data.bookingId} has been received and your deposit of $${priceInfo.depositAmount}.00 has been processed. Note: deposits are non-refundable & non-transferable under any and all circumstances.`;
             if (successScreen) successScreen.style.display = 'block';
 
-            // Reset form and card element
+            // Reset form
             this.reset();
-            if (cardElement) {
-                cardElement.clear();
-            }
 
             // Scroll to booking section
             setTimeout(() => {
