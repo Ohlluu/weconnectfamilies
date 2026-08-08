@@ -177,12 +177,6 @@ function calculatePrice() {
     // Show calculator
     priceCalculator.style.display = 'block';
 
-    // Update payment button text
-    const buttonText = document.getElementById('button-text');
-    if (buttonText) {
-        buttonText.textContent = `Pay $${depositTotal} Deposit & Book`;
-    }
-
     // Update payment section deposit amount
     const paymentAmountDisplay = document.getElementById('payment-amount-display');
     const paymentDepositAmount = document.getElementById('payment-deposit-amount');
@@ -194,6 +188,12 @@ function calculatePrice() {
     // If user changes selection while in payment phase, reset back to form phase
     if (typeof paymentPhase !== 'undefined' && paymentPhase === 'payment') {
         resetToFormPhase();
+    }
+
+    // Keep button text consistent with form phase
+    const buttonText = document.getElementById('button-text');
+    if (buttonText && (typeof paymentPhase === 'undefined' || paymentPhase === 'form')) {
+        buttonText.textContent = `Continue to Payment ($${depositTotal} deposit) →`;
     }
 
     return {
