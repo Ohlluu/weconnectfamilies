@@ -1,5 +1,6 @@
 // ==========================================
-// STRIPE PAYMENT ELEMENT HANDLER
+// STRIPE PAYMENT HANDLER
+// Standard approach: clientSecret from server
 // Supports: Apple Pay, Google Pay, Card
 // ==========================================
 
@@ -11,40 +12,48 @@ async function initializeStripe() {
     try {
         const response = await fetch(`${window.location.origin}/api/payment/config`);
         const config = await response.json();
-
         if (!config.publishableKey || !config.available) {
-            console.error('Stripe not configured');
-            showPaymentError('Payment system not available. Please contact us to complete your booking.');
+            showPaymentError('Payment system not available. Please call (646) 226-2433 to book.');
             return false;
         }
-
         stripe = Stripe(config.publishableKey);
-
-        // Mount with default $20 deposit — updated when user selects seats
-        mountPaymentElement(2000);
-
-        console.log('💳 Stripe Payment Element initialized (Apple Pay / Google Pay / Card)');
+        console.log('💳 Stripe ready');
         return true;
     } catch (error) {
-        console.error('Stripe initialization error:', error);
-        showPaymentError('Failed to initialize payment system. Please refresh the page.');
+        console.error('Stripe init error:', error);
+        showPaymentError('Failed to load payment system. Please refresh the page.');
         return false;
     }
 }
 
-function mountPaymentElement(amountInCents) {
-    if (!stripe) return;
+// Step 1: create PaymentIntent on server and get clientSecret
+async function createPaymentIntent(bookingData, depositAmount) {
+    const response = await fetch(`${window.location.origin}/api/payment/create-intent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            name: bookingData.name,
+            email: bookingData.email,
+            amount: Math.round(depositAmount * 100)
+        })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) throw new Error(data.error || 'Failed to initialize payment');
+    return { clientSecret: data.clientSecret, paymentIntentId: data.paymentIntentId };
+}
+
+// Step 2: mount Payment Element using the clientSecret
+async function mountPaymentElement(clientSecret) {
+    if (!stripe) throw new Error('Payment system not ready. Please refresh.');
 
     if (paymentElement) {
         paymentElement.destroy();
         paymentElement = null;
+        elements = null;
     }
 
     elements = stripe.elements({
-        mode: 'payment',
-        amount: amountInCents,
-        currency: 'usd',
-        payment_method_types: ['card'],
+        clientSecret,
         appearance: {
             theme: 'stripe',
             variables: {
@@ -70,68 +79,38 @@ function mountPaymentElement(amountInCents) {
     paymentElement.mount('#payment-element');
 }
 
-// Called by calculatePrice() whenever deposit amount changes
-function updatePaymentAmount(amountInCents) {
-    if (elements) {
-        elements.update({ amount: amountInCents });
+// Step 3: confirm payment
+async function confirmPayment(bookingData) {
+    if (!stripe || !elements) {
+        throw new Error('Payment system not ready. Please refresh and try again.');
     }
-}
 
-// Main payment function — validates element, creates intent, confirms payment
-async function processPayment(bookingData, depositAmount) {
-    try {
-        // Step 1: Validate the Payment Element fields
-        const { error: submitError } = await elements.submit();
-        if (submitError) throw new Error(submitError.message);
-
-        // Step 2: Create PaymentIntent on server
-        const intentResponse = await fetch(`${window.location.origin}/api/payment/create-intent`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: bookingData.name,
-                email: bookingData.email,
-                amount: Math.round(depositAmount * 100)
-            })
-        });
-
-        const intentData = await intentResponse.json();
-        if (!intentResponse.ok || !intentData.success) {
-            throw new Error(intentData.error || 'Failed to create payment');
-        }
-
-        // Step 3: Confirm payment — no redirect for Apple Pay / Google Pay / most cards
-        const { error, paymentIntent } = await stripe.confirmPayment({
-            elements,
-            clientSecret: intentData.clientSecret,
-            redirect: 'if_required',
-            confirmParams: {
-                return_url: window.location.href,
-                payment_method_data: {
-                    billing_details: {
-                        name: bookingData.name,
-                        email: bookingData.email || undefined,
-                        phone: bookingData.phone || undefined
-                    }
+    const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        redirect: 'if_required',
+        confirmParams: {
+            return_url: window.location.href,
+            payment_method_data: {
+                billing_details: {
+                    name: bookingData.name,
+                    email: bookingData.email || undefined,
+                    phone: bookingData.phone || undefined
                 }
             }
-        });
-
-        if (error) throw new Error(error.message);
-
-        if (paymentIntent && paymentIntent.status === 'succeeded') {
-            console.log('💳 Payment succeeded:', paymentIntent.id);
-            return { success: true, paymentIntentId: paymentIntent.id, status: 'succeeded' };
         }
+    });
 
-        throw new Error(`Payment incomplete. Status: ${paymentIntent?.status}`);
-    } catch (error) {
-        console.error('Payment processing error:', error);
-        throw error;
+    if (error) throw new Error(error.message);
+
+    if (paymentIntent && paymentIntent.status === 'succeeded') {
+        console.log('💳 Payment succeeded:', paymentIntent.id);
+        return { success: true, paymentIntentId: paymentIntent.id };
     }
+
+    throw new Error(`Payment not completed. Status: ${paymentIntent?.status}. Please try again.`);
 }
 
-// Check if customer was redirected back after 3D Secure bank verification
+// Handle return from 3D Secure bank redirect
 function checkRedirectReturn() {
     const params = new URLSearchParams(window.location.search);
     const paymentIntentId = params.get('payment_intent');
@@ -142,18 +121,20 @@ function checkRedirectReturn() {
 
 function showPaymentError(message) {
     const el = document.getElementById('card-errors');
-    if (el) {
-        el.textContent = message;
-        el.classList.add('visible');
-    }
+    if (!el) return;
+    el.textContent = '⚠️ ' + message;
+    el.classList.add('visible');
+    // Scroll to error so user cannot miss it
+    setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
 }
 
 function clearPaymentError() {
     const el = document.getElementById('card-errors');
-    if (el) {
-        el.textContent = '';
-        el.classList.remove('visible');
-    }
+    if (!el) return;
+    el.textContent = '';
+    el.classList.remove('visible');
 }
 
 if (document.readyState === 'loading') {

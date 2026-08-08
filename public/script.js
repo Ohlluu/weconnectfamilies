@@ -191,9 +191,9 @@ function calculatePrice() {
         paymentDepositAmount.textContent = `$${depositTotal}.00`;
     }
 
-    // Update Stripe Payment Element amount (Apple Pay / Google Pay sheet will show correct amount)
-    if (typeof updatePaymentAmount === 'function') {
-        updatePaymentAmount(depositTotal * 100);
+    // If user changes selection while in payment phase, reset back to form phase
+    if (typeof paymentPhase !== 'undefined' && paymentPhase === 'payment') {
+        resetToFormPhase();
     }
 
     return {
@@ -213,7 +213,30 @@ document.getElementById('facility')?.addEventListener('change', calculatePrice);
 document.getElementById('adults')?.addEventListener('change', calculatePrice);
 document.getElementById('children')?.addEventListener('change', calculatePrice);
 
-// Handle return from 3D Secure bank redirect (rare but needs to be handled)
+// ============================================================
+// TWO-PHASE BOOKING FLOW
+// Phase 1 (form): validate → create PaymentIntent → mount element
+// Phase 2 (payment): confirm payment → save booking
+// ============================================================
+let paymentPhase = 'form';
+let storedBookingData = null;
+let storedPriceInfo = null;
+let storedPaymentIntentId = null;
+
+function resetToFormPhase() {
+    paymentPhase = 'form';
+    storedBookingData = null;
+    storedPriceInfo = null;
+    storedPaymentIntentId = null;
+    const buttonText = document.getElementById('button-text');
+    if (buttonText) buttonText.textContent = 'Continue to Payment →';
+    const editLink = document.getElementById('edit-booking-link');
+    if (editLink) editLink.style.display = 'none';
+    const paymentEl = document.getElementById('payment-element');
+    if (paymentEl) paymentEl.innerHTML = '';
+}
+
+// Handle 3D Secure redirect return
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof checkRedirectReturn !== 'function') return;
     const redirect = checkRedirectReturn();
@@ -235,9 +258,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(pending.serverData)
             }).then(r => r.json()).then(data => {
                 if (data.success) {
+                    const form = document.getElementById('booking-form');
                     const successScreen = document.getElementById('booking-success-screen');
                     const successSummary = document.getElementById('success-booking-summary');
-                    const form = document.getElementById('booking-form');
                     if (form) form.style.display = 'none';
                     if (successSummary) successSummary.textContent = `Thank you! Your booking #${data.bookingId} has been received and your deposit of $${pending.depositAmount}.00 has been processed. Note: deposits are non-refundable & non-transferable under any and all circumstances.`;
                     if (successScreen) successScreen.style.display = 'block';
@@ -246,127 +269,174 @@ document.addEventListener('DOMContentLoaded', () => {
             }).catch(console.error);
         }
     } else {
-        if (typeof showPaymentError === 'function') {
-            showPaymentError('Your bank could not verify the payment. Please try again.');
-        }
+        showPaymentError('Your bank could not verify the payment. Please try again or use a different card.');
     }
 });
 
-// Booking form submission
 if (bookingForm) {
     bookingForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-
-        const formData = new FormData(this);
-        const bookingData = Object.fromEntries(formData);
-
-        // Validate form
-        if (!validateBookingForm(bookingData)) {
-            return;
-        }
-
-        // Show loading state
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const buttonText = document.getElementById('button-text');
-        const spinner = document.getElementById('spinner');
-        const originalText = buttonText.textContent;
-
-        buttonText.textContent = 'Processing Payment...';
-        spinner.style.display = 'inline-block';
-        submitBtn.disabled = true;
-
-        try {
-            // Clear any previous payment errors
-            clearPaymentError();
-
-            // Calculate deposit amount based on number of seats
-            const priceInfo = calculatePrice();
-            if (!priceInfo) {
-                throw new Error('Please select facility and number of adults');
-            }
-
-            console.log('💰 Deposit amount:', priceInfo.depositAmount);
-
-            // Store booking data in case of 3D Secure redirect
-            const serverData = {
-                name: bookingData.name,
-                phone: bookingData.phone,
-                email: bookingData.email,
-                facility: bookingData.facility,
-                visit_date: bookingData['visit-date'],
-                pickup_location: bookingData['pickup-location'],
-                adults: parseInt(bookingData.adults) || 1,
-                children: parseInt(bookingData.children) || 0,
-                guests: (parseInt(bookingData.adults) || 1) + (parseInt(bookingData.children) || 0),
-                notes: bookingData.notes || '',
-                payment_status: 'succeeded',
-                deposit_amount: priceInfo.depositAmount,
-                total_cost: priceInfo.totalPrice,
-                balance_due: priceInfo.balanceDue
-            };
-            sessionStorage.setItem('pendingBooking', JSON.stringify({
-                serverData,
-                depositAmount: priceInfo.depositAmount
-            }));
-
-            // Process payment — handles Apple Pay, Google Pay, and card in one call
-            console.log('💳 Processing payment...');
-            buttonText.textContent = 'Processing Payment...';
-            const paymentResult = await processPayment(bookingData, priceInfo.depositAmount);
-
-            if (!paymentResult.success) {
-                throw new Error('Payment failed');
-            }
-
-            console.log('✅ Payment successful!');
-            sessionStorage.removeItem('pendingBooking');
-
-            // Save booking
-            buttonText.textContent = 'Saving Booking...';
-            serverData.payment_intent_id = paymentResult.paymentIntentId;
-
-            const response = await fetch(`${API_BASE}/api/bookings`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(serverData)
-            });
-
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                throw new Error(data.error || 'Failed to save booking');
-            }
-
-            console.log('✅ Booking saved successfully!');
-
-            // Show success screen
-            const bookingForm = document.getElementById('booking-form');
-            const successScreen = document.getElementById('booking-success-screen');
-            const successSummary = document.getElementById('success-booking-summary');
-            if (bookingForm) bookingForm.style.display = 'none';
-            if (successSummary) successSummary.textContent = `Thank you! Your booking #${data.bookingId} has been received and your deposit of $${priceInfo.depositAmount}.00 has been processed. Note: deposits are non-refundable & non-transferable under any and all circumstances.`;
-            if (successScreen) successScreen.style.display = 'block';
-
-            // Reset form
-            this.reset();
-
-            // Scroll to booking section
-            setTimeout(() => {
-                document.getElementById('book')?.scrollIntoView({ behavior: 'smooth' });
-            }, 300);
-
-        } catch (error) {
-            console.error('Booking error:', error);
-            showPaymentError(error.message || 'Payment failed. Please try again or call (646) 226-2433.');
-            showNotification('Booking failed: ' + error.message, 'error');
-        } finally {
-            buttonText.textContent = originalText;
-            spinner.style.display = 'none';
-            submitBtn.disabled = false;
+        if (paymentPhase === 'form') {
+            await handleFormPhase(this);
+        } else {
+            await handlePaymentPhase(this);
         }
     });
+}
+
+async function handleFormPhase(form) {
+    const formData = new FormData(form);
+    const bookingData = Object.fromEntries(formData);
+
+    if (!validateBookingForm(bookingData)) return;
+
+    const priceInfo = calculatePrice();
+    if (!priceInfo) {
+        showPaymentError('Please select a facility and number of adults before continuing.');
+        return;
+    }
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const buttonText = document.getElementById('button-text');
+    const spinner = document.getElementById('spinner');
+
+    buttonText.textContent = 'Loading Payment...';
+    spinner.style.display = 'inline-block';
+    submitBtn.disabled = true;
+    clearPaymentError();
+
+    try {
+        // Create PaymentIntent on server — amount and customer details are confirmed here
+        console.log('💳 Creating PaymentIntent...');
+        const { clientSecret, paymentIntentId } = await createPaymentIntent(bookingData, priceInfo.depositAmount);
+
+        // Mount Payment Element with the real clientSecret
+        console.log('💳 Mounting Payment Element...');
+        await mountPaymentElement(clientSecret);
+
+        // Store for phase 2
+        storedBookingData = bookingData;
+        storedPriceInfo = priceInfo;
+        storedPaymentIntentId = paymentIntentId;
+
+        // Save to sessionStorage for 3D Secure redirect case
+        const serverData = buildServerData(bookingData, priceInfo);
+        sessionStorage.setItem('pendingBooking', JSON.stringify({
+            serverData,
+            depositAmount: priceInfo.depositAmount
+        }));
+
+        // Transition to payment phase
+        paymentPhase = 'payment';
+        buttonText.textContent = `Pay $${priceInfo.depositAmount} Deposit →`;
+
+        // Show edit link
+        let editLink = document.getElementById('edit-booking-link');
+        if (!editLink) {
+            editLink = document.createElement('p');
+            editLink.id = 'edit-booking-link';
+            editLink.style.cssText = 'text-align:center;margin-top:0.5rem;font-size:0.85rem;';
+            editLink.innerHTML = '<a href="#" style="color:#666;">← Edit booking details</a>';
+            editLink.querySelector('a').addEventListener('click', e => {
+                e.preventDefault();
+                resetToFormPhase();
+                form.querySelector('[name="name"]')?.focus();
+            });
+            submitBtn.parentNode.insertBefore(editLink, submitBtn.nextSibling);
+        }
+        editLink.style.display = 'block';
+
+        // Scroll to payment element so customer sees the card form
+        setTimeout(() => {
+            document.getElementById('payment-element')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+
+    } catch (error) {
+        console.error('Phase 1 error:', error);
+        showPaymentError(error.message || 'Failed to load payment form. Please try again or call (646) 226-2433.');
+        resetToFormPhase();
+        buttonText.textContent = 'Continue to Payment →';
+    } finally {
+        spinner.style.display = 'none';
+        submitBtn.disabled = false;
+    }
+}
+
+async function handlePaymentPhase(form) {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const buttonText = document.getElementById('button-text');
+    const spinner = document.getElementById('spinner');
+    const originalText = buttonText.textContent;
+
+    buttonText.textContent = 'Processing Payment...';
+    spinner.style.display = 'inline-block';
+    submitBtn.disabled = true;
+    clearPaymentError();
+
+    try {
+        console.log('💳 Confirming payment...');
+        const paymentResult = await confirmPayment(storedBookingData);
+
+        console.log('✅ Payment successful!');
+        sessionStorage.removeItem('pendingBooking');
+
+        buttonText.textContent = 'Saving Booking...';
+
+        const serverData = buildServerData(storedBookingData, storedPriceInfo);
+        serverData.payment_intent_id = paymentResult.paymentIntentId;
+        serverData.payment_status = 'succeeded';
+
+        const response = await fetch(`${API_BASE}/api/bookings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(serverData)
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || 'Failed to save booking');
+
+        console.log('✅ Booking saved!');
+
+        // Show success screen
+        const successScreen = document.getElementById('booking-success-screen');
+        const successSummary = document.getElementById('success-booking-summary');
+        if (bookingForm) bookingForm.style.display = 'none';
+        if (successSummary) successSummary.textContent = `Thank you! Your booking #${data.bookingId} has been received and your deposit of $${storedPriceInfo.depositAmount}.00 has been processed. Note: deposits are non-refundable & non-transferable under any and all circumstances.`;
+        if (successScreen) successScreen.style.display = 'block';
+
+        form.reset();
+        resetToFormPhase();
+
+        setTimeout(() => {
+            document.getElementById('book')?.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+
+    } catch (error) {
+        console.error('Phase 2 error:', error);
+        showPaymentError(error.message || 'Payment failed. Please try again or call (646) 226-2433.');
+        buttonText.textContent = originalText;
+    } finally {
+        spinner.style.display = 'none';
+        submitBtn.disabled = false;
+    }
+}
+
+function buildServerData(bookingData, priceInfo) {
+    return {
+        name: bookingData.name,
+        phone: bookingData.phone,
+        email: bookingData.email,
+        facility: bookingData.facility,
+        visit_date: bookingData['visit-date'],
+        pickup_location: bookingData['pickup-location'],
+        adults: parseInt(bookingData.adults) || 1,
+        children: parseInt(bookingData.children) || 0,
+        guests: (parseInt(bookingData.adults) || 1) + (parseInt(bookingData.children) || 0),
+        notes: bookingData.notes || '',
+        deposit_amount: priceInfo.depositAmount,
+        total_cost: priceInfo.totalPrice,
+        balance_due: priceInfo.balanceDue
+    };
 }
 
 // Check-in form submission
