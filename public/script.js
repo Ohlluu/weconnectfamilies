@@ -532,6 +532,13 @@ function validateBookingForm(data) {
     document.querySelectorAll('.form-group input, .form-group select').forEach(el => {
         el.style.borderColor = '#e5e7eb';
     });
+    document.querySelectorAll('.checkbox-container').forEach(el => {
+        el.style.outline = '';
+        el.style.outlineOffset = '';
+    });
+    clearFormErrorSummary();
+    firstErrorField = null;
+    formErrorCount = 0;
     
     requiredFields.forEach(field => {
         console.log(`Checking field ${field}: "${data[field]}"`);
@@ -585,26 +592,90 @@ function validateBookingForm(data) {
         showFieldError('children-docs-consent', 'You must acknowledge the children\'s documentation requirements to complete your booking');
     }
 
+    // Without this the customer is left staring at a button that appears to do
+    // nothing, because the field we rejected is off-screen above them.
+    if (!isValid) {
+        showFormErrorSummary(formErrorCount);
+        if (firstErrorField) {
+            setTimeout(() => {
+                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+    }
+
     return isValid;
 }
 
+// Tracks the topmost rejected field so the page can scroll the customer to it,
+// and how many problems there are so the banner can say so. Reset per validation.
+let firstErrorField = null;
+let formErrorCount = 0;
+
 function showFieldError(fieldName, message) {
     const field = document.getElementById(fieldName) || document.querySelector(`[name="${fieldName}"]`);
-    if (!field) return;
-    
-    field.style.borderColor = '#ef4444';
-    
+    if (!field) {
+        // Previously a silent return, which meant a renamed field would quietly stop
+        // showing its error and nobody would ever find out.
+        console.warn(`showFieldError: no field named "${fieldName}" — customer never saw: ${message}`);
+        return;
+    }
+
+    formErrorCount++;
+
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
-    errorDiv.style.cssText = `
-        color: #ef4444;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-        font-weight: 500;
-    `;
+    errorDiv.style.cssText = 'color:#ef4444;font-size:0.875rem;margin-top:0.5rem;font-weight:500;';
     errorDiv.textContent = message;
-    
-    field.parentNode.appendChild(errorDiv);
+
+    // Consent checkboxes are visually replaced by a .checkmark span, so the real
+    // input is hidden: colouring its border shows nothing, and appending the message
+    // inside the <label> drops it into the middle of the consent paragraph.
+    const container = field.type === 'checkbox' ? field.closest('.checkbox-container') : null;
+
+    if (container) {
+        container.style.outline = '2px solid #ef4444';
+        container.style.outlineOffset = '4px';
+        container.parentNode.insertBefore(errorDiv, container.nextSibling);
+    } else {
+        field.style.borderColor = '#ef4444';
+        field.parentNode.appendChild(errorDiv);
+    }
+
+    // Validation does not run in page order, so compare positions rather than
+    // assuming the first rejection is the highest one on screen.
+    const anchor = container || field;
+    if (!firstErrorField ||
+        anchor.getBoundingClientRect().top < firstErrorField.getBoundingClientRect().top) {
+        firstErrorField = anchor;
+    }
+}
+
+// A message at the button itself, so something visibly happens the instant they
+// click even before the scroll animation reaches the offending field.
+function showFormErrorSummary(count) {
+    const submitBtn = document.getElementById('submit-booking-btn');
+    if (!submitBtn) return;
+
+    let banner = document.getElementById('form-error-summary');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'form-error-summary';
+        banner.setAttribute('role', 'alert');
+        banner.style.cssText = 'background:#fef2f2;border:1px solid #ef4444;color:#b91c1c;' +
+            'border-radius:8px;padding:0.85rem 1rem;margin-bottom:1rem;font-weight:600;' +
+            'font-size:0.95rem;text-align:center;line-height:1.4;';
+        submitBtn.parentNode.insertBefore(banner, submitBtn);
+    }
+
+    banner.textContent = count === 1
+        ? '⚠️ Please fix 1 item above before continuing — we have scrolled to it.'
+        : `⚠️ Please fix ${count} items above before continuing — we have scrolled to the first one.`;
+    banner.style.display = 'block';
+}
+
+function clearFormErrorSummary() {
+    const banner = document.getElementById('form-error-summary');
+    if (banner) banner.style.display = 'none';
 }
 
 function isValidEmail(email) {
