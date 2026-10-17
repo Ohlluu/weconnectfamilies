@@ -52,8 +52,8 @@ async function fetchJson(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
 
 async function initializeStripe() {
     try {
-        const response = await fetch(`${window.location.origin}/api/payment/config`);
-        const config = await response.json();
+        const { response, data: config } = await fetchJson(`${window.location.origin}/api/payment/config`, {}, 15000);
+        if (!response.ok || !config) throw new Error('Payment configuration unavailable');
         if (!config.publishableKey || !config.available) {
             showPaymentError('Payment system not available. Please call (646) 226-2433 to book.');
             return false;
@@ -83,15 +83,29 @@ async function createPaymentIntent(bookingData, depositAmount) {
     return { clientSecret: data.clientSecret, paymentIntentId: data.paymentIntentId };
 }
 
+// Tear the Payment Element down properly. Clearing the container with innerHTML
+// instead of this leaves `elements` pointing at a dead iframe, and the next
+// confirmPayment() call then hangs forever against a form that is no longer there.
+function teardownPaymentElement() {
+    if (paymentElement) {
+        try {
+            paymentElement.destroy();
+        } catch (error) {
+            console.warn('Payment element teardown:', error.message);
+        }
+    }
+    paymentElement = null;
+    elements = null;
+
+    const container = document.getElementById('payment-element');
+    if (container) container.innerHTML = '';
+}
+
 // Step 2: mount Payment Element using the clientSecret
 async function mountPaymentElement(clientSecret) {
     if (!stripe) throw new Error('Payment system not ready. Please refresh.');
 
-    if (paymentElement) {
-        paymentElement.destroy();
-        paymentElement = null;
-        elements = null;
-    }
+    teardownPaymentElement();
 
     elements = stripe.elements({
         clientSecret,
@@ -149,6 +163,74 @@ async function confirmPayment(bookingData) {
     }
 
     throw new Error(`Payment not completed. Status: ${paymentIntent?.status}. Please try again.`);
+}
+
+// How long to let confirmPayment run before asking Stripe what is actually going on,
+// and the absolute ceiling before we stop waiting entirely. These are deliberately
+// generous: a customer typing a 3D Secure code from their bank is a legitimate wait.
+const CONFIRM_POLL_MS = 45000;
+const CONFIRM_MAX_WAIT_MS = 240000;
+
+// Ask our server to read the real status straight from Stripe. Returns null if we
+// cannot find out, which the caller must treat as "unknown", never as "failed".
+async function verifyPaymentStatus(paymentIntentId) {
+    if (!paymentIntentId) return null;
+    try {
+        const { response, data } = await fetchJson(`${window.location.origin}/api/payment/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentIntentId })
+        }, 15000);
+
+        if (!response.ok || !data?.success) return null;
+        return {
+            status: data.status,
+            succeeded: data.verified ?? data.paid ?? (data.status === 'succeeded')
+        };
+    } catch (error) {
+        console.warn('Payment status check failed:', error.message);
+        return null;
+    }
+}
+
+// Wait for confirmPayment, but never indefinitely. If it stalls we ask Stripe for the
+// truth rather than guessing: a real charge is honoured, a real failure is reported as
+// one, and a customer still mid-authentication is left alone to finish.
+async function awaitPaymentConfirmation(bookingData, paymentIntentId) {
+    const confirmPromise = confirmPayment(bookingData);
+    // Keep a rejection from going unhandled while we are between races below.
+    confirmPromise.catch(() => {});
+
+    const TIMED_OUT = Symbol('timed-out');
+    let waited = 0;
+
+    while (waited < CONFIRM_MAX_WAIT_MS) {
+        const outcome = await Promise.race([
+            confirmPromise,
+            new Promise(resolve => setTimeout(() => resolve(TIMED_OUT), CONFIRM_POLL_MS))
+        ]);
+
+        // Stripe answered (success, decline, or any other error) — use that.
+        if (outcome !== TIMED_OUT) return outcome;
+
+        waited += CONFIRM_POLL_MS;
+
+        const result = await verifyPaymentStatus(paymentIntentId);
+
+        if (result?.succeeded) {
+            return { success: true, paymentIntentId };
+        }
+        if (result && ['requires_payment_method', 'canceled'].includes(result.status)) {
+            throw new Error('No payment was taken. Please check your card details and try again.');
+        }
+        // 'requires_action' or 'processing' means the customer is still authenticating
+        // with their bank, so keep waiting rather than interrupting them.
+    }
+
+    // Hit the ceiling. One final check decides what the customer is told.
+    const final = await verifyPaymentStatus(paymentIntentId);
+    if (final?.succeeded) return { success: true, paymentIntentId };
+    throw new Error('No payment was taken. Please check your card details and try again.');
 }
 
 // Handle return from 3D Secure bank redirect

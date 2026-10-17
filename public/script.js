@@ -232,8 +232,12 @@ function resetToFormPhase() {
     if (buttonText) buttonText.textContent = 'Continue to Payment →';
     const editLink = document.getElementById('edit-booking-link');
     if (editLink) editLink.style.display = 'none';
-    const paymentEl = document.getElementById('payment-element');
-    if (paymentEl) paymentEl.innerHTML = '';
+
+    // Must go through Stripe's own teardown. Wiping the container with innerHTML
+    // leaves a dead element behind that the next payment attempt hangs against.
+    if (typeof teardownPaymentElement === 'function') {
+        teardownPaymentElement();
+    }
 }
 
 // Handle 3D Secure redirect return
@@ -393,7 +397,9 @@ async function handlePaymentPhase(form) {
 
     try {
         console.log('💳 Confirming payment...');
-        const paymentResult = await confirmPayment(storedBookingData);
+        // Bounded wait: if Stripe stalls we ask it directly what happened rather
+        // than leaving the customer on a spinner that never ends.
+        const paymentResult = await awaitPaymentConfirmation(storedBookingData, storedPaymentIntentId);
         paymentCaptured = true;
 
         console.log('✅ Payment successful!');

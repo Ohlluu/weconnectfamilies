@@ -4,15 +4,27 @@ const path = require('path');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 
-// MongoDB connection
-const { MongoClient } = require('mongodb');
-
-// Twilio SMS setup
+// Twilio and MongoDB are loaded lazily, on first actual use. Requiring them at module
+// scope made every cold start pay for both — including on /api/payment/create-intent,
+// which needs neither and is the request the customer waits on first.
 let twilioClient = null;
-if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
-  const twilio = require('twilio');
-  twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-  console.log('📱 Twilio SMS initialized');
+let twilioLoaded = false;
+
+function getTwilioClient() {
+  if (twilioLoaded) return twilioClient;
+  twilioLoaded = true;
+
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+    try {
+      const twilio = require('twilio');
+      twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+      console.log('📱 Twilio SMS initialized');
+    } catch (error) {
+      console.error('❌ Twilio initialization error:', error.message);
+      twilioClient = null;
+    }
+  }
+  return twilioClient;
 }
 
 // Stripe setup
@@ -52,6 +64,7 @@ async function initializeMongoDB() {
         retryReads: true
       };
       
+      const { MongoClient } = require('mongodb');
       mongoClient = new MongoClient(process.env.MONGODB_URI, options);
       await mongoClient.connect();
       
@@ -220,9 +233,47 @@ async function saveBookings(data) {
   }
 }
 
+// Insert ONE booking. The previous path read every booking, appended one, then
+// deleted and re-inserted the whole collection — which grew slower with every
+// booking taken and could wipe the lot if the function died between the two calls.
+// This also allocates the id atomically, so two simultaneous bookings can no longer
+// be handed the same number.
+async function insertBooking(booking) {
+  if (!db && process.env.MONGODB_URI) {
+    await initializeMongoDB();
+  }
+
+  if (!db) {
+    booking.id = fallbackData.nextId++;
+    fallbackData.bookings.push(booking);
+    console.log(`💾 Saved booking #${booking.id} to fallback storage`);
+    return booking;
+  }
+
+  const counter = await db.collection('meta').findOneAndUpdate(
+    { _id: 'counters' },
+    { $inc: { nextId: 1 } },
+    { upsert: true, returnDocument: 'after' }
+  );
+
+  // Driver v6 returns the document directly; older drivers wrap it in `.value`.
+  let nextId = counter?.nextId ?? counter?.value?.nextId;
+  if (!nextId) {
+    nextId = (await db.collection('bookings').countDocuments()) + 1;
+    console.warn(`⚠️ Counter unavailable, falling back to id ${nextId}`);
+  }
+
+  booking.id = nextId;
+  await db.collection('bookings').insertOne(booking);
+
+  console.log(`💾 Inserted booking #${booking.id} into MongoDB`);
+  return booking;
+}
+
 // SMS Functions
 async function sendConfirmationSMS(booking) {
-  if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
+  const client = getTwilioClient();
+  if (!client || !process.env.TWILIO_PHONE_NUMBER) {
     console.log('⚠️ Twilio not configured, skipping SMS');
     return { success: false, error: 'Twilio not configured' };
   }
@@ -246,7 +297,7 @@ Questions? Call (646) 226-2433
 
 Reply STOP to unsubscribe.`;
 
-    const result = await twilioClient.messages.create({
+    const result = await client.messages.create({
       body: message,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: booking.phone
@@ -416,14 +467,11 @@ app.post('/api/bookings', async (req, res) => {
   }
 
   try {
-    const data = await loadBookings();
-    
     const paymentAmount = deposit_amount
       ? Math.round(parseFloat(deposit_amount) * 100)
       : ((parseInt(adults) || 1) + (parseInt(children) || 0)) * 2000;
 
     const booking = {
-      id: data.nextId++,
       name,
       phone,
       email: email || null,
@@ -445,13 +493,13 @@ app.post('/api/bookings', async (req, res) => {
       payment_amount: paymentAmount
     };
 
-    data.bookings.push(booking);
-    await saveBookings(data);
+    await insertBooking(booking);
 
     console.log(`📝 New booking created: ID ${booking.id} - ${name} for ${facility}`);
 
     // Send SMS notification to admin about new booking
-    if (twilioClient && process.env.TWILIO_PHONE_NUMBER && process.env.ADMIN_PHONE_NUMBER) {
+    const adminSmsClient = getTwilioClient();
+    if (adminSmsClient && process.env.TWILIO_PHONE_NUMBER && process.env.ADMIN_PHONE_NUMBER) {
       try {
         const visitDate = new Date(visit_date).toLocaleDateString('en-US', {
           weekday: 'short',
@@ -475,7 +523,7 @@ View: weconnectfam.com`;
         // response. On timeout the booking is still saved and returned; only the
         // admin notification is lost, and that is logged below.
         await Promise.race([
-          twilioClient.messages.create({
+          adminSmsClient.messages.create({
             body: adminMessage,
             from: process.env.TWILIO_PHONE_NUMBER,
             to: process.env.ADMIN_PHONE_NUMBER
@@ -646,7 +694,8 @@ app.post('/api/admin/bookings/:id/reject', verifyAdminSession, async (req, res) 
 
     // Send SMS notification for rejection
     let smsResult = { success: false, error: 'SMS not configured' };
-    if (twilioClient && process.env.TWILIO_PHONE_NUMBER) {
+    const rejectionSmsClient = getTwilioClient();
+    if (rejectionSmsClient && process.env.TWILIO_PHONE_NUMBER) {
       try {
         const visitDate = new Date(booking.visit_date).toLocaleDateString('en-US', {
           weekday: 'long',
@@ -665,7 +714,7 @@ Please call (646) 226-2433 to discuss alternatives or reschedule.
 
 Thank you for understanding.`;
 
-        const result = await twilioClient.messages.create({
+        const result = await rejectionSmsClient.messages.create({
           body: message,
           from: process.env.TWILIO_PHONE_NUMBER,
           to: booking.phone
@@ -852,7 +901,8 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Initialize MongoDB connection on startup
-initializeMongoDB();
+// NOTE: MongoDB is intentionally NOT connected at module scope. loadBookings(),
+// saveBookings(), insertBooking() and /api/health each connect on demand, so a
+// cold start for a payment request no longer waits on a database handshake.
 
 module.exports = app;
