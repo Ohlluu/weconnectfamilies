@@ -8,6 +8,48 @@ let stripe = null;
 let elements = null;
 let paymentElement = null;
 
+// Default ceiling for any request the booking flow makes. Without this the browser
+// will wait minutes on a stalled connection and the customer just sees a spinner.
+const REQUEST_TIMEOUT_MS = 25000;
+
+// Wrapper around fetch that (a) can never hang forever and (b) never shows the
+// customer a raw JSON parse error when the server returns an HTML error page.
+async function fetchJson(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+
+        // Read as text first. A gateway timeout returns an HTML page, and calling
+        // response.json() on that surfaces "Unexpected token '<'" to the customer.
+        const body = await response.text();
+        let data = null;
+
+        if (body) {
+            try {
+                data = JSON.parse(body);
+            } catch {
+                throw new Error(response.ok
+                    ? 'The server sent back an unreadable response. Please try again.'
+                    : `The server is busy right now (error ${response.status}). Please wait a moment and try again, or call (646) 226-2433.`);
+            }
+        }
+
+        return { response, data };
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            throw new Error('The server took too long to respond. Please check your connection and try again, or call (646) 226-2433.');
+        }
+        if (error instanceof TypeError) {
+            throw new Error('Could not reach the server. Please check your internet connection and try again.');
+        }
+        throw error;
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
 async function initializeStripe() {
     try {
         const response = await fetch(`${window.location.origin}/api/payment/config`);
@@ -28,7 +70,7 @@ async function initializeStripe() {
 
 // Step 1: create PaymentIntent on server and get clientSecret
 async function createPaymentIntent(bookingData, depositAmount) {
-    const response = await fetch(`${window.location.origin}/api/payment/create-intent`, {
+    const { response, data } = await fetchJson(`${window.location.origin}/api/payment/create-intent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -37,8 +79,7 @@ async function createPaymentIntent(bookingData, depositAmount) {
             amount: Math.round(depositAmount * 100)
         })
     });
-    const data = await response.json();
-    if (!response.ok || !data.success) throw new Error(data.error || 'Failed to initialize payment');
+    if (!response.ok || !data?.success) throw new Error(data?.error || 'Failed to initialize payment');
     return { clientSecret: data.clientSecret, paymentIntentId: data.paymentIntentId };
 }
 

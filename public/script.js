@@ -237,39 +237,52 @@ function resetToFormPhase() {
 }
 
 // Handle 3D Secure redirect return
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     if (typeof checkRedirectReturn !== 'function') return;
     const redirect = checkRedirectReturn();
     if (!redirect) return;
 
     window.history.replaceState({}, '', window.location.pathname);
 
-    if (redirect.redirectStatus === 'succeeded') {
-        const stored = sessionStorage.getItem('pendingBooking');
-        if (stored) {
-            sessionStorage.removeItem('pendingBooking');
-            const pending = JSON.parse(stored);
-            pending.serverData.payment_intent_id = redirect.paymentIntentId;
-            pending.serverData.payment_status = 'succeeded';
-
-            fetch(`${window.location.origin}/api/bookings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(pending.serverData)
-            }).then(r => r.json()).then(data => {
-                if (data.success) {
-                    const form = document.getElementById('booking-form');
-                    const successScreen = document.getElementById('booking-success-screen');
-                    const successSummary = document.getElementById('success-booking-summary');
-                    if (form) form.style.display = 'none';
-                    if (successSummary) successSummary.textContent = `Thank you! Your booking #${data.bookingId} has been received and your deposit of $${pending.depositAmount}.00 has been processed. Note: deposits are non-refundable & non-transferable under any and all circumstances.`;
-                    if (successScreen) successScreen.style.display = 'block';
-                    document.getElementById('book')?.scrollIntoView({ behavior: 'smooth' });
-                }
-            }).catch(console.error);
-        }
-    } else {
+    if (redirect.redirectStatus !== 'succeeded') {
         showPaymentError('Your bank could not verify the payment. Please try again or use a different card.');
+        return;
+    }
+
+    // At this point the customer's card HAS been charged. Every branch below must
+    // tell them what happened — silence here means a paid customer with no booking.
+    const stored = sessionStorage.getItem('pendingBooking');
+    if (!stored) {
+        showPaymentError(`Your deposit was received, but your booking details are no longer available in this browser. Please DO NOT pay again — call us at (646) 226-2433 and we will confirm your seat. Reference: ${redirect.paymentIntentId}`);
+        return;
+    }
+
+    const pending = JSON.parse(stored);
+    pending.serverData.payment_intent_id = redirect.paymentIntentId;
+    pending.serverData.payment_status = 'succeeded';
+
+    try {
+        const { response, data } = await fetchJson(`${window.location.origin}/api/bookings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pending.serverData)
+        }, 35000);
+
+        if (!response.ok || !data?.success) throw new Error(data?.error || 'Failed to save booking');
+
+        // Only clear the recovery record once the booking is confirmed saved.
+        sessionStorage.removeItem('pendingBooking');
+
+        const form = document.getElementById('booking-form');
+        const successScreen = document.getElementById('booking-success-screen');
+        const successSummary = document.getElementById('success-booking-summary');
+        if (form) form.style.display = 'none';
+        if (successSummary) successSummary.textContent = `Thank you! Your booking #${data.bookingId} has been received and your deposit of $${pending.depositAmount}.00 has been processed. Note: deposits are non-refundable & non-transferable under any and all circumstances.`;
+        if (successScreen) successScreen.style.display = 'block';
+        document.getElementById('book')?.scrollIntoView({ behavior: 'smooth' });
+    } catch (error) {
+        console.error('3D Secure booking save failed:', error);
+        showPaymentError(`Your deposit was received, but we could not finish saving your booking. Please DO NOT pay again — call us at (646) 226-2433 and we will confirm your seat. Reference: ${redirect.paymentIntentId}`);
     }
 });
 
@@ -373,27 +386,35 @@ async function handlePaymentPhase(form) {
     submitBtn.disabled = true;
     clearPaymentError();
 
+    // Tracks whether the card has actually been charged, so that a failure AFTER the
+    // charge is never shown to the customer as an invitation to pay a second time.
+    let paymentCaptured = false;
+    let lockButton = false;
+
     try {
         console.log('💳 Confirming payment...');
         const paymentResult = await confirmPayment(storedBookingData);
+        paymentCaptured = true;
 
         console.log('✅ Payment successful!');
-        sessionStorage.removeItem('pendingBooking');
-
         buttonText.textContent = 'Saving Booking...';
 
         const serverData = buildServerData(storedBookingData, storedPriceInfo);
         serverData.payment_intent_id = paymentResult.paymentIntentId;
         serverData.payment_status = 'succeeded';
 
-        const response = await fetch(`${API_BASE}/api/bookings`, {
+        // Longer ceiling than a normal request: the card is already charged, so it is
+        // worth waiting on the save rather than abandoning a paid booking early.
+        const { response, data } = await fetchJson(`${API_BASE}/api/bookings`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(serverData)
-        });
+        }, 35000);
 
-        const data = await response.json();
-        if (!response.ok || !data.success) throw new Error(data.error || 'Failed to save booking');
+        if (!response.ok || !data?.success) throw new Error(data?.error || 'Failed to save booking');
+
+        // Only now is the booking safely recorded, so the recovery record can go.
+        sessionStorage.removeItem('pendingBooking');
 
         console.log('✅ Booking saved!');
 
@@ -413,11 +434,20 @@ async function handlePaymentPhase(form) {
 
     } catch (error) {
         console.error('Phase 2 error:', error);
-        showPaymentError(error.message || 'Payment failed. Please try again or call (646) 226-2433.');
-        buttonText.textContent = originalText;
+
+        if (paymentCaptured) {
+            // The deposit went through but the booking did not save. The worst thing we
+            // can do here is show a button that reads "Pay $X Deposit" again.
+            lockButton = true;
+            buttonText.textContent = 'Deposit Paid — Please Call Us';
+            showPaymentError(`Your deposit was received, but we could not finish saving your booking. Please DO NOT pay again — call us at (646) 226-2433 and we will confirm your seat.${storedPaymentIntentId ? ` Reference: ${storedPaymentIntentId}` : ''}`);
+        } else {
+            showPaymentError(error.message || 'Payment failed. Please try again or call (646) 226-2433.');
+            buttonText.textContent = originalText;
+        }
     } finally {
         spinner.style.display = 'none';
-        submitBtn.disabled = false;
+        submitBtn.disabled = lockButton;
     }
 }
 

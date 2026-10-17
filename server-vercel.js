@@ -471,11 +471,19 @@ Guests: ${guests || 1}
 
 View: weconnectfam.com`;
 
-        await twilioClient.messages.create({
-          body: adminMessage,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: process.env.ADMIN_PHONE_NUMBER
-        });
+        // Capped so a slow Twilio call can never hold up the customer's booking
+        // response. On timeout the booking is still saved and returned; only the
+        // admin notification is lost, and that is logged below.
+        await Promise.race([
+          twilioClient.messages.create({
+            body: adminMessage,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: process.env.ADMIN_PHONE_NUMBER
+          }),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Twilio timed out after 5s')), 5000)
+          )
+        ]);
 
         console.log(`📱 Admin notification sent for booking #${booking.id}`);
       } catch (error) {
