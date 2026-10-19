@@ -273,7 +273,11 @@
             </div>
             
             <div class="booking-container">
-                <form id="booking-form" class="booking-form">
+                <!-- novalidate: the browser's native validation blocks the submit event
+                     before script.js can run, so our own checks (which cover more than
+                     the required attributes do, and scroll the customer to the problem)
+                     never fired. Validation is handled entirely by validateBookingForm. -->
+                <form id="booking-form" class="booking-form" novalidate>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="name">Full Name</label>
